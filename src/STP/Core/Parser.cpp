@@ -1,9 +1,35 @@
+////////////////////////////////////////////////////////////
+//
+// The MIT License (MIT)
+//
+// STP - SFML TMX Parser
+// Copyright (c) 2013 Manuel Sabogal
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+////////////////////////////////////////////////////////////
+
 #include "STP/Core/Parser.hpp"
 #include "Base64.hpp"
 #include <iostream>
 #include <cmath>
 
-namespace TMX {
+namespace tmx {
 
 Parser::Parser()
 {
@@ -16,7 +42,7 @@ Parser::~Parser()
 }
 
 
-TMX::TileMap Parser::parseFile(const std::string &file_to_parse) {
+tmx::TileMap Parser::parseFile(const std::string &file_to_parse) {
     pugi::xml_document tmx_file;
 
     if (!tmx_file.load_file(file_to_parse.c_str())) {
@@ -41,7 +67,7 @@ TMX::TileMap Parser::parseFile(const std::string &file_to_parse) {
     m_tilewidth = map_node.attribute("tilewidth").as_uint();
     m_tileheight = map_node.attribute("tileheight").as_uint();
 
-    TMX::TileMap map(version, orientation, m_width, m_height, m_tilewidth, m_tileheight);
+    tmx::TileMap map(version, orientation, m_width, m_height, m_tilewidth, m_tileheight);
 
     m_tilemap = &map;
 
@@ -49,10 +75,10 @@ TMX::TileMap Parser::parseFile(const std::string &file_to_parse) {
         std::string node_name = node.name();
         // Call the respective parse function for each node
         if (node_name == "tileset") {
-            TMX::TileSet newtileset = this->parseTileSet(node);
+            tmx::TileSet newtileset = this->parseTileSet(node);
             map.addTileSet(newtileset);
         } else if (node_name == "layer") {
-            TMX::Layer newlayer = this->parseLayer(node);
+            tmx::Layer newlayer = this->parseLayer(node);
             map.addLayer(newlayer);
         } else if (node_name == "objectgroup") {
         }
@@ -61,11 +87,11 @@ TMX::TileMap Parser::parseFile(const std::string &file_to_parse) {
     return map;
 }
 
-TMX::TileSet Parser::parseTileSet(const pugi::xml_node& tileset_node) {
+tmx::TileSet Parser::parseTileSet(const pugi::xml_node& tileset_node) {
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
-    struct TMX::TileSet::image image_data;
-    struct TMX::TileSet::tileoffset tileoffset_data;
+    struct tmx::TileSet::image image_data;
+    struct tmx::TileSet::tileoffset tileoffset_data;
 
     // Get the map data
     firstgid = tileset_node.attribute("firstgid").as_uint();
@@ -96,12 +122,12 @@ TMX::TileSet Parser::parseTileSet(const pugi::xml_node& tileset_node) {
         }
     }
 
-    TMX::TileSet tileset(firstgid, name, tilewidth, tileheight, spacing, margin, image_data, tileoffset_data);
+    tmx::TileSet tileset(firstgid, name, tilewidth, tileheight, spacing, margin, image_data, tileoffset_data);
 
     return tileset;    
 }
 
-TMX::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
+tmx::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
     std::string name;
     float opacity = 1.f; //range 0 - 1
     bool visible = true;
@@ -120,7 +146,7 @@ TMX::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
     if(pugi::xml_attribute attribute_visible = layer_node.attribute("visible"))
         visible = attribute_visible.as_bool();
 
-    TMX::Layer layer(name, m_width, m_height, opacity, visible);
+    tmx::Layer layer(name, m_width, m_height, opacity, visible);
 
     if(pugi::xml_node data_node = layer_node.child("data")) {
         std::string data = data_node.text().as_string();
@@ -191,15 +217,15 @@ TMX::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
     return layer;
 }
 
-void Parser::addTile(TMX::Layer& layer, int gid, sf::IntRect tile_rect) {
+void Parser::addTile(tmx::Layer& layer, int gid, sf::IntRect tile_rect) {
     static int i = 0;
     i++;
-    TMX::TileSet* tileset = m_tilemap->getTileSet(gid);
-    TMX::Tile newtile;
+    tmx::TileSet* tileset = m_tilemap->getTileSet(gid);
+    tmx::Tile newtile;
     if(tileset != NULL)
-        newtile = TMX::Tile(gid, tile_rect, tileset->getTexture(), tileset->getTextureRect(gid));
+        newtile = tmx::Tile(gid, tile_rect, tileset->getTexture(), tileset->getTextureRect(gid));
     else
-        newtile = TMX::Tile(gid, tile_rect, NULL);
+        newtile = tmx::Tile(gid, tile_rect, NULL);
     layer.addTile(newtile);
 }
 

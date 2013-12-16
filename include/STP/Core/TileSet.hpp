@@ -1,3 +1,29 @@
+////////////////////////////////////////////////////////////
+//
+// The MIT License (MIT)
+//
+// STP - SFML TMX Parser
+// Copyright (c) 2013 Manuel Sabogal
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+////////////////////////////////////////////////////////////
+
 #ifndef STP_TILESET_HPP
 #define STP_TILESET_HPP
 
@@ -5,7 +31,7 @@
 #include "SFML/Graphics/Texture.hpp"
 #include <SFML/Graphics/Rect.hpp>
 
-namespace TMX {
+namespace tmx {
 
 class TileSet {
 public:
@@ -30,7 +56,7 @@ public:
 public:
     TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
             unsigned int tileheight, unsigned int spacing, unsigned int margin,
-            TMX::TileSet::image image, TMX::TileSet::tileoffset tileoffset);
+            tmx::TileSet::image image, tmx::TileSet::tileoffset tileoffset);
 
     ~TileSet();
 
@@ -44,8 +70,8 @@ private:
     unsigned int m_firstgid, m_lastgid, m_tilewidth, m_tileheight, m_spacing, m_margin; // spacing, margin - 0.2
 
     std::string m_name;
-    struct TMX::TileSet::image m_image;
-    struct TMX::TileSet::tileoffset m_tileoffset;
+    struct tmx::TileSet::image m_image;
+    struct tmx::TileSet::tileoffset m_tileoffset;
     sf::Texture m_texture;
 };
 
