@@ -1,25 +1,38 @@
-# Se define la versión mínima del CMake
 cmake_minimum_required(VERSION 2.8)
 
-# Forza la configuración si no se ha definido (antes del comando project())
+# Specify default build type if none provided (before project() command)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
+endif()
+
+if(CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited configurations" FORCE)
+    mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 endif()
 
 project(STP)
 
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
 
-if(CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configuraciones limitadas" FORCE)
-    mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
-endif()
+# Predefined configuration options
+set(STP_SHARED_LIBS TRUE CACHE BOOL "Build shared libraries (use shared SFML librares)")
+set(STP_BUILD_EXAMPLES FALSE CACHE BOOL "Build example projects")
+set(STP_BUILD_DOC FALSE CACHE BOOL "Create HTML documentation (requires Doxygen)")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
+# Preprocessor definitions and include directories
+add_definitions(-DSTP_EXPORTS)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extlibs/headers)
+if(NOT STP_SHARED_LIBS)
+    add_definitions(-DSTP_STATIC)
+endif()
 
+# Enable the folders in the projects
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+
+# Source directory
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/STP)

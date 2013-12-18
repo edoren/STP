@@ -24,58 +24,40 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILESET_HPP
-#define STP_TILESET_HPP
+/// @file
+/// @brief Configuration header of the library
 
-#include "STP/Config.hpp"
-#include "SFML/Graphics/Texture.hpp"
-#include <SFML/Graphics/Rect.hpp>
-#include <string>
+#ifndef STP_CONFIG_HPP
+#define STP_CONFIG_HPP
 
-namespace tmx {
+// Define DLL import/export macros (only Windows, and only dynamic configuration)
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(STP_STATIC)
+ 
+        // Export dynamic link library (from DLL side)
+        #ifdef STP_EXPORTS
+                #define STP_API __declspec(dllexport)
+ 
+        // Import dynamic link library (from client side)
+        #else
+                #define STP_API __declspec(dllimport)
 
-STP_API class TileSet {
-public:
-    struct tileoffset { // 0.2
-        int x, y;
-        tileoffset();
-    };
+        #endif // STP_EXPORTS
 
-    struct image {
-        int format;
-        std::string source, trans; // trans 0.2
-        unsigned int width, height;
-        image();
-    };
+        // Disable annoying MSVC++ warning
+        #ifdef _MSC_VER
+                #pragma warning(disable: 4251)
+        #endif // _MSC_VER
 
-    struct terraintypes { // 0.2
-    };
+// Other platforms don't have DLLs
+#else
+        #define STP_API
 
-    struct layer { // 0.2
-    };
+#endif
 
-public:
-    TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-            unsigned int tileheight, unsigned int spacing, unsigned int margin,
-            tmx::TileSet::image image, tmx::TileSet::tileoffset tileoffset);
 
-    ~TileSet();
+// Version of the library
+#define STP_VERSION_MAJOR 0
+#define STP_VERSION_MINOR 1
 
-    sf::IntRect getTextureRect(unsigned int gid);
-    const sf::Texture* getTexture();
 
-    unsigned int getFirstGID();
-    unsigned int getLastGID();
-
-private:
-    unsigned int m_firstgid, m_lastgid, m_tilewidth, m_tileheight, m_spacing, m_margin; // spacing, margin - 0.2
-
-    std::string m_name;
-    struct tmx::TileSet::image m_image;
-    struct tmx::TileSet::tileoffset m_tileoffset;
-    sf::Texture m_texture;
-};
-
-}
-
-#endif // STP_TILESET_HPP
+#endif // STP_CONFIG_HPP

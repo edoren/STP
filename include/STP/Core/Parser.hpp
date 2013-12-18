@@ -27,6 +27,7 @@
 #ifndef STP_PARSER_HPP
 #define STP_PARSER_HPP
 
+#include "STP/Config.hpp"
 #include "STP/Core/TileMap.hpp"
 #include "pugixml.hpp"
 #include <sstream>
@@ -34,7 +35,7 @@
 
 namespace tmx {
 
-class Parser {
+STP_API class Parser {
 public:
     Parser();
     ~Parser();

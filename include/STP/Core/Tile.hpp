@@ -27,14 +27,15 @@
 #ifndef STP_TILE_HPP
 #define STP_TILE_HPP
 
+#include "STP/Config.hpp"
 #include "SFML/Graphics/VertexArray.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/Texture.hpp"
-#include <SFML/Graphics/Rect.hpp>
+#include "SFML/Graphics/Rect.hpp"
 
 namespace tmx {
 
-class Tile : public sf::Drawable {
+STP_API class Tile : public sf::Drawable {
 public:
     Tile();
     Tile(unsigned int gid, sf::IntRect tile_rect, 

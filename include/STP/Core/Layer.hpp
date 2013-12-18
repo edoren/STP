@@ -27,13 +27,14 @@
 #ifndef STP_LAYER_HPP
 #define STP_LAYER_HPP
 
+#include "STP/Config.hpp"
+#include "STP/Core/Tile.hpp"
 #include <string>
 #include <vector>
-#include "STP/Core/Tile.hpp"
 
 namespace tmx {
 
-class Layer : public sf::Drawable {
+STP_API class Layer : public sf::Drawable {
 public:
     Layer(const std::string& _name, unsigned int _width, 
           unsigned int _height, float _opacity, bool _visible);

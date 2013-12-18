@@ -27,13 +27,14 @@
 #ifndef STP_TILEMAP_HPP
 #define STP_TILEMAP_HPP
 
+#include "STP/Config.hpp"
 #include "STP/Core/TileSet.hpp"
 #include "STP/Core/Layer.hpp"
 #include <vector>
 
 namespace tmx {
 
-class TileMap : public sf::Drawable {
+STP_API class TileMap : public sf::Drawable {
 public:
     TileMap(float _version, const std::string& _orientation, unsigned int _width, unsigned int _height, unsigned int _tilewidth, unsigned int _tileheight);
     ~TileMap();
