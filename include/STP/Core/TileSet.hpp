@@ -34,7 +34,7 @@
 
 namespace tmx {
 
-STP_API class TileSet {
+class STP_API TileSet {
 public:
     struct tileoffset { // 0.2
         int x, y;
