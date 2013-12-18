@@ -34,7 +34,7 @@
 
 namespace tmx {
 
-STP_API class TileMap : public sf::Drawable {
+class STP_API TileMap : public sf::Drawable {
 public:
     TileMap(float _version, const std::string& _orientation, unsigned int _width, unsigned int _height, unsigned int _tilewidth, unsigned int _tileheight);
     ~TileMap();

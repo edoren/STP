@@ -42,16 +42,16 @@ m_texture(texture),
 m_texture_rect(texture_rect),
 m_vertices(sf::Quads, 4)
 {
-    m_vertices[0].position = sf::Vector2f(m_tile_rect.left, m_tile_rect.top);
-    m_vertices[1].position = sf::Vector2f(m_tile_rect.left + m_tile_rect.width, m_tile_rect.top);
-    m_vertices[2].position = sf::Vector2f(m_tile_rect.left + m_tile_rect.width, m_tile_rect.top + m_tile_rect.height);
-    m_vertices[3].position = sf::Vector2f(m_tile_rect.left, m_tile_rect.top + m_tile_rect.height);
+    m_vertices[0].position = sf::Vector2f(static_cast<float>(m_tile_rect.left), static_cast<float>(m_tile_rect.top));
+    m_vertices[1].position = sf::Vector2f(static_cast<float>(m_tile_rect.left + m_tile_rect.width), static_cast<float>(m_tile_rect.top));
+    m_vertices[2].position = sf::Vector2f(static_cast<float>(m_tile_rect.left + m_tile_rect.width), static_cast<float>(m_tile_rect.top + m_tile_rect.height));
+    m_vertices[3].position = sf::Vector2f(static_cast<float>(m_tile_rect.left), static_cast<float>(m_tile_rect.top + m_tile_rect.height));
 
     if(texture != NULL) {
-        m_vertices[0].texCoords = sf::Vector2f(m_texture_rect.left, m_texture_rect.top);
-        m_vertices[1].texCoords = sf::Vector2f(m_texture_rect.left + m_texture_rect.width, m_texture_rect.top);
-        m_vertices[2].texCoords = sf::Vector2f(m_texture_rect.left + m_texture_rect.width, m_texture_rect.top + m_texture_rect.height);
-        m_vertices[3].texCoords = sf::Vector2f(m_texture_rect.left, m_texture_rect.top + m_texture_rect.height);
+        m_vertices[0].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left), static_cast<float>(texture_rect.top));
+        m_vertices[1].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left + texture_rect.width), static_cast<float>(texture_rect.top));
+        m_vertices[2].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left + texture_rect.width), static_cast<float>(texture_rect.top + texture_rect.height));
+        m_vertices[3].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left), static_cast<float>(texture_rect.top + texture_rect.height));
     }
 };
 

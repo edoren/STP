@@ -34,7 +34,7 @@
 
 namespace tmx {
 
-STP_API class Layer : public sf::Drawable {
+class STP_API Layer : public sf::Drawable {
 public:
     Layer(const std::string& _name, unsigned int _width, 
           unsigned int _height, float _opacity, bool _visible);

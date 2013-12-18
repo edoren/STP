@@ -35,7 +35,7 @@
 
 namespace tmx {
 
-STP_API class Parser {
+class STP_API Parser {
 public:
     Parser();
     ~Parser();

@@ -37,7 +37,7 @@ visible(visible)
 {
     // Reserve space for each vector to avoid reallocate
     m_tiles.reserve(m_height);
-    for (int i = 0; i < m_height; i++) {
+    for (unsigned int i = 0; i < m_height; i++) {
         std::vector<tmx::Tile> newvec;
         newvec.reserve(m_width);
         m_tiles.push_back(newvec);
@@ -50,7 +50,7 @@ Layer::~Layer()
 }
 
 int Layer::addTile(tmx::Tile newtile) {
-    for (int i = 0; i < m_height; i++) {  
+    for (unsigned int i = 0; i < m_height; i++) {  
         if(m_tiles[i].size() < m_width) {
             m_tiles[i].push_back(newtile);
             return 0;
@@ -60,8 +60,8 @@ int Layer::addTile(tmx::Tile newtile) {
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (int y = 0; y < m_tiles.size(); y++) {
-        for (int x = 0; x < m_tiles[y].size(); x++) {
+    for (unsigned int y = 0; y < m_tiles.size(); y++) {
+        for (unsigned int x = 0; x < m_tiles[y].size(); x++) {
             target.draw(m_tiles[y][x]);
         }
     }

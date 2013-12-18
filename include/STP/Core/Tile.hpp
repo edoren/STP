@@ -35,7 +35,7 @@
 
 namespace tmx {
 
-STP_API class Tile : public sf::Drawable {
+class STP_API Tile : public sf::Drawable {
 public:
     Tile();
     Tile(unsigned int gid, sf::IntRect tile_rect, 

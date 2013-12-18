@@ -132,8 +132,8 @@ tmx::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
     float opacity = 1.f; //range 0 - 1
     bool visible = true;
 
-    int count_x = 0;
-    int count_y = 0;
+    unsigned int count_x = 0;
+    unsigned int count_y = 0;
 
     sf::IntRect tile_rect;
 
@@ -175,7 +175,7 @@ tmx::Layer Parser::parseLayer(const pugi::xml_node& layer_node) {
                         byteVector.push_back(*i);
                 }
 
-                for (int i = 0; i < byteVector.size() - 3 ; i += 4) {
+                for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
                     if(count_x < m_width) {
                         tile_rect = sf::IntRect(count_x++ * m_tilewidth, count_y * m_tilewidth, m_tilewidth, m_tileheight);
                     } else {

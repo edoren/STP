@@ -55,7 +55,7 @@ void TileMap::addTileSet(tmx::TileSet newtileset) {
 
 tmx::TileSet* TileMap::getTileSet(unsigned int gid) {
     if(gid == 0) return NULL;
-    for (int i = 0; i < m_tilesets.size(); ++i) {
+    for (unsigned int i = 0; i < m_tilesets.size(); ++i) {
         if(gid >= m_tilesets[i].getFirstGID() && gid <= m_tilesets[i].getLastGID())
             return &m_tilesets[i];
     }
@@ -63,7 +63,7 @@ tmx::TileSet* TileMap::getTileSet(unsigned int gid) {
 }
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (int i = 0; i < m_layers.size(); i++) {
+    for (unsigned int i = 0; i < m_layers.size(); i++) {
         if(m_layers[i].visible == true)
             target.draw(m_layers[i]);
     }
