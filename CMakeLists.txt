@@ -20,7 +20,16 @@ set(STP_SHARED_LIBS TRUE CACHE BOOL "Build shared libraries (use shared SFML lib
 set(STP_BUILD_EXAMPLES FALSE CACHE BOOL "Build example projects")
 set(STP_BUILD_DOC FALSE CACHE BOOL "Create HTML documentation (requires Doxygen)")
 
+# Tell CMake where to find the FindSFML.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
+
+# If compiler is GNU GCC based it enable the warnings
+if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions ("-Wall")
+endif()
+
+# Set the SFML_ROOT folder
+set(SFML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/SFML)
 
 # Preprocessor definitions and include directories
 add_definitions(-DSTP_EXPORTS)
