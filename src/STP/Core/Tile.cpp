@@ -37,10 +37,10 @@ Tile::Tile()
 Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
            const sf::Texture* texture, sf::IntRect texture_rect) :
 m_gid(gid),
+m_vertices(sf::Quads, 4),
 m_tile_rect(tile_rect),
 m_texture(texture),
-m_texture_rect(texture_rect),
-m_vertices(sf::Quads, 4)
+m_texture_rect(texture_rect)
 {
     m_vertices[0].position = sf::Vector2f(static_cast<float>(m_tile_rect.left), static_cast<float>(m_tile_rect.top));
     m_vertices[1].position = sf::Vector2f(static_cast<float>(m_tile_rect.left + m_tile_rect.width), static_cast<float>(m_tile_rect.top));

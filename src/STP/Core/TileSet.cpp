@@ -66,10 +66,9 @@ format(0)
 
 sf::IntRect TileSet::getTextureRect(unsigned int gid) {
     assert(gid >= m_firstgid && gid <= m_lastgid);
-    int local_gid, width, height, x, y, x_pixels, y_pixels;
+    int local_gid, width, x, y, x_pixels, y_pixels;
     local_gid = gid - m_firstgid + 1;
     width = m_image.width / m_tilewidth;
-    height = m_image.height / m_tileheight;
     y = static_cast<int> (std::ceil(local_gid / static_cast<float>(width)));
     x = local_gid - ((y - 1) * width);
     y_pixels = (y - 1) * m_tilewidth;

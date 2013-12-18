@@ -45,8 +45,8 @@ public:
 private:
     unsigned int m_gid;
 
-    sf::IntRect m_tile_rect;
     sf::VertexArray m_vertices;
+    sf::IntRect m_tile_rect;
 
     const sf::Texture* m_texture;
     sf::IntRect m_texture_rect;

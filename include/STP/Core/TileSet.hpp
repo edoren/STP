@@ -68,9 +68,9 @@ public:
     unsigned int getLastGID();
 
 private:
-    unsigned int m_firstgid, m_lastgid, m_tilewidth, m_tileheight, m_spacing, m_margin; // spacing, margin - 0.2
-
+    unsigned int m_firstgid, m_lastgid;
     std::string m_name;
+    unsigned int m_tilewidth, m_tileheight, m_spacing, m_margin; // spacing, margin - 0.2
     struct tmx::TileSet::image m_image;
     struct tmx::TileSet::tileoffset m_tileoffset;
     sf::Texture m_texture;

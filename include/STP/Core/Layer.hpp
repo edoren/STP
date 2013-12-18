@@ -42,8 +42,6 @@ public:
 
     int addTile(tmx::Tile newtile);
 
-    bool visible;
-
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     
 private:
@@ -52,6 +50,9 @@ private:
     float m_opacity; //range 0 - 1
 
     std::vector< std::vector<tmx::Tile> > m_tiles;
+
+public:
+    bool visible;
 };
 
 }
