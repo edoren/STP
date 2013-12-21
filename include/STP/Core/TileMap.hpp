@@ -27,35 +27,43 @@
 #ifndef STP_TILEMAP_HPP
 #define STP_TILEMAP_HPP
 
+#include <string>
+#include <vector>
+#include <unordered_map>
+
 #include "STP/Config.hpp"
 #include "STP/Core/TileSet.hpp"
 #include "STP/Core/Layer.hpp"
-#include <vector>
 
 namespace tmx {
 
 class STP_API TileMap : public sf::Drawable {
-public:
-    TileMap(float _version, const std::string& _orientation, unsigned int _width, unsigned int _height, unsigned int _tilewidth, unsigned int _tileheight);
+ public:
+    TileMap();
+    TileMap(float version, const std::string& orientation, unsigned int width,
+            unsigned int height, unsigned int tilewidth, unsigned int tileheight);
     ~TileMap();
 
-    void addLayer(tmx::Layer newlayer);
-    void addTileSet(tmx::TileSet newtileset);
+    void AddLayer(tmx::Layer newlayer);
+    void AddTileSet(tmx::TileSet newtileset);
 
     // Return the tileset attached to the global id
-    tmx::TileSet* getTileSet(unsigned int gid);
-    
+    tmx::Layer& GetLayer(const std::string& layername);
+    const tmx::TileSet* GetTileSet(unsigned int gid) const;
+
+ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    std::vector<tmx::Layer> m_layers;
-private:
-    float m_version;
-    std::string m_orientation;
-    unsigned int m_width, m_height, m_tilewidth, m_tileheight;
+ private:
+    float version_;
+    std::string orientation_;
+    unsigned int width_, height_, tilewidth_, tileheight_;
 
-    std::vector<tmx::TileSet> m_tilesets;
+    std::unordered_map<std::string, tmx::Layer*> layers_hash_;
+    std::vector<tmx::Layer> layers_;
+    std::vector<tmx::TileSet> tilesets_;
 };
 
-}
+}  // namespace tmx
 
-#endif // STP_TILEMAP_HPP
+#endif  // STP_TILEMAP_HPP

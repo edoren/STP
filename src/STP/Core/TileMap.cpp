@@ -26,47 +26,61 @@
 
 #include "STP/Core/TileMap.hpp"
 
+#include <cassert>
+#include <iostream>
+#include <string>
+
+#include "SFML/Graphics/RenderTarget.hpp"
+
 namespace tmx {
+
+TileMap::TileMap() {}
 
 TileMap::TileMap(float version, const std::string& orientation, unsigned int width,
                  unsigned int height, unsigned int tilewidth, unsigned int tileheight) :
-m_version    (version),
-m_orientation(orientation),
-m_width      (width),
-m_height     (height),
-m_tilewidth  (tilewidth),
-m_tileheight (tileheight)
-{
-    
+        version_(version),
+        orientation_(orientation),
+        width_(width),
+        height_(height),
+        tilewidth_(tilewidth),
+        tileheight_(tileheight) {
 }
 
-TileMap::~TileMap()
-{
+TileMap::~TileMap() {}
 
+void TileMap::AddLayer(tmx::Layer newlayer) {
+    layers_.push_back(newlayer);
+    layers_hash_[newlayer.GetName()] = &layers_[layers_.size()-1];
 }
 
-void TileMap::addLayer(tmx::Layer newlayer) {
-    m_layers.push_back(newlayer);
+void TileMap::AddTileSet(tmx::TileSet newtileset) {
+    tilesets_.push_back(newtileset);
 }
 
-void TileMap::addTileSet(tmx::TileSet newtileset) {
-    m_tilesets.push_back(newtileset);
+tmx::Layer& TileMap::GetLayer(const std::string& layername) {
+    auto iterator = layers_hash_.find(layername);
+    if (iterator == layers_hash_.end()) {
+        std::cerr << "Layer \"" << layername << "\" not found." << std::endl;
+        exit(0);
+    } else {
+        return *iterator->second;
+    }
 }
 
-tmx::TileSet* TileMap::getTileSet(unsigned int gid) {
-    if(gid == 0) return NULL;
-    for (unsigned int i = 0; i < m_tilesets.size(); ++i) {
-        if(gid >= m_tilesets[i].getFirstGID() && gid <= m_tilesets[i].getLastGID())
-            return &m_tilesets[i];
+const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
+    if (gid == 0) return NULL;
+    for (unsigned int i = 0; i < tilesets_.size(); ++i) {
+        if (gid >= tilesets_[i].GetFirstGID() && gid <= tilesets_[i].GetLastGID())
+            return &tilesets_[i];
     }
     return NULL;
 }
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (unsigned int i = 0; i < m_layers.size(); i++) {
-        if(m_layers[i].visible == true)
-            target.draw(m_layers[i]);
+    for (unsigned int i = 0; i < layers_.size(); ++i) {
+        if (layers_[i].visible == true)
+            target.draw(layers_[i]);
     }
 }
 
-}
+}  // namespace tmx

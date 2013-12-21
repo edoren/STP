@@ -27,34 +27,38 @@
 #ifndef STP_LAYER_HPP
 #define STP_LAYER_HPP
 
-#include "STP/Config.hpp"
-#include "STP/Core/Tile.hpp"
 #include <string>
 #include <vector>
+
+#include "STP/Config.hpp"
+#include "STP/Core/Tile.hpp"
 
 namespace tmx {
 
 class STP_API Layer : public sf::Drawable {
-public:
-    Layer(const std::string& _name, unsigned int _width, 
-          unsigned int _height, float _opacity, bool _visible);
+ public:
+    Layer();
+    Layer(const std::string& name, unsigned int width,
+          unsigned int height, float opacity, bool visible);
     ~Layer();
 
-    int addTile(tmx::Tile newtile);
+    std::string GetName() const;
+    int AddTile(tmx::Tile newtile);
 
+ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    
-private:
-    std::string m_name;
-    unsigned int m_width, m_height;
-    float m_opacity; //range 0 - 1
 
-    std::vector< std::vector<tmx::Tile> > m_tiles;
+ private:
+    std::string name_;
+    unsigned int width_, height_;
+    float opacity_;  // range 0 - 1
 
-public:
+    std::vector< std::vector<tmx::Tile> > tiles_;
+
+ public:
     bool visible;
 };
 
-}
+}  // namespace tmx
 
-#endif // STP_LAYER_HPP
+#endif  // STP_LAYER_HPP

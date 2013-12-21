@@ -27,34 +27,39 @@
 #ifndef STP_TILE_HPP
 #define STP_TILE_HPP
 
+#include "SFML/Graphics/Vertex.hpp"
+#include "SFML/Graphics/Drawable.hpp"
+
 #include "STP/Config.hpp"
-#include "SFML/Graphics/VertexArray.hpp"
-#include "SFML/Graphics/RenderTarget.hpp"
-#include "SFML/Graphics/Texture.hpp"
-#include "SFML/Graphics/Rect.hpp"
 
 namespace tmx {
 
 class STP_API Tile : public sf::Drawable {
-public:
+ public:
     Tile();
-    Tile(unsigned int gid, sf::IntRect tile_rect, 
-         const sf::Texture* texture, sf::IntRect texture_rect = sf::IntRect(0,0,0,0));
+    Tile(unsigned int gid, sf::IntRect tile_rect,
+         const sf::Texture* texture,
+         sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
     ~Tile();
 
-private:
-    unsigned int m_gid;
+ private:
+    unsigned int gid_;
 
-    sf::VertexArray m_vertices;
-    sf::IntRect m_tile_rect;
+    sf::Vertex vertices_[4];
+    sf::IntRect tile_rect_;
 
-    const sf::Texture* m_texture;
-    sf::IntRect m_texture_rect;
+    const sf::Texture* texture_;
+    sf::IntRect texture_rect_;
 
     void setTexture(unsigned int gid);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+    sf::FloatRect GetLocalBounds() const;
+
+    void UpdatePositions();
+    void UpdateTexCoords();
 };
 
-}
+}  // namespace tmx
 
-#endif // STP_TILE_HPP
+#endif  // STP_TILE_HPP

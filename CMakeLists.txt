@@ -10,8 +10,10 @@ if(CMAKE_CONFIGURATION_TYPES)
     mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 endif()
 
+# Project name
 project(STP)
 
+# Version numbers
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 
@@ -26,6 +28,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 # If compiler is GNU GCC based it enable the warnings
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions ("-Wall")
+endif()
+
+# Adding C++11 support in GCC compiler and Clang compiler
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_definitions("-std=c++0x -stdlib=libc++")
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions("-std=c++0x")
 endif()
 
 # Set the SFML_ROOT folder

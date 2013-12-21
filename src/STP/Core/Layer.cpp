@@ -26,33 +26,41 @@
 
 #include "STP/Core/Layer.hpp"
 
+#include <string>
+#include <vector>
+
+#include "SFML/Graphics/RenderTarget.hpp"
+
 namespace tmx {
 
-Layer::Layer(const std::string& name, unsigned int width, unsigned int height, float opacity, bool visible) :
-m_name(name),
-m_width(width),
-m_height(height),
-m_opacity(opacity),
-visible(visible)
-{
+Layer::Layer() {}
+
+Layer::Layer(const std::string& name, unsigned int width,
+             unsigned int height, float opacity, bool visible) :
+        name_(name),
+        width_(width),
+        height_(height),
+        opacity_(opacity),
+        visible(visible) {
     // Reserve space for each vector to avoid reallocate
-    m_tiles.reserve(m_height);
-    for (unsigned int i = 0; i < m_height; i++) {
+    tiles_.reserve(height);
+    for (unsigned int i = 0; i < height; ++i) {
         std::vector<tmx::Tile> newvec;
-        newvec.reserve(m_width);
-        m_tiles.push_back(newvec);
+        newvec.reserve(width);
+        tiles_.push_back(newvec);
     }
-};
-
-Layer::~Layer()
-{
-
 }
 
-int Layer::addTile(tmx::Tile newtile) {
-    for (unsigned int i = 0; i < m_height; i++) {  
-        if(m_tiles[i].size() < m_width) {
-            m_tiles[i].push_back(newtile);
+Layer::~Layer() {}
+
+std::string Layer::GetName() const {
+    return name_;
+}
+
+int Layer::AddTile(tmx::Tile newtile) {
+    for (unsigned int i = 0; i < height_; ++i) {
+        if (tiles_[i].size() < width_) {
+            tiles_[i].push_back(newtile);
             return 0;
         }
     }
@@ -60,11 +68,13 @@ int Layer::addTile(tmx::Tile newtile) {
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (unsigned int y = 0; y < m_tiles.size(); y++) {
-        for (unsigned int x = 0; x < m_tiles[y].size(); x++) {
-            target.draw(m_tiles[y][x]);
+    if (visible) {
+        for (unsigned int y = 0; y < tiles_.size(); ++y) {
+            for (unsigned int x = 0; x < tiles_[y].size(); ++x) {
+                target.draw(tiles_[y][x]);
+            }
         }
     }
 }
 
-}
+}  // namespace tmx

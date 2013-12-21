@@ -33,24 +33,24 @@
 // Define DLL import/export macros (only Windows, and only dynamic configuration)
 #if (defined(_WIN32) || defined(__WIN32__)) && !defined(STP_STATIC)
  
-        // Export dynamic link library (from DLL side)
-        #ifdef STP_EXPORTS
-                #define STP_API __declspec(dllexport)
- 
-        // Import dynamic link library (from client side)
-        #else
-                #define STP_API __declspec(dllimport)
+    // Export dynamic link library (from DLL side)
+    #ifdef STP_EXPORTS
+        #define STP_API __declspec(dllexport)
 
-        #endif // STP_EXPORTS
+    // Import dynamic link library (from client side)
+    #else
+        #define STP_API __declspec(dllimport)
 
-        // Disable annoying MSVC++ warning
-        #ifdef _MSC_VER
-                #pragma warning(disable: 4251)
-        #endif // _MSC_VER
+    #endif // STP_EXPORTS
+
+    // Disable annoying MSVC++ warning
+    #ifdef _MSC_VER
+        #pragma warning(disable: 4251)
+    #endif // _MSC_VER
 
 // Other platforms don't have DLLs
 #else
-        #define STP_API
+    #define STP_API
 
 #endif
 

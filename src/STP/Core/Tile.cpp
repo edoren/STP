@@ -25,48 +25,60 @@
 ////////////////////////////////////////////////////////////
 
 #include "STP/Core/Tile.hpp"
-#include <iostream>
+
+#include "SFML/Graphics/RenderTarget.hpp"
 
 namespace tmx {
 
-Tile::Tile()
-{
-
-}
+Tile::Tile() {}
 
 Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
            const sf::Texture* texture, sf::IntRect texture_rect) :
-m_gid(gid),
-m_vertices(sf::Quads, 4),
-m_tile_rect(tile_rect),
-m_texture(texture),
-m_texture_rect(texture_rect)
-{
-    m_vertices[0].position = sf::Vector2f(static_cast<float>(m_tile_rect.left), static_cast<float>(m_tile_rect.top));
-    m_vertices[1].position = sf::Vector2f(static_cast<float>(m_tile_rect.left + m_tile_rect.width), static_cast<float>(m_tile_rect.top));
-    m_vertices[2].position = sf::Vector2f(static_cast<float>(m_tile_rect.left + m_tile_rect.width), static_cast<float>(m_tile_rect.top + m_tile_rect.height));
-    m_vertices[3].position = sf::Vector2f(static_cast<float>(m_tile_rect.left), static_cast<float>(m_tile_rect.top + m_tile_rect.height));
+        gid_(gid),
+        tile_rect_(tile_rect),
+        texture_(texture),
+        texture_rect_(texture_rect) {
+    UpdatePositions();
+    UpdateTexCoords();
+}
 
-    if(texture != NULL) {
-        m_vertices[0].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left), static_cast<float>(texture_rect.top));
-        m_vertices[1].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left + texture_rect.width), static_cast<float>(texture_rect.top));
-        m_vertices[2].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left + texture_rect.width), static_cast<float>(texture_rect.top + texture_rect.height));
-        m_vertices[3].texCoords = sf::Vector2f(static_cast<float>(texture_rect.left), static_cast<float>(texture_rect.top + texture_rect.height));
-    }
-};
+Tile::~Tile() {}
 
-Tile::~Tile()
-{
+void Tile::UpdatePositions() {
+    sf::FloatRect bounds = GetLocalBounds();
 
+    vertices_[0].position = sf::Vector2f(bounds.left, bounds.top);
+    vertices_[1].position = sf::Vector2f(bounds.left + bounds.width, bounds.top);
+    vertices_[2].position = sf::Vector2f(bounds.left + bounds.width, bounds.top + bounds.height);
+    vertices_[3].position = sf::Vector2f(bounds.left, bounds.top + bounds.height);
+}
+
+void Tile::UpdateTexCoords() {
+    float left   = static_cast<float>(texture_rect_.left);
+    float right  = left + texture_rect_.width;
+    float top    = static_cast<float>(texture_rect_.top);
+    float bottom = top + texture_rect_.height;
+
+    vertices_[0].texCoords = sf::Vector2f(left, top);
+    vertices_[1].texCoords = sf::Vector2f(right, top);
+    vertices_[2].texCoords = sf::Vector2f(right, bottom);
+    vertices_[3].texCoords = sf::Vector2f(left, bottom);
+}
+
+sf::FloatRect Tile::GetLocalBounds() const {
+    float left = static_cast<float>(std::abs(tile_rect_.left));
+    float top = static_cast<float>(std::abs(tile_rect_.top));
+    float width = static_cast<float>(std::abs(tile_rect_.width));
+    float height = static_cast<float>(std::abs(tile_rect_.height));
+
+    return sf::FloatRect(left, top, width, height);
 }
 
 void Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    if(m_texture != NULL) {
-        // apply the texture
-        states.texture = m_texture;
-        // draw the vertex array
-        target.draw(m_vertices, states);
+    if (texture_) {
+        states.texture = texture_;
+        target.draw(vertices_, 4, sf::Quads, states);
     }
 }
 
-}
+}  // namespace tmx

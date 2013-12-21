@@ -27,34 +27,36 @@
 #ifndef STP_PARSER_HPP
 #define STP_PARSER_HPP
 
+#include <vector>
+#include <string>
+
+#include "pugixml.hpp"
+
 #include "STP/Config.hpp"
 #include "STP/Core/TileMap.hpp"
-#include "pugixml.hpp"
-#include <sstream>
-#include <vector>
 
 namespace tmx {
 
 class STP_API Parser {
-public:
+ public:
     Parser();
     ~Parser();
 
-    tmx::TileMap parseFile(const std::string &file_to_parse);
+    tmx::TileMap ParseFile(const std::string &file_to_parse);
 
-private:
-    unsigned int m_width, m_height, m_tilewidth, m_tileheight;
-    tmx::TileMap* m_tilemap;
-    std::string m_working_dir;
+ private:
+    unsigned int width_, height_, tilewidth_, tileheight_;
+    tmx::TileMap* tilemap_;
+    std::string working_dir_;
 
-    int parseMap();
-    tmx::TileSet parseTileSet(const pugi::xml_node& tileset_node);
-    tmx::Layer parseLayer(const pugi::xml_node& layer_node);
-    void addTile(tmx::Layer& layer, int gid, sf::IntRect tile_rect);
-    int parseObjectGroup();
-    int parseImageLayer();
+    int ParseMap();
+    tmx::TileSet ParseTileSet(const pugi::xml_node& tileset_node);
+    tmx::Layer ParseLayer(const pugi::xml_node& layer_node);
+    void AddTile(tmx::Layer& layer, int gid, sf::IntRect tile_rect);
+    int ParseObjectGroup();
+    int ParseImageLayer();
 };
 
-}
+}  // namespace tmx
 
-#endif // STP_PARSER_HPP
+#endif  // STP_PARSER_HPP
