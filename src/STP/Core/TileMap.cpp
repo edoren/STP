@@ -26,60 +26,95 @@
 
 #include "STP/Core/TileMap.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <string>
 
+#include "pugixml.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
+
+#include "Parser.hpp"
 
 namespace tmx {
 
-TileMap::TileMap() {}
+TileMap::TileMap(const std::string& file_to_parse) {
+    pugi::xml_document tmx_file;
 
-TileMap::TileMap(float version, const std::string& orientation, unsigned int width,
-                 unsigned int height, unsigned int tilewidth, unsigned int tileheight) :
-        version_(version),
-        orientation_(orientation),
-        width_(width),
-        height_(height),
-        tilewidth_(tilewidth),
-        tileheight_(tileheight) {
+    if (!tmx_file.load_file(file_to_parse.c_str())) {
+        std::cerr << "Error loading the XML document." << std::endl;
+    }
+
+    pugi::xml_node map_node;
+
+    if (!(map_node = tmx_file.child("map"))) {
+        std::cerr << "The document is not a valid TMX file." << std::endl;
+    }
+
+    working_dir_ = file_to_parse.substr(0, file_to_parse.find_last_of('/') + 1);
+
+    // Get the map data
+    version_ = map_node.attribute("version").as_float();
+    orientation_ = map_node.attribute("orientation").value();
+    width_ = map_node.attribute("width").as_uint();
+    height_ = map_node.attribute("height").as_uint();
+    tilewidth_ = map_node.attribute("tilewidth").as_uint();
+    tileheight_ = map_node.attribute("tileheight").as_uint();
+
+    for (pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
+        std::string node_name = node.name();
+        // Call the respective parse function for each node
+        if (node_name == "tileset") {
+            AddTileSet(ParseTileSet(node, working_dir_));
+        } else if (node_name == "layer") {
+            AddLayer(ParseLayer(node, this));
+        } else if (node_name == "objectgroup") {
+        }
+    }
 }
 
 TileMap::~TileMap() {}
 
-void TileMap::AddLayer(tmx::Layer newlayer) {
-    layers_.push_back(newlayer);
-    layers_hash_[newlayer.GetName()] = &layers_[layers_.size()-1];
+void TileMap::AddLayer(tmx::Layer* newlayer) {
+    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newlayer));
+    layers_[newlayer->GetName()] = newlayer;
 }
 
-void TileMap::AddTileSet(tmx::TileSet newtileset) {
-    tilesets_.push_back(newtileset);
+void TileMap::AddTileSet(tmx::TileSet* newtileset) {
+    tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
 }
 
 tmx::Layer& TileMap::GetLayer(const std::string& layername) {
-    auto iterator = layers_hash_.find(layername);
-    if (iterator == layers_hash_.end()) {
-        std::cerr << "Layer \"" << layername << "\" not found." << std::endl;
-        exit(0);
-    } else {
-        return *iterator->second;
-    }
+    return *layers_[layername];
+}
+
+unsigned int TileMap::GetWidth() const {
+    return width_;
+}
+
+unsigned int TileMap::GetHeight() const {
+    return height_;
+}
+
+unsigned int TileMap::GetTileWidth() const {
+    return tilewidth_;
+}
+
+unsigned int TileMap::GetTileHeight() const {
+    return tileheight_;
 }
 
 const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
-    if (gid == 0) return NULL;
+    if (gid == 0) return nullptr;
     for (unsigned int i = 0; i < tilesets_.size(); ++i) {
-        if (gid >= tilesets_[i].GetFirstGID() && gid <= tilesets_[i].GetLastGID())
-            return &tilesets_[i];
+        if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
+            return &(*tilesets_[i]);
     }
-    return NULL;
+    return nullptr;
 }
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (unsigned int i = 0; i < layers_.size(); ++i) {
-        if (layers_[i].visible == true)
-            target.draw(layers_[i]);
+    for (unsigned int i = 0; i < map_objects_.size(); ++i) {
+        if (map_objects_[i]->visible == true)
+            target.draw(*map_objects_[i]);
     }
 }
 

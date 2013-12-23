@@ -24,40 +24,27 @@
 //
 ////////////////////////////////////////////////////////////
 
-/// @file
-/// @brief Configuration header of the library
+#include "STP/Core/MapObject.hpp"
 
-#ifndef STP_CONFIG_HPP
-#define STP_CONFIG_HPP
+#include <string>
 
-// Define DLL import/export macros (only Windows, and only dynamic configuration)
-#if (defined(_WIN32) || defined(__WIN32__)) && !defined(STP_STATIC)
+#include "SFML/Graphics/RenderTarget.hpp"
 
-    // Export dynamic link library (from DLL side)
-    #ifdef STP_EXPORTS
-        #define STP_API __declspec(dllexport)
+namespace tmx {
 
-    // Import dynamic link library (from client side)
-    #else
-        #define STP_API __declspec(dllimport)
+MapObject::MapObject() {}
 
-    #endif  // STP_EXPORTS
+MapObject::MapObject(const std::string& name, unsigned int width,
+                     unsigned int height, float opacity, bool visible) :
+        name_(name),
+        width_(width),
+        height_(height),
+        opacity_(opacity),
+        visible(visible) {
+}
 
-    // Disable annoying MSVC++ warning
-    #ifdef _MSC_VER
-        #pragma warning(disable: 4251)
-    #endif  // _MSC_VER
+MapObject::~MapObject() {}
 
-// Other platforms don't have DLLs
-#else
-    #define STP_API
+void MapObject::draw(sf::RenderTarget& target, sf::RenderStates states) const {}
 
-#endif
-
-
-// Version of the library
-#define STP_VERSION_MAJOR 0
-#define STP_VERSION_MINOR 1
-
-
-#endif  // STP_CONFIG_HPP
+}  // namespace tmx

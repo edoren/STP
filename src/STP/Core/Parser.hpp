@@ -24,47 +24,24 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILE_HPP
-#define STP_TILE_HPP
+#ifndef STP_PARSER_HPP
+#define STP_PARSER_HPP
 
-#include "SFML/Graphics/Vertex.hpp"
-#include "SFML/Graphics/Drawable.hpp"
+#include <vector>
+#include <string>
+
+#include "pugixml.hpp"
 
 #include "STP/Config.hpp"
+#include "STP/Core/TileMap.hpp"
+#include "STP/Core/TileSet.hpp"
+#include "STP/Core/Layer.hpp"
 
 namespace tmx {
 
-class TileMap;
-
-class STP_API Tile : public sf::Drawable {
- private:
-    friend class TileMap;
-
- public:
-    Tile();
-    Tile(unsigned int gid, sf::IntRect tile_rect,
-         const sf::Texture* texture,
-         sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
-    ~Tile();
-
- private:
-    unsigned int gid_;
-
-    sf::Vertex vertices_[4];
-    sf::IntRect tile_rect_;
-
-    const sf::Texture* texture_;
-    sf::IntRect texture_rect_;
-
-    void setTexture(unsigned int gid);
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-
-    sf::FloatRect GetLocalBounds() const;
-
-    void UpdatePositions();
-    void UpdateTexCoords();
-};
+tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir);
+tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
 
 }  // namespace tmx
 
-#endif  // STP_TILE_HPP
+#endif  // STP_PARSER_HPP

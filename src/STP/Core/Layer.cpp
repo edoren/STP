@@ -37,18 +37,9 @@ Layer::Layer() {}
 
 Layer::Layer(const std::string& name, unsigned int width,
              unsigned int height, float opacity, bool visible) :
-        name_(name),
-        width_(width),
-        height_(height),
-        opacity_(opacity),
-        visible(visible) {
+        MapObject(name, width, height, opacity, visible) {
     // Reserve space for each vector to avoid reallocate
-    tiles_.reserve(height);
-    for (unsigned int i = 0; i < height; ++i) {
-        std::vector<tmx::Tile> newvec;
-        newvec.reserve(width);
-        tiles_.push_back(newvec);
-    }
+    tiles_.reserve(width * height);
 }
 
 Layer::~Layer() {}
@@ -57,23 +48,22 @@ std::string Layer::GetName() const {
     return name_;
 }
 
-int Layer::AddTile(tmx::Tile newtile) {
-    for (unsigned int i = 0; i < height_; ++i) {
-        if (tiles_[i].size() < width_) {
-            tiles_[i].push_back(newtile);
-            return 0;
-        }
-    }
-    return -1;
+void Layer::AddTile(tmx::Tile newtile) {
+    tiles_.push_back(newtile);
+}
+
+void Layer::AddProperty(const std::string& name, const std::string& value) {
+    properties_[name] = value;
+}
+
+std::string& Layer::GetPropertyValue(const std::string& name) {
+    return properties_[name];
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     if (visible) {
-        for (unsigned int y = 0; y < tiles_.size(); ++y) {
-            for (unsigned int x = 0; x < tiles_[y].size(); ++x) {
-                target.draw(tiles_[y][x]);
-            }
-        }
+        for (unsigned int i = 0; i < tiles_.size(); ++i)
+            target.draw(tiles_[i]);
     }
 }
 

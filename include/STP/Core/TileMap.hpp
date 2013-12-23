@@ -29,6 +29,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
 
 #include "STP/Config.hpp"
@@ -39,29 +40,39 @@ namespace tmx {
 
 class STP_API TileMap : public sf::Drawable {
  public:
-    TileMap();
-    TileMap(float version, const std::string& orientation, unsigned int width,
-            unsigned int height, unsigned int tilewidth, unsigned int tileheight);
+    explicit TileMap(const std::string& tmx_file);
     ~TileMap();
 
-    void AddLayer(tmx::Layer newlayer);
-    void AddTileSet(tmx::TileSet newtileset);
+ private:
+    TileMap(const TileMap& other) = delete;
+    TileMap& operator =(const TileMap&) = delete;
 
+ public:
     // Return the tileset attached to the global id
-    tmx::Layer& GetLayer(const std::string& layername);
     const tmx::TileSet* GetTileSet(unsigned int gid) const;
+    tmx::Layer& GetLayer(const std::string& layername);
+
+    unsigned int GetWidth() const;
+    unsigned int GetHeight() const;
+
+    unsigned int GetTileWidth() const;
+    unsigned int GetTileHeight() const;
 
  private:
+    void AddLayer(tmx::Layer* newlayer);
+    void AddTileSet(tmx::TileSet* newtileset);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
+    std::string working_dir_;
+
     float version_;
     std::string orientation_;
     unsigned int width_, height_, tilewidth_, tileheight_;
 
-    std::unordered_map<std::string, tmx::Layer*> layers_hash_;
-    std::vector<tmx::Layer> layers_;
-    std::vector<tmx::TileSet> tilesets_;
+    std::unordered_map<std::string, tmx::Layer*> layers_;
+    std::vector<std::unique_ptr<tmx::MapObject>> map_objects_;
+    std::vector<std::unique_ptr<tmx::TileSet>> tilesets_;
 };
 
 }  // namespace tmx

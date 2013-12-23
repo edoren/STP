@@ -24,7 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#include "STP/Core/Parser.hpp"
+#include "Parser.hpp"
 
 #include <iostream>
 #include <string>
@@ -35,56 +35,7 @@
 
 namespace tmx {
 
-Parser::Parser() {}
-
-Parser::~Parser() {}
-
-tmx::TileMap Parser::ParseFile(const std::string &file_to_parse) {
-    pugi::xml_document tmx_file;
-
-    if (!tmx_file.load_file(file_to_parse.c_str())) {
-        std::cerr << "Error loading the XML document." << std::endl;
-    }
-
-    pugi::xml_node map_node;
-
-    if (!(map_node = tmx_file.child("map"))) {
-        std::cerr << "The document is not a valid TMX file." << std::endl;
-    }
-
-    working_dir_ = file_to_parse.substr(0, file_to_parse.find_last_of('/') + 1);
-
-    float version;
-    std::string orientation;
-    // Get the map data
-    version = map_node.attribute("version").as_float();
-    orientation = map_node.attribute("orientation").value();
-    width_ = map_node.attribute("width").as_uint();
-    height_ = map_node.attribute("height").as_uint();
-    tilewidth_ = map_node.attribute("tilewidth").as_uint();
-    tileheight_ = map_node.attribute("tileheight").as_uint();
-
-    tmx::TileMap map(version, orientation, width_, height_, tilewidth_, tileheight_);
-
-    tilemap_ = &map;
-
-    for (pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
-        std::string node_name = node.name();
-        // Call the respective parse function for each node
-        if (node_name == "tileset") {
-            tmx::TileSet newtileset = this->ParseTileSet(node);
-            map.AddTileSet(newtileset);
-        } else if (node_name == "layer") {
-            tmx::Layer newlayer = this->ParseLayer(node);
-            map.AddLayer(newlayer);
-        } else if (node_name == "objectgroup") {
-        }
-    }
-
-    return map;
-}
-
-tmx::TileSet Parser::ParseTileSet(const pugi::xml_node& tileset_node) {
+tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir) {
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
     struct tmx::TileSet::Image image_data;
@@ -107,7 +58,7 @@ tmx::TileSet Parser::ParseTileSet(const pugi::xml_node& tileset_node) {
             tileoffset_data.x = node.attribute("x").as_uint();
             tileoffset_data.y = node.attribute("y").as_uint();
         } else if (node_name == "image") {
-            image_data.source = working_dir_ + node.attribute("source").as_string();
+            image_data.source = working_dir + node.attribute("source").as_string();
             image_data.width = node.attribute("width").as_uint();
             image_data.height = node.attribute("height").as_uint();
             if (pugi::xml_attribute attribute_trans = node.attribute("trans"))
@@ -117,23 +68,39 @@ tmx::TileSet Parser::ParseTileSet(const pugi::xml_node& tileset_node) {
         }
     }
 
-    tmx::TileSet tileset(firstgid, name, tilewidth, tileheight, spacing, margin, image_data, tileoffset_data);
+    tmx::TileSet* tileset = new tmx::TileSet(firstgid, name, tilewidth, tileheight, spacing, margin, image_data, tileoffset_data);
 
     return tileset;
 }
 
-tmx::Layer Parser::ParseLayer(const pugi::xml_node& layer_node) {
+void AddTile(tmx::Layer* layer, int gid, sf::IntRect tile_rect, const tmx::TileMap* tilemap) {
+    const tmx::TileSet* tileset = tilemap->GetTileSet(gid);
+    tmx::Tile newtile;
+    if (tileset != NULL)
+        newtile = tmx::Tile(gid, tile_rect, tileset->GetTexture(), tileset->GetTextureRect(gid));
+    else
+        newtile = tmx::Tile(gid, tile_rect, NULL);
+    layer->AddTile(newtile);
+}
+
+tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap) {
     std::string name;
+    unsigned int width, height;
     float opacity = 1.f;  // range 0 - 1
     bool visible = true;
 
     unsigned int count_x = 0;
     unsigned int count_y = 0;
 
+    unsigned int tilewidth = tilemap->GetTileWidth();
+    unsigned int tileheight = tilemap->GetTileHeight();
+
     sf::IntRect tile_rect;
 
     // Get the map data
     name = layer_node.attribute("name").as_string();
+    width = layer_node.attribute("width").as_uint();
+    height = layer_node.attribute("height").as_uint();
     // Check if the opacity attribute exists in layer_node
     if (pugi::xml_attribute attribute_opacity = layer_node.attribute("opacity"))
         opacity = attribute_opacity.as_float();
@@ -141,8 +108,18 @@ tmx::Layer Parser::ParseLayer(const pugi::xml_node& layer_node) {
     if (pugi::xml_attribute attribute_visible = layer_node.attribute("visible"))
         visible = attribute_visible.as_bool();
 
-    tmx::Layer layer(name, width_, height_, opacity, visible);
+    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible);
 
+    // Parse the layer properties
+    if (pugi::xml_node properties_node = layer_node.child("properties")) {
+        for (pugi::xml_node property_node : properties_node.children("property")) {
+            std::string name = property_node.attribute("name").as_string();
+            std::string value = property_node.attribute("value").as_string();
+            layer->AddProperty(name, value);
+        }
+    }
+
+    // Parse the layer data
     if (pugi::xml_node data_node = layer_node.child("data")) {
         std::string data = data_node.text().as_string();
         // Check if the encoding attribute exists in data_node
@@ -155,7 +132,7 @@ tmx::Layer Parser::ParseLayer(const pugi::xml_node& layer_node) {
                 ss >> data;
                 data = base64_decode(data);
 
-                int expectedSize = width_ * height_ * 4;  // number of tiles * 4 bytes = 32bits / tile
+                int expectedSize = width * height * 4;  // number of tiles * 4 bytes = 32bits / tile
                 std::vector<unsigned char>byteVector;  // to hold decompressed data as bytes
                 byteVector.reserve(expectedSize);
 
@@ -171,57 +148,45 @@ tmx::Layer Parser::ParseLayer(const pugi::xml_node& layer_node) {
                 }
 
                 for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
-                    if (count_x < width_) {
-                        tile_rect = sf::IntRect(count_x++ * tilewidth_, count_y * tilewidth_, tilewidth_, tileheight_);
+                    if (count_x < width) {
+                        tile_rect = sf::IntRect(count_x++ * tilewidth, count_y * tilewidth, tilewidth, tileheight);
                     } else {
                         count_x = 0;
-                        tile_rect = sf::IntRect(count_x++ * tilewidth_, ++count_y * tilewidth_, tilewidth_, tileheight_);
+                        tile_rect = sf::IntRect(count_x++ * tilewidth, ++count_y * tilewidth, tilewidth, tileheight);
                     }
                     int gid = byteVector[i] | byteVector[i + 1] << 8 | byteVector[i + 2] << 16 | byteVector[i + 3] << 24;
-                    this->AddTile(layer, gid, tile_rect);
+                    AddTile(layer, gid, tile_rect, tilemap);
                 }
             } else if (encoding == "csv") {  // CSV encoding
                 std::stringstream data_stream(data);
                 unsigned int gid;
                 while (data_stream >> gid) {
-                    if (count_x < width_) {
-                        tile_rect = sf::IntRect(count_x++ * tilewidth_, count_y * tilewidth_, tilewidth_, tileheight_);
+                    if (count_x < width) {
+                        tile_rect = sf::IntRect(count_x++ * tilewidth, count_y * tilewidth, tilewidth, tileheight);
                     } else {
                         count_x = 0;
-                        tile_rect = sf::IntRect(count_x++ * tilewidth_, ++count_y * tilewidth_, tilewidth_, tileheight_);
+                        tile_rect = sf::IntRect(count_x++ * tilewidth, ++count_y * tilewidth, tilewidth, tileheight);
                     }
                     if (data_stream.peek() == ',')
                         data_stream.ignore();
-                    this->AddTile(layer, gid, tile_rect);
+                    AddTile(layer, gid, tile_rect, tilemap);
                 }
             }
         } else {  // Unencoded
             for (pugi::xml_node tile_node = data_node.first_child(); tile_node; tile_node = tile_node.next_sibling("tile")) {
-                if (count_x < width_) {
-                    tile_rect = sf::IntRect(count_x++ * tilewidth_, count_y * tilewidth_, tilewidth_, tileheight_);
+                if (count_x < width) {
+                    tile_rect = sf::IntRect(count_x++ * tilewidth, count_y * tilewidth, tilewidth, tileheight);
                 } else {
                     count_x = 0;
-                    tile_rect = sf::IntRect(count_x++ * tilewidth_, ++count_y * tilewidth_, tilewidth_, tileheight_);
+                    tile_rect = sf::IntRect(count_x++ * tilewidth, ++count_y * tilewidth, tilewidth, tileheight);
                 }
                 int gid = tile_node.attribute("gid").as_uint();
-                this->AddTile(layer, gid, tile_rect);
+                AddTile(layer, gid, tile_rect, tilemap);
             }
         }
     }
 
     return layer;
-}
-
-void Parser::AddTile(tmx::Layer& layer, int gid, sf::IntRect tile_rect) {
-    static int i = 0;
-    i++;
-    const tmx::TileSet* tileset = tilemap_->GetTileSet(gid);
-    tmx::Tile newtile;
-    if (tileset != NULL)
-        newtile = tmx::Tile(gid, tile_rect, tileset->GetTexture(), tileset->GetTextureRect(gid));
-    else
-        newtile = tmx::Tile(gid, tile_rect, NULL);
-    layer.AddTile(newtile);
 }
 
 }  // namespace tmx

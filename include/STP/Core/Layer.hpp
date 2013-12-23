@@ -29,13 +29,15 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "STP/Config.hpp"
+#include "STP/Core/MapObject.hpp"
 #include "STP/Core/Tile.hpp"
 
 namespace tmx {
 
-class STP_API Layer : public sf::Drawable {
+class STP_API Layer : public MapObject {
  public:
     Layer();
     Layer(const std::string& name, unsigned int width,
@@ -43,20 +45,17 @@ class STP_API Layer : public sf::Drawable {
     ~Layer();
 
     std::string GetName() const;
-    int AddTile(tmx::Tile newtile);
+    void AddTile(tmx::Tile newtile);
+
+    void AddProperty(const std::string& name, const std::string& value);
+    std::string& GetPropertyValue(const std::string& name);
 
  private:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    std::string name_;
-    unsigned int width_, height_;
-    float opacity_;  // range 0 - 1
-
-    std::vector< std::vector<tmx::Tile> > tiles_;
-
- public:
-    bool visible;
+    std::unordered_map<std::string, std::string> properties_;
+    std::vector<tmx::Tile> tiles_;
 };
 
 }  // namespace tmx

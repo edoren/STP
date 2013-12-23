@@ -5,6 +5,8 @@ set(EXTLIBS_DIR ${PROJECT_SOURCE_DIR}/extlibs)
 
 set(STP_SOURCE 
     ${SRC_DIR}/Core/TileMap.cpp
+    ${SRC_DIR}/Core/MapObject.cpp
+    ${SRC_DIR}/Core/Parser.hpp
     ${SRC_DIR}/Core/Parser.cpp
     ${SRC_DIR}/Core/Base64.hpp
     ${SRC_DIR}/Core/Base64.cpp
@@ -16,7 +18,7 @@ set(STP_SOURCE
 set(STP_HEADERS
     ${HEADER_DIR}/TMXLoader.hpp
     ${HEADER_DIR}/Core/TileMap.hpp
-    ${HEADER_DIR}/Core/Parser.hpp
+    ${HEADER_DIR}/Core/MapObject.hpp
     ${HEADER_DIR}/Core/Layer.hpp
     ${HEADER_DIR}/Core/Tile.hpp
     ${HEADER_DIR}/Core/TileSet.hpp
