@@ -45,6 +45,18 @@ MapObject::MapObject(const std::string& name, unsigned int width,
 
 MapObject::~MapObject() {}
 
+std::string MapObject::GetName() const {
+    return name_;
+}
+
+void MapObject::AddProperty(const std::string& name, const std::string& value) {
+    properties_[name] = value;
+}
+
+std::string& MapObject::GetPropertyValue(const std::string& name) {
+    return properties_[name];
+}
+
 void MapObject::draw(sf::RenderTarget& target, sf::RenderStates states) const {}
 
 }  // namespace tmx

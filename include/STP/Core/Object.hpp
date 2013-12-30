@@ -24,26 +24,54 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_PARSER_HPP
-#define STP_PARSER_HPP
+#ifndef STP_OBJECT_HPP
+#define STP_OBJECT_HPP
 
-#include <vector>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
-#include "pugixml.hpp"
+#include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include "SFML/Graphics/Drawable.hpp"
 
 #include "STP/Config.hpp"
-#include "STP/Core/TileMap.hpp"
-#include "STP/Core/TileSet.hpp"
-#include "STP/Core/Layer.hpp"
-#include "STP/Core/ObjectGroup.hpp"
 
 namespace tmx {
 
-tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir);
-tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
-tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+enum ObjectType { Rectangle, Ellipse, Polygon, Polyline };
+
+class STP_API Object : public sf::Drawable {
+ public:
+    Object(const std::string& name, const std::string& type, int x, int y,
+           unsigned int width, unsigned int height, float rotation, bool visible,
+           tmx::ObjectType shape_type, const std::string& vertices_points = "");
+    ~Object();
+
+    void AddProperty(const std::string& name, const std::string& value);
+
+    std::string& GetPropertyValue(const std::string& name);
+
+    void SetColor(unsigned char red, unsigned char green,
+                  unsigned char blue, unsigned char alpha = 255);
+
+ private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+ private:
+    std::string name_;
+    std::string type_;
+    unsigned int x_, y_;
+    unsigned int width_, height_;
+    float rotation_;
+
+    std::vector<sf::Vertex> vertices_;
+    std::unordered_map<std::string, std::string> properties_;
+
+ public:
+    bool visible;
+};
 
 }  // namespace tmx
 
-#endif  // STP_PARSER_HPP
+#endif  // STP_OBJECT_HPP

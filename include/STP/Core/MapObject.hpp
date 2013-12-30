@@ -28,6 +28,7 @@
 #define STP_MAPOBJECT_HPP
 
 #include <string>
+#include <unordered_map>
 
 #include "SFML/Graphics/Drawable.hpp"
 
@@ -42,6 +43,11 @@ class STP_API MapObject : public sf::Drawable {
               unsigned int height, float opacity, bool visible);
     virtual ~MapObject();
 
+    std::string GetName() const;
+
+    void AddProperty(const std::string& name, const std::string& value);
+    std::string& GetPropertyValue(const std::string& name);
+
  private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -49,6 +55,8 @@ class STP_API MapObject : public sf::Drawable {
     std::string name_;
     unsigned int width_, height_;
     float opacity_;  // range 0 - 1
+
+    std::unordered_map<std::string, std::string> properties_;
 
  public:
     bool visible;

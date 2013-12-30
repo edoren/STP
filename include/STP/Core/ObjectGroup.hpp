@@ -24,26 +24,39 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_PARSER_HPP
-#define STP_PARSER_HPP
+#ifndef STP_OBJECTGROUP_HPP
+#define STP_OBJECTGROUP_HPP
 
-#include <vector>
 #include <string>
-
-#include "pugixml.hpp"
+#include <vector>
+#include <cstdint>
+#include <unordered_map>
 
 #include "STP/Config.hpp"
-#include "STP/Core/TileMap.hpp"
-#include "STP/Core/TileSet.hpp"
-#include "STP/Core/Layer.hpp"
-#include "STP/Core/ObjectGroup.hpp"
+#include "STP/Core/MapObject.hpp"
+#include "STP/Core/Object.hpp"
 
 namespace tmx {
 
-tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir);
-tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
-tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+class STP_API ObjectGroup : public MapObject {
+ public:
+    ObjectGroup();
+    ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
+                float opacity, bool visible, uint32_t color = 0xa0a0a4);
+    ~ObjectGroup();
+
+    void AddObject(tmx::Object newobject);
+
+ private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+ private:
+    uint32_t color_;
+    unsigned char red_, green_, blue_, alpha_;
+
+    std::vector<tmx::Object> objects_;
+};
 
 }  // namespace tmx
 
-#endif  // STP_PARSER_HPP
+#endif  // STP_OBJECTGROUP_HPP

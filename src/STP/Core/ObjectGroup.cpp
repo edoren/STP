@@ -24,26 +24,39 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_PARSER_HPP
-#define STP_PARSER_HPP
-
-#include <vector>
-#include <string>
-
-#include "pugixml.hpp"
-
-#include "STP/Config.hpp"
-#include "STP/Core/TileMap.hpp"
-#include "STP/Core/TileSet.hpp"
-#include "STP/Core/Layer.hpp"
 #include "STP/Core/ObjectGroup.hpp"
+
+#include <string>
+#include <vector>
+
+#include "SFML/Graphics/RenderTarget.hpp"
 
 namespace tmx {
 
-tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir);
-tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
-tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+ObjectGroup::ObjectGroup() {}
+
+ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
+                         float opacity, bool visible, uint32_t color) :
+        MapObject(name, width, height, opacity, visible),
+        color_(color) {
+    red_ = color >> 16;
+    green_ = (color >> 8) & 0xff;
+    blue_ = color & 0xff;
+    alpha_ = 0xff;
+}
+
+ObjectGroup::~ObjectGroup() {}
+
+void ObjectGroup::AddObject(tmx::Object newobject) {
+    newobject.SetColor(red_, green_, blue_, alpha_);
+    objects_.push_back(newobject);
+}
+
+void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    if (visible) {
+        for (unsigned int i = 0; i < objects_.size(); ++i)
+            target.draw(objects_[i]);
+    }
+}
 
 }  // namespace tmx
-
-#endif  // STP_PARSER_HPP

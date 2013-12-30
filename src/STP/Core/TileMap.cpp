@@ -26,7 +26,7 @@
 
 #include "STP/Core/TileMap.hpp"
 
-#include <iostream>
+#include <cstdio>
 #include <string>
 
 #include "pugixml.hpp"
@@ -40,13 +40,13 @@ TileMap::TileMap(const std::string& file_to_parse) {
     pugi::xml_document tmx_file;
 
     if (!tmx_file.load_file(file_to_parse.c_str())) {
-        std::cerr << "Error loading the XML document." << std::endl;
+        printf("%s\n", "Error loading the XML document.");
     }
 
     pugi::xml_node map_node;
 
     if (!(map_node = tmx_file.child("map"))) {
-        std::cerr << "The document is not a valid TMX file." << std::endl;
+        printf("%s\n", "The document is not a valid TMX file.");
     }
 
     working_dir_ = file_to_parse.substr(0, file_to_parse.find_last_of('/') + 1);
@@ -67,6 +67,7 @@ TileMap::TileMap(const std::string& file_to_parse) {
         } else if (node_name == "layer") {
             AddLayer(ParseLayer(node, this));
         } else if (node_name == "objectgroup") {
+            AddObjectGroup(ParseObjectGroup(node));
         }
     }
 }
@@ -78,12 +79,28 @@ void TileMap::AddLayer(tmx::Layer* newlayer) {
     layers_[newlayer->GetName()] = newlayer;
 }
 
+void TileMap::AddObjectGroup(tmx::ObjectGroup* newobjectgroup) {
+    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newobjectgroup));
+    object_groups_[newobjectgroup->GetName()] = newobjectgroup;
+}
+
 void TileMap::AddTileSet(tmx::TileSet* newtileset) {
     tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
 }
 
 tmx::Layer& TileMap::GetLayer(const std::string& layername) {
     return *layers_[layername];
+}
+
+tmx::ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {
+    return *object_groups_[objectgroup_name];
+}
+
+void TileMap::HideObjects(bool hide) const {
+    if (hide) {
+        for (auto& object_group : object_groups_)
+            object_group.second->visible = false;
+    }
 }
 
 unsigned int TileMap::GetWidth() const {

@@ -35,6 +35,7 @@
 #include "STP/Config.hpp"
 #include "STP/Core/TileSet.hpp"
 #include "STP/Core/Layer.hpp"
+#include "STP/Core/ObjectGroup.hpp"
 
 namespace tmx {
 
@@ -51,6 +52,9 @@ class STP_API TileMap : public sf::Drawable {
     // Return the tileset attached to the global id
     const tmx::TileSet* GetTileSet(unsigned int gid) const;
     tmx::Layer& GetLayer(const std::string& layername);
+    tmx::ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
+
+    void HideObjects(bool hide = true) const;
 
     unsigned int GetWidth() const;
     unsigned int GetHeight() const;
@@ -61,6 +65,7 @@ class STP_API TileMap : public sf::Drawable {
  private:
     void AddLayer(tmx::Layer* newlayer);
     void AddTileSet(tmx::TileSet* newtileset);
+    void AddObjectGroup(tmx::ObjectGroup* newobjectgroup);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
@@ -71,7 +76,9 @@ class STP_API TileMap : public sf::Drawable {
     unsigned int width_, height_, tilewidth_, tileheight_;
 
     std::unordered_map<std::string, tmx::Layer*> layers_;
+    std::unordered_map<std::string, tmx::ObjectGroup*> object_groups_;
     std::vector<std::unique_ptr<tmx::MapObject>> map_objects_;
+
     std::vector<std::unique_ptr<tmx::TileSet>> tilesets_;
 };
 

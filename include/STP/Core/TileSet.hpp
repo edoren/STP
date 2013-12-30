@@ -38,17 +38,17 @@ namespace tmx {
 
 class STP_API TileSet {
  public:
-    struct TileOffSet {  // 0.2
+    typedef struct TileOffSet {  // 0.2
         int x, y;
         TileOffSet();
-    };
+    } TileOffSet;
 
-    struct Image {
+    typedef struct Image {
         int format;
         std::string source, trans;  // trans 0.2
         unsigned int width, height;
         Image();
-    };
+    } Image;
 
     struct TerrainTypes {  // 0.2
     };
@@ -76,8 +76,8 @@ class STP_API TileSet {
     unsigned int firstgid_, lastgid_;
     std::string name_;
     unsigned int tilewidth_, tileheight_, spacing_, margin_;  // spacing, margin - 0.2
-    struct tmx::TileSet::Image image_;
-    struct tmx::TileSet::TileOffSet tileoffset_;
+    tmx::TileSet::Image image_;
+    tmx::TileSet::TileOffSet tileoffset_;
     sf::Texture texture_;
 };
 

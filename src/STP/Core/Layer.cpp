@@ -44,20 +44,8 @@ Layer::Layer(const std::string& name, unsigned int width,
 
 Layer::~Layer() {}
 
-std::string Layer::GetName() const {
-    return name_;
-}
-
 void Layer::AddTile(tmx::Tile newtile) {
     tiles_.push_back(newtile);
-}
-
-void Layer::AddProperty(const std::string& name, const std::string& value) {
-    properties_[name] = value;
-}
-
-std::string& Layer::GetPropertyValue(const std::string& name) {
-    return properties_[name];
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {

@@ -29,7 +29,6 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 #include "STP/Config.hpp"
 #include "STP/Core/MapObject.hpp"
@@ -44,17 +43,12 @@ class STP_API Layer : public MapObject {
           unsigned int height, float opacity, bool visible);
     ~Layer();
 
-    std::string GetName() const;
     void AddTile(tmx::Tile newtile);
-
-    void AddProperty(const std::string& name, const std::string& value);
-    std::string& GetPropertyValue(const std::string& name);
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    std::unordered_map<std::string, std::string> properties_;
     std::vector<tmx::Tile> tiles_;
 };
 
