@@ -346,7 +346,7 @@ tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const st
     // Parse the image data
     if (pugi::xml_node image_node = imagelayer_node.child("image")) {
         std::string format, source;
-        unsigned int width, height;
+        unsigned int width = 0, height = 0;
         int32_t trans = -1;
 
         source = working_dir + image_node.attribute("source").as_string();
