@@ -36,7 +36,7 @@ TileSet::TileSet() {}
 
 TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
                  unsigned int tileheight, unsigned int spacing, unsigned int margin,
-                 tmx::TileSet::Image image, tmx::TileSet::TileOffSet tileoffset) :
+                 tmx::Image image, tmx::TileSet::TileOffSet tileoffset) :
         firstgid_(firstgid),
         name_(name),
         tilewidth_(tilewidth),
@@ -45,17 +45,13 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         margin_(margin),
         image_(image),
         tileoffset_(tileoffset) {
-    lastgid_ = firstgid + (image.width / tilewidth) * (image.height / tileheight) - 1;
-    texture_.loadFromFile(image.source);
+    lastgid_ = firstgid + (image.GetWidth() / tilewidth) * (image.GetHeight() / tileheight) - 1;
 }
 
 TileSet::~TileSet() {}
 
 // Struct default constructors
 TileSet::TileOffSet::TileOffSet() : x(0), y(0) {}
-
-TileSet::Image::Image() : format(0) {}
-
 
 std::string TileSet::GetName() const {
     return name_;
@@ -65,7 +61,7 @@ sf::IntRect TileSet::GetTextureRect(unsigned int gid) const {
     assert(gid >= firstgid_ && gid <= lastgid_);
     int local_gid, width, x, y, x_pixels, y_pixels;
     local_gid = gid - firstgid_ + 1;
-    width = image_.width / tilewidth_;
+    width = image_.GetWidth() / tilewidth_;
     y = static_cast<int> (std::ceil(local_gid / static_cast<float>(width)));
     x = local_gid - ((y - 1) * width);
     y_pixels = (y - 1) * tilewidth_;
@@ -75,7 +71,7 @@ sf::IntRect TileSet::GetTextureRect(unsigned int gid) const {
 }
 
 const sf::Texture* TileSet::GetTexture() const {
-    return &texture_;
+    return image_.GetTexture();
 }
 
 unsigned int TileSet::GetFirstGID() const {

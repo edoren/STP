@@ -24,56 +24,40 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILESET_HPP
-#define STP_TILESET_HPP
+#ifndef STP_IMAGE_HPP
+#define STP_IMAGE_HPP
 
 #include <string>
+#include <vector>
 
+#include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/Texture.hpp"
-#include "SFML/Graphics/Rect.hpp"
 
 #include "STP/Config.hpp"
-#include "STP/Core/Image.hpp"
 
 namespace tmx {
 
-class STP_API TileSet {
+class STP_API Image {
  public:
-    typedef struct TileOffSet {  // 0.2
-        int x, y;
-        TileOffSet();
-    } TileOffSet;
-
-    struct TerrainTypes {  // 0.2
-    };
-
-    struct Layer {  // 0.2
-    };
+    Image();
+    Image(const std::string& source, unsigned int width, unsigned int height,
+          int32_t trans = -1, const std::string& format = std::string());
+    ~Image();
 
  public:
-    TileSet();
-    TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-            unsigned int tileheight, unsigned int spacing, unsigned int margin,
-            tmx::Image image, tmx::TileSet::TileOffSet tileoffset);
-
-    ~TileSet();
-
-    sf::IntRect GetTextureRect(unsigned int gid) const;
+    const std::string& GetSource() const;
+    unsigned int GetWidth() const;
+    unsigned int GetHeight() const;
     const sf::Texture* GetTexture() const;
 
-    std::string GetName() const;
-
-    unsigned int GetFirstGID() const;
-    unsigned int GetLastGID() const;
-
  private:
-    unsigned int firstgid_, lastgid_;
-    std::string name_;
-    unsigned int tilewidth_, tileheight_, spacing_, margin_;  // spacing, margin - 0.2
-    tmx::Image image_;
-    tmx::TileSet::TileOffSet tileoffset_;
+    std::string source_;
+    int32_t trans_;
+    unsigned int width_, height_;
+    std::string format_;
+    sf::Texture texture_;
 };
 
 }  // namespace tmx
 
-#endif  // STP_TILESET_HPP
+#endif  // STP_IMAGE_HPP

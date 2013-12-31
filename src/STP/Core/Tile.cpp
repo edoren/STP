@@ -74,6 +74,13 @@ sf::FloatRect Tile::GetLocalBounds() const {
     return sf::FloatRect(left, top, width, height);
 }
 
+void Tile::SetColor(const sf::Color& color) {
+    vertices_[0].color = color;
+    vertices_[1].color = color;
+    vertices_[2].color = color;
+    vertices_[3].color = color;
+}
+
 void Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     if (texture_) {
         states.texture = texture_;

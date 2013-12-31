@@ -45,6 +45,9 @@ class STP_API Layer : public MapObject {
 
     void AddTile(tmx::Tile newtile);
 
+    void SetOpacity(float opacity);
+    void SetColor(const sf::Color& color);
+
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 

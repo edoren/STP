@@ -31,6 +31,7 @@
 #include <unordered_map>
 
 #include "SFML/Graphics/Drawable.hpp"
+#include "SFML/Graphics/Color.hpp"
 
 #include "STP/Config.hpp"
 
@@ -44,17 +45,20 @@ class STP_API MapObject : public sf::Drawable {
     virtual ~MapObject();
 
     std::string GetName() const;
+    virtual void SetOpacity(float opacity) = 0;
+    virtual void SetColor(const sf::Color& color) = 0;
 
     void AddProperty(const std::string& name, const std::string& value);
     std::string& GetPropertyValue(const std::string& name);
 
  private:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 
  protected:
     std::string name_;
     unsigned int width_, height_;
     float opacity_;  // range 0 - 1
+    sf::Color color_;
 
     std::unordered_map<std::string, std::string> properties_;
 

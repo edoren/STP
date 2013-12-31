@@ -27,6 +27,8 @@
 /// @file
 /// @brief Configuration header of the library
 
+#include <cstdint>
+
 #ifndef STP_CONFIG_HPP
 #define STP_CONFIG_HPP
 

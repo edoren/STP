@@ -37,12 +37,14 @@
 #include "STP/Core/TileSet.hpp"
 #include "STP/Core/Layer.hpp"
 #include "STP/Core/ObjectGroup.hpp"
+#include "STP/Core/ImageLayer.hpp"
 
 namespace tmx {
 
 tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir);
 tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
 tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir);
 
 }  // namespace tmx
 

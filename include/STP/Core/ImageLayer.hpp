@@ -24,56 +24,41 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILESET_HPP
-#define STP_TILESET_HPP
+#ifndef STP_IMAGELAYER_HPP
+#define STP_IMAGELAYER_HPP
 
 #include <string>
 
-#include "SFML/Graphics/Texture.hpp"
-#include "SFML/Graphics/Rect.hpp"
+#include "SFML/Graphics/Vertex.hpp"
 
 #include "STP/Config.hpp"
+#include "STP/Core/MapObject.hpp"
 #include "STP/Core/Image.hpp"
 
 namespace tmx {
 
-class STP_API TileSet {
+class STP_API ImageLayer : public MapObject {
  public:
-    typedef struct TileOffSet {  // 0.2
-        int x, y;
-        TileOffSet();
-    } TileOffSet;
-
-    struct TerrainTypes {  // 0.2
-    };
-
-    struct Layer {  // 0.2
-    };
+    ImageLayer();
+    ImageLayer(const std::string& name, unsigned int width,
+               unsigned int height, float opacity, bool visible, tmx::Image image);
+    ~ImageLayer();
 
  public:
-    TileSet();
-    TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-            unsigned int tileheight, unsigned int spacing, unsigned int margin,
-            tmx::Image image, tmx::TileSet::TileOffSet tileoffset);
-
-    ~TileSet();
-
-    sf::IntRect GetTextureRect(unsigned int gid) const;
     const sf::Texture* GetTexture() const;
 
-    std::string GetName() const;
-
-    unsigned int GetFirstGID() const;
-    unsigned int GetLastGID() const;
+    void SetOpacity(float opacity);
+    void SetColor(const sf::Color& color);
 
  private:
-    unsigned int firstgid_, lastgid_;
-    std::string name_;
-    unsigned int tilewidth_, tileheight_, spacing_, margin_;  // spacing, margin - 0.2
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+ private:
     tmx::Image image_;
-    tmx::TileSet::TileOffSet tileoffset_;
+
+    sf::Vertex vertices_[4];
 };
 
 }  // namespace tmx
 
-#endif  // STP_TILESET_HPP
+#endif  // STP_IMAGELAYER_HPP

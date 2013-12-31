@@ -29,7 +29,6 @@
 
 #include <string>
 #include <vector>
-#include <cstdint>
 #include <unordered_map>
 
 #include "STP/Config.hpp"
@@ -42,18 +41,18 @@ class STP_API ObjectGroup : public MapObject {
  public:
     ObjectGroup();
     ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
-                float opacity, bool visible, uint32_t color = 0xa0a0a4);
+                float opacity, bool visible, int32_t hexcolor = -1);
     ~ObjectGroup();
 
     void AddObject(tmx::Object newobject);
+
+    void SetOpacity(float opacity);
+    void SetColor(const sf::Color& color);
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    uint32_t color_;
-    unsigned char red_, green_, blue_, alpha_;
-
     std::vector<tmx::Object> objects_;
 };
 

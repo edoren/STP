@@ -45,15 +45,14 @@ class STP_API Object : public sf::Drawable {
  public:
     Object(const std::string& name, const std::string& type, int x, int y,
            unsigned int width, unsigned int height, float rotation, bool visible,
-           tmx::ObjectType shape_type, const std::string& vertices_points = "");
+           tmx::ObjectType shape_type, const std::string& vertices_points = std::string());
     ~Object();
 
     void AddProperty(const std::string& name, const std::string& value);
 
     std::string& GetPropertyValue(const std::string& name);
 
-    void SetColor(unsigned char red, unsigned char green,
-                  unsigned char blue, unsigned char alpha = 255);
+    void SetColor(const sf::Color& color);
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;

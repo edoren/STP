@@ -32,7 +32,7 @@
 
 namespace tmx {
 
-MapObject::MapObject() {}
+MapObject::MapObject() : color_(255, 255, 255) {}
 
 MapObject::MapObject(const std::string& name, unsigned int width,
                      unsigned int height, float opacity, bool visible) :
@@ -40,6 +40,7 @@ MapObject::MapObject(const std::string& name, unsigned int width,
         width_(width),
         height_(height),
         opacity_(opacity),
+        color_(255, 255, 255),
         visible(visible) {
 }
 
@@ -56,7 +57,5 @@ void MapObject::AddProperty(const std::string& name, const std::string& value) {
 std::string& MapObject::GetPropertyValue(const std::string& name) {
     return properties_[name];
 }
-
-void MapObject::draw(sf::RenderTarget& target, sf::RenderStates states) const {}
 
 }  // namespace tmx

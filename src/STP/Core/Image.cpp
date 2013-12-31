@@ -24,56 +24,49 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILESET_HPP
-#define STP_TILESET_HPP
+#include "STP/Core/Image.hpp"
 
 #include <string>
 
-#include "SFML/Graphics/Texture.hpp"
-#include "SFML/Graphics/Rect.hpp"
-
-#include "STP/Config.hpp"
-#include "STP/Core/Image.hpp"
-
 namespace tmx {
 
-class STP_API TileSet {
- public:
-    typedef struct TileOffSet {  // 0.2
-        int x, y;
-        TileOffSet();
-    } TileOffSet;
+Image::Image() {}
 
-    struct TerrainTypes {  // 0.2
-    };
+Image::Image(const std::string& source, unsigned int width,
+             unsigned int height, int32_t trans, const std::string& format) :
+        source_(source),
+        trans_(trans),
+        width_(width),
+        height_(height),
+        format_(format) {
+    sf::Image newimage;
+    newimage.loadFromFile(source);
+    if (trans >= 0) {
+        unsigned char red, green, blue;
+        red = trans >> 16;
+        green = (trans >> 8) & 0xff;
+        blue = trans & 0xff;
+        newimage.createMaskFromColor(sf::Color(red, green, blue));
+    }
+    texture_.loadFromImage(newimage);
+}
 
-    struct Layer {  // 0.2
-    };
+Image::~Image() {}
 
- public:
-    TileSet();
-    TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-            unsigned int tileheight, unsigned int spacing, unsigned int margin,
-            tmx::Image image, tmx::TileSet::TileOffSet tileoffset);
+const std::string& Image::GetSource() const {
+    return source_;
+}
 
-    ~TileSet();
+unsigned int Image::GetWidth() const {
+    return width_;
+}
 
-    sf::IntRect GetTextureRect(unsigned int gid) const;
-    const sf::Texture* GetTexture() const;
+unsigned int Image::GetHeight() const {
+    return height_;
+}
 
-    std::string GetName() const;
-
-    unsigned int GetFirstGID() const;
-    unsigned int GetLastGID() const;
-
- private:
-    unsigned int firstgid_, lastgid_;
-    std::string name_;
-    unsigned int tilewidth_, tileheight_, spacing_, margin_;  // spacing, margin - 0.2
-    tmx::Image image_;
-    tmx::TileSet::TileOffSet tileoffset_;
-};
+const sf::Texture* Image::GetTexture() const {
+    return &texture_;
+}
 
 }  // namespace tmx
-
-#endif  // STP_TILESET_HPP

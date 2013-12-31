@@ -68,6 +68,8 @@ TileMap::TileMap(const std::string& file_to_parse) {
             AddLayer(ParseLayer(node, this));
         } else if (node_name == "objectgroup") {
             AddObjectGroup(ParseObjectGroup(node));
+        } else if (node_name == "imagelayer") {
+            AddImageLayer(ParseImageLayer(node, working_dir_));
         }
     }
 }
@@ -84,6 +86,11 @@ void TileMap::AddObjectGroup(tmx::ObjectGroup* newobjectgroup) {
     object_groups_[newobjectgroup->GetName()] = newobjectgroup;
 }
 
+void TileMap::AddImageLayer(tmx::ImageLayer* newimagelayer) {
+    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newimagelayer));
+    image_layers_[newimagelayer->GetName()] = newimagelayer;
+}
+
 void TileMap::AddTileSet(tmx::TileSet* newtileset) {
     tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
 }
@@ -94,6 +101,10 @@ tmx::Layer& TileMap::GetLayer(const std::string& layername) {
 
 tmx::ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {
     return *object_groups_[objectgroup_name];
+}
+
+tmx::ImageLayer& TileMap::GetImageLayer(const std::string& imagelayer_name) {
+    return *image_layers_[imagelayer_name];
 }
 
 void TileMap::HideObjects(bool hide) const {

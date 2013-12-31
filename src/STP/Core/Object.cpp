@@ -51,7 +51,7 @@ Object::Object(const std::string& name, const std::string& type, int x, int y,
     float l_width = static_cast<float>(width);
     float l_height = static_cast<float>(height);
 
-    if (shape_type == tmx::ObjectType::Polygon || shape_type == tmx::ObjectType::Polyline) {
+    if (shape_type == tmx::Polygon || shape_type == tmx::Polyline) {
         if (!vertices_points.empty()) {
             std::stringstream sstream(vertices_points);
             float x_pos, y_pos;
@@ -61,16 +61,16 @@ Object::Object(const std::string& name, const std::string& type, int x, int y,
                 sstream >> y_pos;
                 vertices_.push_back(sf::Vertex(sf::Vector2f(x_pos + left, y_pos + top)));
             }
-            if (shape_type == tmx::ObjectType::Polygon)
+            if (shape_type == tmx::Polygon)
                 vertices_.push_back(vertices_[0]);  // Add the last line to close the polygon
         }
-    } else if (shape_type == tmx::ObjectType::Rectangle) {
+    } else if (shape_type == tmx::Rectangle) {
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left + l_width, top)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left + l_width, top + l_height)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top + l_height)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top)));  // Add the last line to close the rectangle
-    } else if (shape_type == tmx::ObjectType::Ellipse) {
+    } else if (shape_type == tmx::Ellipse) {
         const float PI = 3.14159265358979f;
         float a = l_width / 2.f;
         float b = l_height / 2.f;
@@ -96,10 +96,9 @@ std::string& Object::GetPropertyValue(const std::string& name) {
     return properties_[name];
 }
 
-void Object::SetColor(unsigned char red, unsigned char green,
-                      unsigned char blue, unsigned char alpha) {
+void Object::SetColor(const sf::Color& color) {
     for (auto& vertice : vertices_) {
-        vertice.color = sf::Color(red, green, blue, alpha);
+        vertice.color = color;
     }
 }
 

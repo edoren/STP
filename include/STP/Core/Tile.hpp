@@ -34,18 +34,15 @@
 
 namespace tmx {
 
-class TileMap;
-
 class STP_API Tile : public sf::Drawable {
- private:
-    friend class TileMap;
-
  public:
     Tile();
     Tile(unsigned int gid, sf::IntRect tile_rect,
          const sf::Texture* texture,
          sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
     ~Tile();
+
+    void SetColor(const sf::Color& color);
 
  private:
     unsigned int gid_;

@@ -36,20 +36,37 @@ namespace tmx {
 ObjectGroup::ObjectGroup() {}
 
 ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
-                         float opacity, bool visible, uint32_t color) :
-        MapObject(name, width, height, opacity, visible),
-        color_(color) {
-    red_ = color >> 16;
-    green_ = (color >> 8) & 0xff;
-    blue_ = color & 0xff;
-    alpha_ = 0xff;
+                         float opacity, bool visible, int32_t hexcolor) :
+        MapObject(name, width, height, opacity, visible) {
+    if (hexcolor >= 0) {
+        color_.r = hexcolor >> 16;
+        color_.g = (hexcolor >> 8) & 0xff;
+        color_.b = hexcolor & 0xff;
+    }
+    color_.a = static_cast<unsigned char>(255 * opacity);
 }
 
 ObjectGroup::~ObjectGroup() {}
 
 void ObjectGroup::AddObject(tmx::Object newobject) {
-    newobject.SetColor(red_, green_, blue_, alpha_);
+    newobject.SetColor(color_);
     objects_.push_back(newobject);
+}
+
+void ObjectGroup::SetOpacity(float opacity) {
+    color_.a = static_cast<unsigned char>(255 * opacity);
+    for (auto& object : objects_) {
+        object.SetColor(color_);
+    }
+}
+
+void ObjectGroup::SetColor(const sf::Color& color) {
+    color_.r = color.r;
+    color_.g = color.g;
+    color_.b = color.b;
+    for (auto& object : objects_) {
+        object.SetColor(color_);
+    }
 }
 
 void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {

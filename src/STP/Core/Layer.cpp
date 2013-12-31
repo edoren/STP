@@ -40,12 +40,31 @@ Layer::Layer(const std::string& name, unsigned int width,
         MapObject(name, width, height, opacity, visible) {
     // Reserve space for each vector to avoid reallocate
     tiles_.reserve(width * height);
+    unsigned char alpha = static_cast<unsigned char>(255 * opacity);
+    color_.a = alpha;
 }
 
 Layer::~Layer() {}
 
 void Layer::AddTile(tmx::Tile newtile) {
+    newtile.SetColor(color_);
     tiles_.push_back(newtile);
+}
+
+void Layer::SetOpacity(float opacity) {
+    color_.a = static_cast<unsigned char>(255 * opacity);
+    for (auto& tile : tiles_) {
+        tile.SetColor(color_);
+    }
+}
+
+void Layer::SetColor(const sf::Color& color) {
+    color_.r = color.r;
+    color_.g = color.g;
+    color_.b = color.b;
+    for (auto& tile : tiles_) {
+        tile.SetColor(color_);
+    }
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {

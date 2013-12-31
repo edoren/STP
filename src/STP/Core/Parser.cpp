@@ -39,7 +39,7 @@ namespace tmx {
 tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string& working_dir) {
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
-    tmx::TileSet::Image image_data;
+    tmx::Image image_data;
     tmx::TileSet::TileOffSet tileoffset_data;
 
     // Get the map data
@@ -59,11 +59,24 @@ tmx::TileSet* ParseTileSet(const pugi::xml_node& tileset_node, const std::string
             tileoffset_data.x = node.attribute("x").as_int();
             tileoffset_data.y = node.attribute("y").as_int();
         } else if (node_name == "image") {
-            image_data.source = working_dir + node.attribute("source").as_string();
-            image_data.width = node.attribute("width").as_uint();
-            image_data.height = node.attribute("height").as_uint();
-            if (pugi::xml_attribute attribute_trans = node.attribute("trans"))
-                image_data.trans = attribute_trans.as_uint();
+            std::string format, source;
+            unsigned int width, height;
+            int32_t trans = -1;
+
+            source = working_dir + node.attribute("source").as_string();
+
+            width = node.attribute("width").as_uint();
+            height = node.attribute("height").as_uint();
+
+            if (pugi::xml_attribute attribute_trans = node.attribute("trans")) {
+                std::stringstream ss(attribute_trans.as_string());
+                ss >> std::hex >> trans;
+            }
+
+            if (pugi::xml_attribute attribute_format = node.attribute("format"))
+                format = attribute_format.as_string();
+
+            image_data = tmx::Image(source, width, height, trans, format);
         } else if (node_name == "terraintypes") {
         } else if (node_name == "tile") {
         }
@@ -204,7 +217,7 @@ void AddObjectProperties(pugi::xml_node object_node, tmx::Object* object) {
 
 tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node) {
     std::string name;
-    uint32_t color;
+    int32_t color = -1;
     unsigned int width, height;
     float opacity = 1.f;
     bool visible = true;
@@ -277,14 +290,14 @@ tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node) {
                 // Ellipse Object
                 tmx::Object newobject(object_name, object_type, object_x, object_y,
                                       object_width, object_height, object_rotation,
-                                      object_visible, tmx::ObjectType::Ellipse);
+                                      object_visible, tmx::Ellipse);
                 AddObjectProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             } else {
                 // Rectangle Object
                 tmx::Object newobject(object_name, object_type, object_x, object_y,
                                       object_width, object_height, object_rotation,
-                                      object_visible, tmx::ObjectType::Rectangle);
+                                      object_visible, tmx::Rectangle);
                 AddObjectProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             }
@@ -294,7 +307,7 @@ tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node) {
                 std::string vertices_points = polygon_node.attribute("points").as_string();
                 tmx::Object newobject(object_name, object_type, object_x, object_y,
                                       object_width, object_height, object_rotation,
-                                      object_visible, tmx::ObjectType::Polygon, vertices_points);
+                                      object_visible, tmx::Polygon, vertices_points);
                 AddObjectProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             } else if (pugi::xml_node polyline_node = object_node.child("polyline")) {
@@ -302,7 +315,7 @@ tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node) {
                 std::string vertices_points = polyline_node.attribute("points").as_string();
                 tmx::Object newobject(object_name, object_type, object_x, object_y,
                                       object_width, object_height, object_rotation,
-                                      object_visible, tmx::ObjectType::Polyline, vertices_points);
+                                      object_visible, tmx::Polyline, vertices_points);
                 AddObjectProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             }
@@ -310,6 +323,63 @@ tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node) {
     }
 
     return object_group;
+}
+
+tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir) {
+    std::string name;
+    unsigned int width, height;
+    float opacity = 1.f;  // range 0 - 1
+    bool visible = true;
+    tmx::Image image_data;
+
+    // Get the map data
+    name = imagelayer_node.attribute("name").as_string();
+    width = imagelayer_node.attribute("width").as_uint();
+    height = imagelayer_node.attribute("height").as_uint();
+    // Check if the opacity attribute exists in imagelayer_node
+    if (pugi::xml_attribute attribute_opacity = imagelayer_node.attribute("opacity"))
+        opacity = attribute_opacity.as_float();
+    // Check if the visible attribute exists in imagelayer_node
+    if (pugi::xml_attribute attribute_visible = imagelayer_node.attribute("visible"))
+        visible = attribute_visible.as_bool();
+
+    // Parse the image data
+    if (pugi::xml_node image_node = imagelayer_node.child("image")) {
+        std::string format, source;
+        unsigned int width, height;
+        int32_t trans = -1;
+
+        source = working_dir + image_node.attribute("source").as_string();
+
+        if (pugi::xml_attribute attribute_width = image_node.attribute("width"))
+            width = attribute_width.as_uint();
+        if (pugi::xml_attribute attribute_height = image_node.attribute("height"))
+            height = attribute_height.as_uint();
+
+        if (pugi::xml_attribute attribute_trans = image_node.attribute("trans")) {
+            std::stringstream ss(attribute_trans.as_string());
+            ss >> std::hex >> trans;
+        }
+
+        if (pugi::xml_attribute attribute_format = image_node.attribute("format"))
+            format = attribute_format.as_string();
+
+        image_data = tmx::Image(source, width, height, trans, format);
+    }
+
+    // Create the new ImageLayer
+    tmx::ImageLayer* imagelayer = new tmx::ImageLayer(name, width, height, opacity, visible, image_data);
+
+    // Parse the imagelayer properties
+    if (pugi::xml_node properties_node = imagelayer_node.child("properties")) {
+        for (pugi::xml_node property_node : properties_node.children("property")) {
+            std::string name = property_node.attribute("name").as_string();
+            std::string value = property_node.attribute("value").as_string();
+            imagelayer->AddProperty(name, value);
+        }
+    }
+
+    return imagelayer;
 }
 
 }  // namespace tmx
