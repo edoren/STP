@@ -65,7 +65,7 @@ tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& work
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
     tmx::Image image_data;
-    sf::Vector2i tileoffset_data = {0,0};
+    sf::Vector2i tileoffset_data = {0, 0};
 
     pugi::xml_node& tileset_node_ = tileset_node;
 

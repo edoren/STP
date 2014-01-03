@@ -49,7 +49,7 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         tileoffset_(tileoffset) {
     unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
     unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
-    if(spacing != 0) {
+    if (spacing != 0) {
         for (unsigned int i = 0; i <= width_no_margin; ++i) {
             i += tilewidth + spacing_;
             width_no_spacing_ += tilewidth;

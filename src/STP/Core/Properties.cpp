@@ -24,7 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#include "STP/Core/Object.hpp"
+#include "STP/Core/Properties.hpp"
 
 #include <string>
 
