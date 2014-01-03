@@ -25,7 +25,6 @@
 ////////////////////////////////////////////////////////////
 
 #include "STP/Core/Tile.hpp"
-
 #include "SFML/Graphics/RenderTarget.hpp"
 
 namespace tmx {
@@ -45,7 +44,7 @@ Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
 Tile::~Tile() {}
 
 void Tile::UpdatePositions() {
-    sf::FloatRect bounds = GetLocalBounds();
+    sf::FloatRect bounds = GetGlobalBounds();
 
     vertices_[0].position = sf::Vector2f(bounds.left, bounds.top);
     vertices_[1].position = sf::Vector2f(bounds.left + bounds.width, bounds.top);
@@ -65,11 +64,11 @@ void Tile::UpdateTexCoords() {
     vertices_[3].texCoords = sf::Vector2f(left, bottom);
 }
 
-sf::FloatRect Tile::GetLocalBounds() const {
-    float left = static_cast<float>(std::abs(tile_rect_.left));
-    float top = static_cast<float>(std::abs(tile_rect_.top));
-    float width = static_cast<float>(std::abs(tile_rect_.width));
-    float height = static_cast<float>(std::abs(tile_rect_.height));
+sf::FloatRect Tile::GetGlobalBounds() const {
+    float left = static_cast<float>(tile_rect_.left);
+    float top = static_cast<float>(tile_rect_.top);
+    float width = static_cast<float>(tile_rect_.width);
+    float height = static_cast<float>(tile_rect_.height);
 
     return sf::FloatRect(left, top, width, height);
 }

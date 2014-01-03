@@ -28,16 +28,16 @@
 #define STP_MAPOBJECT_HPP
 
 #include <string>
-#include <unordered_map>
 
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/Color.hpp"
 
 #include "STP/Config.hpp"
+#include "STP/Core/Properties.hpp"
 
 namespace tmx {
 
-class STP_API MapObject : public sf::Drawable {
+class STP_API MapObject : public sf::Drawable, public tmx::Properties {
  public:
     MapObject();
     MapObject(const std::string& name, unsigned int width,
@@ -48,9 +48,6 @@ class STP_API MapObject : public sf::Drawable {
     virtual void SetOpacity(float opacity) = 0;
     virtual void SetColor(const sf::Color& color) = 0;
 
-    void AddProperty(const std::string& name, const std::string& value);
-    std::string& GetPropertyValue(const std::string& name);
-
  private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 
@@ -59,8 +56,6 @@ class STP_API MapObject : public sf::Drawable {
     unsigned int width_, height_;
     float opacity_;  // range 0 - 1
     sf::Color color_;
-
-    std::unordered_map<std::string, std::string> properties_;
 
  public:
     bool visible;

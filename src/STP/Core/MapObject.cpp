@@ -50,12 +50,4 @@ std::string MapObject::GetName() const {
     return name_;
 }
 
-void MapObject::AddProperty(const std::string& name, const std::string& value) {
-    properties_[name] = value;
-}
-
-std::string& MapObject::GetPropertyValue(const std::string& name) {
-    return properties_[name];
-}
-
 }  // namespace tmx

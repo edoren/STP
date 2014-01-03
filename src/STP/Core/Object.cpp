@@ -88,14 +88,6 @@ Object::Object(const std::string& name, const std::string& type, int x, int y,
 
 Object::~Object() {}
 
-void Object::AddProperty(const std::string& name, const std::string& value) {
-    properties_[name] = value;
-}
-
-std::string& Object::GetPropertyValue(const std::string& name) {
-    return properties_[name];
-}
-
 void Object::SetColor(const sf::Color& color) {
     for (auto& vertice : vertices_) {
         vertice.color = color;

@@ -4,7 +4,7 @@ set(HEADER_DIR ${PROJECT_SOURCE_DIR}/include/STP)
 set(EXTLIBS_DIR ${PROJECT_SOURCE_DIR}/extlibs)
 
 set(STP_SOURCE 
-    ${SRC_DIR}/Core/TileMap.cpp
+    ${SRC_DIR}/Core/Properties.cpp
     ${SRC_DIR}/Core/MapObject.cpp
     ${SRC_DIR}/Core/Parser.hpp
     ${SRC_DIR}/Core/Parser.cpp
@@ -16,12 +16,13 @@ set(STP_SOURCE
     ${SRC_DIR}/Core/ObjectGroup.cpp
     ${SRC_DIR}/Core/Image.cpp
     ${SRC_DIR}/Core/ImageLayer.cpp
+    ${SRC_DIR}/Core/TileMap.cpp
     ${SRC_DIR}/Core/TileSet.cpp
 )
 
 set(STP_HEADERS
-    ${HEADER_DIR}/TMXLoader.hpp
-    ${HEADER_DIR}/Core/TileMap.hpp
+    ${HEADER_DIR}/Config.hpp
+    ${HEADER_DIR}/Core/Properties.hpp
     ${HEADER_DIR}/Core/MapObject.hpp
     ${HEADER_DIR}/Core/Tile.hpp
     ${HEADER_DIR}/Core/Layer.hpp
@@ -30,6 +31,8 @@ set(STP_HEADERS
     ${HEADER_DIR}/Core/Image.hpp
     ${HEADER_DIR}/Core/ImageLayer.hpp
     ${HEADER_DIR}/Core/TileSet.hpp
+    ${HEADER_DIR}/Core/TileMap.hpp
+    ${HEADER_DIR}/TMXLoader.hpp
 
 )
 

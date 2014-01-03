@@ -59,7 +59,7 @@ TileMap::TileMap(const std::string& file_to_parse) {
     tilewidth_ = map_node.attribute("tilewidth").as_uint();
     tileheight_ = map_node.attribute("tileheight").as_uint();
 
-    for (pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
+    for (pugi::xml_node node : map_node.children()) {
         std::string node_name = node.name();
         // Call the respective parse function for each node
         if (node_name == "tileset") {
@@ -72,6 +72,11 @@ TileMap::TileMap(const std::string& file_to_parse) {
             AddImageLayer(ParseImageLayer(node, working_dir_));
         }
     }
+
+    // Parse the map properties
+    ParseProperties(map_node, this);
+
+    ShowObjects(false);
 }
 
 TileMap::~TileMap() {}
@@ -95,6 +100,15 @@ void TileMap::AddTileSet(tmx::TileSet* newtileset) {
     tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
 }
 
+const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
+    if (gid == 0) return nullptr;
+    for (unsigned int i = 0; i < tilesets_.size(); ++i) {
+        if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
+            return &(*tilesets_[i]);
+    }
+    return nullptr;
+}
+
 tmx::Layer& TileMap::GetLayer(const std::string& layername) {
     return *layers_[layername];
 }
@@ -107,11 +121,9 @@ tmx::ImageLayer& TileMap::GetImageLayer(const std::string& imagelayer_name) {
     return *image_layers_[imagelayer_name];
 }
 
-void TileMap::HideObjects(bool hide) const {
-    if (hide) {
-        for (auto& object_group : object_groups_)
-            object_group.second->visible = false;
-    }
+void TileMap::ShowObjects(bool show) {
+    for (auto& object_group : object_groups_)
+        object_group.second->visible = show;
 }
 
 unsigned int TileMap::GetWidth() const {
@@ -128,15 +140,6 @@ unsigned int TileMap::GetTileWidth() const {
 
 unsigned int TileMap::GetTileHeight() const {
     return tileheight_;
-}
-
-const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
-    if (gid == 0) return nullptr;
-    for (unsigned int i = 0; i < tilesets_.size(); ++i) {
-        if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
-            return &(*tilesets_[i]);
-    }
-    return nullptr;
 }
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {

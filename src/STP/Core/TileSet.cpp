@@ -35,23 +35,37 @@ namespace tmx {
 TileSet::TileSet() {}
 
 TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-                 unsigned int tileheight, unsigned int spacing, unsigned int margin,
-                 tmx::Image image, tmx::TileSet::TileOffSet tileoffset) :
+                 unsigned int tileheight, tmx::Image image, unsigned int spacing,
+                 unsigned int margin, sf::Vector2i tileoffset) :
         firstgid_(firstgid),
         name_(name),
         tilewidth_(tilewidth),
         tileheight_(tileheight),
         spacing_(spacing),
         margin_(margin),
+        width_no_spacing_(0),
+        height_no_spacing_(0),
         image_(image),
         tileoffset_(tileoffset) {
-    lastgid_ = firstgid + (image.GetWidth() / tilewidth) * (image.GetHeight() / tileheight) - 1;
+    unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
+    unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
+    if(spacing != 0) {
+        for (unsigned int i = 0; i <= width_no_margin; ++i) {
+            i += tilewidth + spacing_;
+            width_no_spacing_ += tilewidth;
+        }
+        for (unsigned int i = 0; i <= height_no_margin; ++i) {
+            i += tileheight + spacing_;
+            height_no_spacing_ += tileheight;
+        }
+    } else {
+        width_no_spacing_ = width_no_margin;
+        height_no_spacing_ = height_no_margin;
+    }
+    lastgid_ = firstgid + (width_no_spacing_ / tilewidth) * (height_no_spacing_ / tileheight) - 1;
 }
 
 TileSet::~TileSet() {}
-
-// Struct default constructors
-TileSet::TileOffSet::TileOffSet() : x(0), y(0) {}
 
 std::string TileSet::GetName() const {
     return name_;
@@ -59,19 +73,34 @@ std::string TileSet::GetName() const {
 
 sf::IntRect TileSet::GetTextureRect(unsigned int gid) const {
     assert(gid >= firstgid_ && gid <= lastgid_);
-    int local_gid, width, x, y, x_pixels, y_pixels;
+    unsigned int local_gid, width, x, y, x_pixels,
+                 y_pixels, x_spacing, y_spacing;
     local_gid = gid - firstgid_ + 1;
-    width = image_.GetWidth() / tilewidth_;
-    y = static_cast<int> (std::ceil(local_gid / static_cast<float>(width)));
-    x = local_gid - ((y - 1) * width);
-    y_pixels = (y - 1) * tilewidth_;
-    x_pixels = (x - 1) * tileheight_;
-    sf::IntRect tilerect(x_pixels, y_pixels, tilewidth_, tileheight_);
-    return tilerect;
+    width = width_no_spacing_ / tilewidth_;
+    y = static_cast<unsigned int> (std::ceil(local_gid / static_cast<float>(width))) - 1;
+    x = local_gid - (y * width) - 1;
+    y_spacing = (spacing_ * y) + margin_;
+    x_spacing = (spacing_ * x) + margin_;
+    y_pixels = (y * tileheight_) + y_spacing;
+    x_pixels = (x * tilewidth_) + x_spacing;
+    sf::IntRect texture_rect(x_pixels, y_pixels, tilewidth_, tileheight_);
+    return texture_rect;
 }
 
 const sf::Texture* TileSet::GetTexture() const {
     return image_.GetTexture();
+}
+
+const sf::Vector2i TileSet::GetTileOffSet() const {
+    return tileoffset_;
+}
+
+unsigned int TileSet::GetTileWidth() const {
+    return tilewidth_;
+}
+
+unsigned int TileSet::GetTileHeight() const {
+    return tileheight_;
 }
 
 unsigned int TileSet::GetFirstGID() const {

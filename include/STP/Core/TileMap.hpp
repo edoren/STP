@@ -33,6 +33,7 @@
 #include <unordered_map>
 
 #include "STP/Config.hpp"
+#include "STP/Core/Properties.hpp"
 #include "STP/Core/TileSet.hpp"
 #include "STP/Core/Layer.hpp"
 #include "STP/Core/ObjectGroup.hpp"
@@ -40,7 +41,7 @@
 
 namespace tmx {
 
-class STP_API TileMap : public sf::Drawable {
+class STP_API TileMap : public sf::Drawable, public tmx::Properties {
  public:
     explicit TileMap(const std::string& tmx_file);
     ~TileMap();
@@ -56,7 +57,7 @@ class STP_API TileMap : public sf::Drawable {
     tmx::ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
     tmx::ImageLayer& GetImageLayer(const std::string& imagelayer_name);
 
-    void HideObjects(bool hide = true) const;
+    void ShowObjects(bool show = true);
 
     unsigned int GetWidth() const;
     unsigned int GetHeight() const;
@@ -66,9 +67,9 @@ class STP_API TileMap : public sf::Drawable {
 
  private:
     void AddLayer(tmx::Layer* newlayer);
-    void AddTileSet(tmx::TileSet* newtileset);
     void AddObjectGroup(tmx::ObjectGroup* newobjectgroup);
     void AddImageLayer(tmx::ImageLayer* newimagelayer);
+    void AddTileSet(tmx::TileSet* newtileset);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:

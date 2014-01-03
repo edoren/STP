@@ -36,21 +36,18 @@
 #include "SFML/Graphics/Drawable.hpp"
 
 #include "STP/Config.hpp"
+#include "STP/Core/Properties.hpp"
 
 namespace tmx {
 
 enum ObjectType { Rectangle, Ellipse, Polygon, Polyline };
 
-class STP_API Object : public sf::Drawable {
+class STP_API Object : public sf::Drawable, public tmx::Properties {
  public:
     Object(const std::string& name, const std::string& type, int x, int y,
            unsigned int width, unsigned int height, float rotation, bool visible,
            tmx::ObjectType shape_type, const std::string& vertices_points = std::string());
     ~Object();
-
-    void AddProperty(const std::string& name, const std::string& value);
-
-    std::string& GetPropertyValue(const std::string& name);
 
     void SetColor(const sf::Color& color);
 
@@ -65,7 +62,6 @@ class STP_API Object : public sf::Drawable {
     float rotation_;
 
     std::vector<sf::Vertex> vertices_;
-    std::unordered_map<std::string, std::string> properties_;
 
  public:
     bool visible;

@@ -56,7 +56,7 @@ class STP_API Tile : public sf::Drawable {
     void setTexture(unsigned int gid);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    sf::FloatRect GetLocalBounds() const;
+    sf::FloatRect GetGlobalBounds() const;
 
     void UpdatePositions();
     void UpdateTexCoords();
