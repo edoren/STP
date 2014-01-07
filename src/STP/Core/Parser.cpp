@@ -61,6 +61,29 @@ void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, const tmx
     layer->AddTile(newtile);
 }
 
+tmx::Image ParseImage(pugi::xml_node& image_node, const std::string& working_dir) {
+    std::string format, source;
+    unsigned int width = 0, height = 0;
+    int32_t trans = -1;
+
+    source = working_dir + image_node.attribute("source").as_string();
+
+    if (pugi::xml_attribute attribute_width = image_node.attribute("width"))
+        width = attribute_width.as_uint();
+    if (pugi::xml_attribute attribute_height = image_node.attribute("height"))
+        height = attribute_height.as_uint();
+
+    if (pugi::xml_attribute attribute_trans = image_node.attribute("trans")) {
+        std::stringstream ss(attribute_trans.as_string());
+        ss >> std::hex >> trans;
+    }
+
+    if (pugi::xml_attribute attribute_format = image_node.attribute("format"))
+        format = attribute_format.as_string();
+
+    return tmx::Image(source, width, height, trans, format);
+}
+
 tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir) {
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
@@ -97,26 +120,7 @@ tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& work
             tileoffset_data.x = node.attribute("x").as_int();
             tileoffset_data.y = node.attribute("y").as_int();
         } else if (node_name == "image") {
-            std::string format, source;
-            unsigned int width = 0, height = 0;
-            int32_t trans = -1;
-
-            source = working_dir + node.attribute("source").as_string();
-
-            if (pugi::xml_attribute attribute_width = node.attribute("width"))
-                width = attribute_width.as_uint();
-            if (pugi::xml_attribute attribute_height = node.attribute("height"))
-                height = attribute_height.as_uint();
-
-            if (pugi::xml_attribute attribute_trans = node.attribute("trans")) {
-                std::stringstream ss(attribute_trans.as_string());
-                ss >> std::hex >> trans;
-            }
-
-            if (pugi::xml_attribute attribute_format = node.attribute("format"))
-                format = attribute_format.as_string();
-
-            image_data = tmx::Image(source, width, height, trans, format);
+            image_data = ParseImage(node, working_dir);
         } else if (node_name == "terraintypes") {
         } else if (node_name == "tile") {
         }
@@ -357,26 +361,7 @@ tmx::ImageLayer* ParseImageLayer(pugi::xml_node& imagelayer_node, const std::str
 
     // Parse the image data
     if (pugi::xml_node image_node = imagelayer_node.child("image")) {
-        std::string format, source;
-        unsigned int width = 0, height = 0;
-        int32_t trans = -1;
-
-        source = working_dir + image_node.attribute("source").as_string();
-
-        if (pugi::xml_attribute attribute_width = image_node.attribute("width"))
-            width = attribute_width.as_uint();
-        if (pugi::xml_attribute attribute_height = image_node.attribute("height"))
-            height = attribute_height.as_uint();
-
-        if (pugi::xml_attribute attribute_trans = image_node.attribute("trans")) {
-            std::stringstream ss(attribute_trans.as_string());
-            ss >> std::hex >> trans;
-        }
-
-        if (pugi::xml_attribute attribute_format = image_node.attribute("format"))
-            format = attribute_format.as_string();
-
-        image_data = tmx::Image(source, width, height, trans, format);
+        image_data = ParseImage(image_node, working_dir);
     }
 
     // Create the new ImageLayer
