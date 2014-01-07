@@ -49,6 +49,10 @@ Image::Image(const std::string& source, unsigned int width,
         newimage.createMaskFromColor(sf::Color(red, green, blue));
     }
     texture_.loadFromImage(newimage);
+    if (width == 0 && height == 0) {
+        width_ = texture_.getSize().x;
+        height_ = texture_.getSize().y;
+    }
 }
 
 Image::~Image() {}

@@ -98,13 +98,15 @@ tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& work
             tileoffset_data.y = node.attribute("y").as_int();
         } else if (node_name == "image") {
             std::string format, source;
-            unsigned int width, height;
+            unsigned int width = 0, height = 0;
             int32_t trans = -1;
 
             source = working_dir + node.attribute("source").as_string();
 
-            width = node.attribute("width").as_uint();
-            height = node.attribute("height").as_uint();
+            if (pugi::xml_attribute attribute_width = node.attribute("width"))
+                width = attribute_width.as_uint();
+            if (pugi::xml_attribute attribute_height = node.attribute("height"))
+                height = attribute_height.as_uint();
 
             if (pugi::xml_attribute attribute_trans = node.attribute("trans")) {
                 std::stringstream ss(attribute_trans.as_string());
