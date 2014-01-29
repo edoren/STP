@@ -46,9 +46,9 @@ Layer::Layer(const std::string& name, unsigned int width,
 
 Layer::~Layer() {}
 
-void Layer::AddTile(tmx::Tile newtile) {
+void Layer::AddTile(tmx::Layer::Tile&& newtile) {
     newtile.SetColor(color_);
-    tiles_.push_back(newtile);
+    tiles_.push_back(std::move((newtile)));
 }
 
 void Layer::SetOpacity(float opacity) {
@@ -71,6 +71,68 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     if (visible) {
         for (unsigned int i = 0; i < tiles_.size(); ++i)
             target.draw(tiles_[i]);
+    }
+}
+
+////////////////////////////////////////////////////////////
+// Layer::Tile implementation
+////////////////////////////////////////////////////////////
+
+Layer::Tile::Tile() {}
+
+Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
+                  const sf::Texture* texture, sf::IntRect texture_rect) :
+        gid_(gid),
+        tile_rect_(tile_rect),
+        texture_(texture),
+        texture_rect_(texture_rect) {
+    UpdatePositions();
+    UpdateTexCoords();
+}
+
+Layer::Tile::~Tile() {}
+
+void Layer::Tile::UpdatePositions() {
+    sf::FloatRect bounds = GetGlobalBounds();
+
+    vertices_[0].position = sf::Vector2f(bounds.left, bounds.top);
+    vertices_[1].position = sf::Vector2f(bounds.left + bounds.width, bounds.top);
+    vertices_[2].position = sf::Vector2f(bounds.left + bounds.width, bounds.top + bounds.height);
+    vertices_[3].position = sf::Vector2f(bounds.left, bounds.top + bounds.height);
+}
+
+void Layer::Tile::UpdateTexCoords() {
+    float left   = static_cast<float>(texture_rect_.left);
+    float right  = left + texture_rect_.width;
+    float top    = static_cast<float>(texture_rect_.top);
+    float bottom = top + texture_rect_.height;
+
+    vertices_[0].texCoords = sf::Vector2f(left, top);
+    vertices_[1].texCoords = sf::Vector2f(right, top);
+    vertices_[2].texCoords = sf::Vector2f(right, bottom);
+    vertices_[3].texCoords = sf::Vector2f(left, bottom);
+}
+
+sf::FloatRect Layer::Tile::GetGlobalBounds() const {
+    float left = static_cast<float>(tile_rect_.left);
+    float top = static_cast<float>(tile_rect_.top);
+    float width = static_cast<float>(tile_rect_.width);
+    float height = static_cast<float>(tile_rect_.height);
+
+    return sf::FloatRect(left, top, width, height);
+}
+
+void Layer::Tile::SetColor(const sf::Color& color) {
+    vertices_[0].color = color;
+    vertices_[1].color = color;
+    vertices_[2].color = color;
+    vertices_[3].color = color;
+}
+
+void Layer::Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    if (texture_) {
+        states.texture = texture_;
+        target.draw(vertices_, 4, sf::Quads, states);
     }
 }
 

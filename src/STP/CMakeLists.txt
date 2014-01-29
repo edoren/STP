@@ -10,7 +10,6 @@ set(STP_SOURCE
     ${SRC_DIR}/Core/Parser.cpp
     ${SRC_DIR}/Core/Base64.hpp
     ${SRC_DIR}/Core/Base64.cpp
-    ${SRC_DIR}/Core/Tile.cpp
     ${SRC_DIR}/Core/Layer.cpp
     ${SRC_DIR}/Core/Object.cpp
     ${SRC_DIR}/Core/ObjectGroup.cpp
@@ -24,7 +23,6 @@ set(STP_HEADERS
     ${HEADER_DIR}/Config.hpp
     ${HEADER_DIR}/Core/Properties.hpp
     ${HEADER_DIR}/Core/MapObject.hpp
-    ${HEADER_DIR}/Core/Tile.hpp
     ${HEADER_DIR}/Core/Layer.hpp
     ${HEADER_DIR}/Core/Object.hpp
     ${HEADER_DIR}/Core/ObjectGroup.hpp

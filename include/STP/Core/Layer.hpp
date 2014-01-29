@@ -30,9 +30,11 @@
 #include <string>
 #include <vector>
 
+#include "SFML/Graphics/Vertex.hpp"
+#include "SFML/Graphics/Drawable.hpp"
+
 #include "STP/Config.hpp"
 #include "STP/Core/MapObject.hpp"
-#include "STP/Core/Tile.hpp"
 
 namespace tmx {
 
@@ -43,16 +45,53 @@ class STP_API Layer : public MapObject {
           unsigned int height, float opacity, bool visible);
     ~Layer();
 
-    void AddTile(tmx::Tile newtile);
+    friend class Parser;
+
+    class Tile;
 
     void SetOpacity(float opacity);
     void SetColor(const sf::Color& color);
 
  private:
+    void AddTile(tmx::Layer::Tile&& newtile);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    std::vector<tmx::Tile> tiles_;
+    std::vector<tmx::Layer::Tile> tiles_;
+};
+
+class STP_API Layer::Tile : public sf::Drawable {
+ public:
+    Tile(Tile&& other) = default;
+    ~Tile();
+
+    friend class Parser;
+
+    void SetColor(const sf::Color& color);
+    sf::FloatRect GetGlobalBounds() const;
+
+ private:
+    Tile();
+    Tile(const Tile& other) = delete;
+    Tile& operator= (const Tile& x) = delete;
+    Tile(unsigned int gid, sf::IntRect tile_rect,
+         const sf::Texture* texture,
+         sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
+
+ private:
+    unsigned int gid_;
+
+    sf::Vertex vertices_[4];
+    sf::IntRect tile_rect_;
+
+    const sf::Texture* texture_;
+    sf::IntRect texture_rect_;
+
+    void setTexture(unsigned int gid);
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+    void UpdatePositions();
+    void UpdateTexCoords();
 };
 
 }  // namespace tmx

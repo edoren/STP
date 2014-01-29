@@ -42,11 +42,18 @@
 
 namespace tmx {
 
-tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir);
-tmx::Layer* ParseLayer(pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
-tmx::ObjectGroup* ParseObjectGroup(pugi::xml_node& object_group_node);
-tmx::ImageLayer* ParseImageLayer(pugi::xml_node& imagelayer_node, const std::string& working_dir);
-void ParseProperties(pugi::xml_node& object_node, tmx::Properties* object);
+class Parser {
+ private:
+    static void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, const tmx::TileMap* tilemap);
+    static tmx::Image ParseImage(const pugi::xml_node& image_node, const std::string& working_dir);
+
+ public:
+    static tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir);
+    static tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap);
+    static tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+    static tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir);
+    static void ParseProperties(const pugi::xml_node& object_node, tmx::Properties* object);
+};
 
 }  // namespace tmx
 

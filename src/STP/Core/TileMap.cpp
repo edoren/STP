@@ -63,18 +63,18 @@ TileMap::TileMap(const std::string& file_to_parse) {
         std::string node_name = node.name();
         // Call the respective parse function for each node
         if (node_name == "tileset") {
-            AddTileSet(ParseTileSet(node, working_dir_));
+            AddTileSet(Parser::ParseTileSet(node, working_dir_));
         } else if (node_name == "layer") {
-            AddLayer(ParseLayer(node, this));
+            AddLayer(Parser::ParseLayer(node, this));
         } else if (node_name == "objectgroup") {
-            AddObjectGroup(ParseObjectGroup(node));
+            AddObjectGroup(Parser::ParseObjectGroup(node));
         } else if (node_name == "imagelayer") {
-            AddImageLayer(ParseImageLayer(node, working_dir_));
+            AddImageLayer(Parser::ParseImageLayer(node, working_dir_));
         }
     }
 
     // Parse the map properties
-    ParseProperties(map_node, this);
+    Parser::ParseProperties(map_node, this);
 
     ShowObjects(false);
 }
