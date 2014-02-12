@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>STP by edoren</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>STP</h1>
+        <h2>SFML TMX Parser</h2>
+        <a href="https://github.com/edoren/STP" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="what-is-stp" class="anchor" href="#what-is-stp"><span class="octicon octicon-link"></span></a>What is STP?</h1>
+
+<p>STP is a library extension for <a href="https://github.com/LaurentGomila/SFML">SFML2</a> designed to load the Tiled map format and use it with the SFML library.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>  Low memory usage.</li>
+<li>  Support all the encoding and compression formats.</li>
+<li>  Only Support for orthogonal maps (At the moment).</li>
+</ul><h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>STP is easy to use, here is a example code.</p>
+
+<div class="highlight highlight-c++"><pre><span class="cp">#include "SFML/Graphics.hpp"</span>
+<span class="cp">#include "STP/TMXLoader.hpp"</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">sf</span><span class="o">::</span><span class="n">RenderWindow</span> <span class="n">window</span><span class="p">(</span><span class="n">sf</span><span class="o">::</span><span class="n">VideoMode</span><span class="p">(</span><span class="mi">360</span><span class="p">,</span> <span class="mi">280</span><span class="p">),</span> <span class="s">"STP Example"</span><span class="p">);</span>
+    <span class="n">tmx</span><span class="o">::</span><span class="n">TileMap</span> <span class="n">map</span><span class="p">(</span><span class="s">"path/to/my/file/map.tmx"</span><span class="p">);</span>
+
+    <span class="n">map</span><span class="p">.</span><span class="n">ShowObjects</span><span class="p">();</span> <span class="c1">// Display all the layer objects.</span>
+
+    <span class="n">map</span><span class="p">.</span><span class="n">GetLayer</span><span class="p">(</span><span class="s">"World"</span><span class="p">).</span><span class="n">visible</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// Hide a Layer named World</span>
+
+    <span class="c1">// Start the game loop</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">window</span><span class="p">.</span><span class="n">isOpen</span><span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// Process events</span>
+        <span class="n">sf</span><span class="o">::</span><span class="n">Event</span> <span class="n">event</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">window</span><span class="p">.</span><span class="n">pollEvent</span><span class="p">(</span><span class="n">event</span><span class="p">))</span> <span class="p">{</span>
+            <span class="c1">// Close window : exit</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sf</span><span class="o">::</span><span class="n">Event</span><span class="o">::</span><span class="n">Closed</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="c1">// Clear screen</span>
+        <span class="n">window</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+        <span class="c1">// Draw the map</span>
+        <span class="n">window</span><span class="p">.</span><span class="n">draw</span><span class="p">(</span><span class="n">map</span><span class="p">);</span>
+        <span class="c1">// Update the window</span>
+        <span class="n">window</span><span class="p">.</span><span class="n">display</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/edoren/STP/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/edoren/STP/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/edoren/STP"></a> is maintained by <a href="https://github.com/edoren">edoren</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
