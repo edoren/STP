@@ -66,7 +66,14 @@ else()
 endif()
 
 # Configuration for some IDEs
-set_target_properties(${STP_LIB} PROPERTIES FOLDER "GDE")
+set_target_properties(${STP_LIB} PROPERTIES FOLDER "STP")
+
+# Find Zlib
+find_package(ZLIB)
+if(ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(${STP_LIB} ${ZLIB_LIBRARIES})
+endif()
 
 # Find SFML
 find_package(SFML 2.1 COMPONENTS graphics window system REQUIRED)

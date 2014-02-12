@@ -31,10 +31,62 @@
 #include <vector>
 
 #include "SFML/Graphics/PrimitiveType.hpp"
+#include "zlib.h"
 
 #include "Base64.hpp"
 
 namespace tmx {
+
+std::string Parser::DecompressString(const std::string& compressed_string, int buffer_size) {
+    z_stream zstream;
+
+    std::string outstring;
+
+    zstream.zalloc = Z_NULL;
+    zstream.zfree = Z_NULL;
+    zstream.opaque = Z_NULL;
+    zstream.next_in = (Bytef*)compressed_string.data();
+    zstream.avail_in = compressed_string.size();
+
+    int result;
+    result = inflateInit2(&zstream, 15 + 32);
+
+    char outbuffer[buffer_size];
+
+    if (result != Z_OK) {
+        return NULL;
+    }
+
+    do {
+        zstream.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zstream.avail_out = sizeof(outbuffer);
+
+        result = inflate(&zstream, Z_SYNC_FLUSH);
+
+        switch (result) {
+            case Z_NEED_DICT:
+            case Z_STREAM_ERROR:
+                result = Z_DATA_ERROR;
+            case Z_DATA_ERROR:
+            case Z_MEM_ERROR:
+                inflateEnd(&zstream);
+                return NULL;
+        }
+
+        if (outstring.size() < zstream.total_out) {
+            outstring.append(outbuffer, zstream.total_out - outstring.size());
+        }
+    }
+    while (result != Z_STREAM_END);
+
+    if (zstream.avail_in != 0) {
+        return NULL;
+    }
+
+    inflateEnd(&zstream);
+
+    return outstring;
+}
 
 void Parser::ParseProperties(const pugi::xml_node& object_node, tmx::Properties* object) {
     if (pugi::xml_node properties_node = object_node.child("properties")) {
@@ -183,11 +235,10 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, const tmx::Tile
                 byteVector.reserve(expectedSize);
 
                 // Check if the compression attribute exists in data_node
-                if (pugi::xml_attribute attribute_compression = data_node.attribute("compression")) {
-                    std::string compression = attribute_compression.as_string();
-                    //
-                    //
-                    //
+                if (data_node.attribute("compression")) {
+                    std::string decompressed_data = DecompressString(data, expectedSize);
+                    for (std::string::iterator i = decompressed_data.begin(); i != decompressed_data.end(); ++i)
+                        byteVector.push_back(*i);
                 } else {
                     for (std::string::iterator i = data.begin(); i != data.end(); ++i)
                         byteVector.push_back(*i);
