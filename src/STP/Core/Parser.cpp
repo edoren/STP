@@ -353,16 +353,16 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
         if (object_width && object_height) {
             if (object_node.child("ellipse")) {
                 // Ellipse Object
-                tmx::Object newobject(object_name, object_type, object_x, object_y,
-                                      object_width, object_height, object_rotation,
-                                      object_visible, tmx::Ellipse);
+                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
+                                                   object_width, object_height, object_rotation,
+                                                   object_visible, tmx::Ellipse);
                 Parser::ParseProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             } else {
                 // Rectangle Object
-                tmx::Object newobject(object_name, object_type, object_x, object_y,
-                                      object_width, object_height, object_rotation,
-                                      object_visible, tmx::Rectangle);
+                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
+                                                   object_width, object_height, object_rotation,
+                                                   object_visible, tmx::Rectangle);
                 Parser::ParseProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             }
@@ -370,17 +370,17 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
             if (pugi::xml_node polygon_node = object_node.child("polygon")) {
                 // Polygon Object
                 std::string vertices_points = polygon_node.attribute("points").as_string();
-                tmx::Object newobject(object_name, object_type, object_x, object_y,
-                                      object_width, object_height, object_rotation,
-                                      object_visible, tmx::Polygon, vertices_points);
+                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
+                                                   object_width, object_height, object_rotation,
+                                                   object_visible, tmx::Polygon, vertices_points);
                 Parser::ParseProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             } else if (pugi::xml_node polyline_node = object_node.child("polyline")) {
                 // Polyline Object
                 std::string vertices_points = polyline_node.attribute("points").as_string();
-                tmx::Object newobject(object_name, object_type, object_x, object_y,
-                                      object_width, object_height, object_rotation,
-                                      object_visible, tmx::Polyline, vertices_points);
+                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
+                                                   object_width, object_height, object_rotation,
+                                                   object_visible, tmx::Polyline, vertices_points);
                 Parser::ParseProperties(object_node, &newobject);
                 object_group->AddObject(newobject);
             }

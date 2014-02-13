@@ -31,11 +31,16 @@
 #include <vector>
 #include <unordered_map>
 
+#include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include "SFML/Graphics/Drawable.hpp"
+
 #include "STP/Config.hpp"
 #include "STP/Core/MapObject.hpp"
-#include "STP/Core/Object.hpp"
 
 namespace tmx {
+
+enum ObjectType { Rectangle, Ellipse, Polygon, Polyline };
 
 class STP_API ObjectGroup : public MapObject {
  public:
@@ -44,7 +49,9 @@ class STP_API ObjectGroup : public MapObject {
                 float opacity, bool visible, int32_t hexcolor = -1);
     ~ObjectGroup();
 
-    void AddObject(tmx::Object newobject);
+    class Object;
+
+    void AddObject(tmx::ObjectGroup::Object newobject);
 
     void SetOpacity(float opacity);
     void SetColor(const sf::Color& color);
@@ -53,7 +60,32 @@ class STP_API ObjectGroup : public MapObject {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    std::vector<tmx::Object> objects_;
+    std::vector<tmx::ObjectGroup::Object> objects_;
+};
+
+class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties {
+ public:
+    Object(const std::string& name, const std::string& type, int x, int y,
+           unsigned int width, unsigned int height, float rotation, bool visible,
+           tmx::ObjectType shape_type, const std::string& vertices_points = std::string());
+    ~Object();
+
+    void SetColor(const sf::Color& color);
+
+ private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+ private:
+    std::string name_;
+    std::string type_;
+    unsigned int x_, y_;
+    unsigned int width_, height_;
+    float rotation_;
+
+    std::vector<sf::Vertex> vertices_;
+
+ public:
+    bool visible;
 };
 
 }  // namespace tmx
