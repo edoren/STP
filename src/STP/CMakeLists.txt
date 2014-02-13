@@ -11,7 +11,6 @@ set(STP_SOURCE
     ${SRC_DIR}/Core/Base64.hpp
     ${SRC_DIR}/Core/Base64.cpp
     ${SRC_DIR}/Core/Layer.cpp
-    ${SRC_DIR}/Core/Object.cpp
     ${SRC_DIR}/Core/ObjectGroup.cpp
     ${SRC_DIR}/Core/Image.cpp
     ${SRC_DIR}/Core/ImageLayer.cpp
@@ -24,7 +23,6 @@ set(STP_HEADERS
     ${HEADER_DIR}/Core/Properties.hpp
     ${HEADER_DIR}/Core/MapObject.hpp
     ${HEADER_DIR}/Core/Layer.hpp
-    ${HEADER_DIR}/Core/Object.hpp
     ${HEADER_DIR}/Core/ObjectGroup.hpp
     ${HEADER_DIR}/Core/Image.hpp
     ${HEADER_DIR}/Core/ImageLayer.hpp
@@ -69,7 +67,7 @@ endif()
 set_target_properties(${STP_LIB} PROPERTIES FOLDER "STP")
 
 # Find Zlib
-find_package(ZLIB)
+find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
     target_link_libraries(${STP_LIB} ${ZLIB_LIBRARIES})
