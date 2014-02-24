@@ -45,7 +45,7 @@ std::string Parser::DecompressString(const std::string& compressed_string, int b
     zstream.zalloc = Z_NULL;
     zstream.zfree = Z_NULL;
     zstream.opaque = Z_NULL;
-    zstream.next_in = (Bytef*)compressed_string.data();
+    zstream.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(compressed_string.data()));
     zstream.avail_in = compressed_string.size();
 
     int result;
@@ -76,8 +76,7 @@ std::string Parser::DecompressString(const std::string& compressed_string, int b
         if (outstring.size() < zstream.total_out) {
             outstring.append(outbuffer, zstream.total_out - outstring.size());
         }
-    }
-    while (result != Z_STREAM_END);
+    } while (result != Z_STREAM_END);
 
     if (zstream.avail_in != 0) {
         return NULL;
