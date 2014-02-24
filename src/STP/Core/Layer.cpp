@@ -44,8 +44,6 @@ Layer::Layer(const std::string& name, unsigned int width,
     color_.a = alpha;
 }
 
-Layer::~Layer() {}
-
 void Layer::AddTile(tmx::Layer::Tile&& newtile) {
     newtile.SetColor(color_);
     tiles_.push_back(std::move((newtile)));
@@ -89,8 +87,6 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
     UpdatePositions();
     UpdateTexCoords();
 }
-
-Layer::Tile::~Tile() {}
 
 void Layer::Tile::UpdatePositions() {
     sf::FloatRect bounds = GetGlobalBounds();

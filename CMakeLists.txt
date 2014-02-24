@@ -52,5 +52,9 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
+if(STP_BUILD_DOC)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/doc)
+endif()
+
 # Source directory
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/STP)

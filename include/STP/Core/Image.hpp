@@ -27,6 +27,9 @@
 #ifndef STP_IMAGE_HPP
 #define STP_IMAGE_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
 
@@ -37,17 +40,54 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Class for loading images
+///
+////////////////////////////////////////////////////////////
 class STP_API Image {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
     Image();
-    Image(const std::string& source, unsigned int width, unsigned int height,
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Load a image given a source
+    ///
+    /// \param source The reference to the tileset image file
+    /// \param width  The image width in pixels. (Defaults to 0)
+    /// \param height The image height in pixels. (Defaults to 0)
+    /// \param trans  Defines a specific color that is treated as transparent (example value: 0xFF00FF for magenta)
+    /// \param format Used for embedded images, in combination with a data child element
+    ///
+    ////////////////////////////////////////////////////////////
+    Image(const std::string& source, unsigned int width = 0, unsigned int height = 0,
           int32_t trans = -1, const std::string& format = std::string());
-    ~Image();
 
  public:
-    const std::string& GetSource() const;
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the image width
+    ///
+    /// \return The image width in pixels
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetWidth() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the image height
+    ///
+    /// \return The image height in pixels
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetHeight() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return sf::Texture attached to the image
+    ///
+    /// \return Pointer to a constant sf::Texture
+    ///
+    ////////////////////////////////////////////////////////////
     const sf::Texture* GetTexture() const;
 
  private:

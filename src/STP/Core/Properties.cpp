@@ -31,7 +31,6 @@
 namespace tmx {
 
 Properties::Properties() {}
-Properties::~Properties() {}
 
 void Properties::AddProperty(const std::string& name, const std::string& value) {
     properties_[name] = value;

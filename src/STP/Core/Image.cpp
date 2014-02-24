@@ -55,12 +55,6 @@ Image::Image(const std::string& source, unsigned int width,
     }
 }
 
-Image::~Image() {}
-
-const std::string& Image::GetSource() const {
-    return source_;
-}
-
 unsigned int Image::GetWidth() const {
     return width_;
 }

@@ -79,8 +79,6 @@ TileMap::TileMap(const std::string& file_to_parse) {
     ShowObjects(false);
 }
 
-TileMap::~TileMap() {}
-
 void TileMap::AddLayer(tmx::Layer* newlayer) {
     map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newlayer));
     layers_[newlayer->GetName()] = newlayer;
@@ -109,8 +107,8 @@ const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
     return nullptr;
 }
 
-tmx::Layer& TileMap::GetLayer(const std::string& layername) {
-    return *layers_[layername];
+tmx::Layer& TileMap::GetLayer(const std::string& layer_name) {
+    return *layers_[layer_name];
 }
 
 tmx::ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {

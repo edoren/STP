@@ -27,6 +27,9 @@
 #ifndef STP_MAPOBJECT_HPP
 #define STP_MAPOBJECT_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 
 #include "SFML/Graphics/Drawable.hpp"
@@ -37,27 +40,80 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Abstract base class for managing the Tiled elements:
+///        Layer, ObjectGroup, ImageLayer
+///
+////////////////////////////////////////////////////////////
 class STP_API MapObject : public sf::Drawable, public tmx::Properties {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
     MapObject();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructor with common attributes of the map object
+    ///
+    /// \param name    Name of the Tiled element
+    /// \param width   Width of the Tiled element
+    /// \param height  Height of the Tiled element
+    /// \param opacity Opacity of the Tiled element
+    /// \param visible Visibility of the Tiled element
+    ///
+    ////////////////////////////////////////////////////////////
     MapObject(const std::string& name, unsigned int width,
               unsigned int height, float opacity, bool visible);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Default virtual destructor
+    ///
+    ////////////////////////////////////////////////////////////
     virtual ~MapObject();
 
-    std::string GetName() const;
-    virtual void SetOpacity(float opacity) = 0;
+ public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the name of the Tiled element
+    ///
+    /// \return Reference to a const string
+    ///
+    ////////////////////////////////////////////////////////////
+    const std::string& GetName() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the color of the Tiled element, does not affect the opacity
+    ///
+    /// \param color sf::Color RGB value
+    ///
+    ////////////////////////////////////////////////////////////
     virtual void SetColor(const sf::Color& color) = 0;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the opacity of the Tiled element
+    ///
+    /// \param opacity Float value between 0.0 to 1.0
+    ///
+    ////////////////////////////////////////////////////////////
+    virtual void SetOpacity(float opacity) = 0;
 
  private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 
  protected:
+    /// \brief Name of the Tiled element
     std::string name_;
-    unsigned int width_, height_;
-    float opacity_;  // range 0 - 1
+    /// \brief Width of the Tiled element
+    unsigned int width_;
+    /// \brief Height of the Tiled element
+    unsigned int height_;
+    /// \brief Opacity of the Tiled element
+    float opacity_;
+    /// \brief Color of the Tiled element
     sf::Color color_;
 
  public:
+    /// \brief Visibility of the Tiled element
     bool visible;
 };
 

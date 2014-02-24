@@ -27,6 +27,9 @@
 #ifndef STP_PROPERTIES_HPP
 #define STP_PROPERTIES_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 #include <unordered_map>
 
@@ -34,15 +37,39 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Base class to manage the Tiled properties of an element
+///
+////////////////////////////////////////////////////////////
 class STP_API Properties {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
     Properties();
-    ~Properties();
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Add new property.
+    ///
+    /// \param name  The name of the property
+    /// \param value The value of the property
+    ///
+    ////////////////////////////////////////////////////////////
     void AddProperty(const std::string& name, const std::string& value);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return a property value given a name
+    ///
+    /// \param name  The name of the property
+    ///
+    /// \return Reference to the property value
+    ///
+    ////////////////////////////////////////////////////////////
     std::string& GetPropertyValue(const std::string& name);
 
  protected:
+    /// \brief Hash table to store the values
     std::unordered_map<std::string, std::string> properties_;
 };
 

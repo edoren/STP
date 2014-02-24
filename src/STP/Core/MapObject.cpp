@@ -46,7 +46,7 @@ MapObject::MapObject(const std::string& name, unsigned int width,
 
 MapObject::~MapObject() {}
 
-std::string MapObject::GetName() const {
+const std::string& MapObject::GetName() const {
     return name_;
 }
 

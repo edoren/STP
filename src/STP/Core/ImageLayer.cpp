@@ -54,8 +54,6 @@ ImageLayer::ImageLayer(const std::string& name, unsigned int width,
     vertices_[3].texCoords = sf::Vector2f(0.f, texture_size_y);
 }
 
-ImageLayer::~ImageLayer() {}
-
 const sf::Texture* ImageLayer::GetTexture() const {
     return image_.GetTexture();
 }

@@ -27,6 +27,9 @@
 #ifndef STP_TILEMAP_HPP
 #define STP_TILEMAP_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
 #include <memory>
@@ -41,28 +44,106 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Main class to manage the TMX Map Format
+///
+////////////////////////////////////////////////////////////
 class STP_API TileMap : public sf::Drawable, public tmx::Properties {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Parse and load the TMX file given a path to it
+    ///
+    /// \param tmx_file Path to the TMX file
+    ///
+    ////////////////////////////////////////////////////////////
     explicit TileMap(const std::string& tmx_file);
-    ~TileMap();
 
  private:
     TileMap(const TileMap& other) = delete;
     TileMap& operator =(const TileMap&) = delete;
 
  public:
-    // Return the tileset attached to the global id
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the tile set attached to the global id
+    ///
+    /// \param gid The gid of the tile
+    ///
+    /// \return Pointer to a constant tmx::TileSet
+    ///
+    ////////////////////////////////////////////////////////////
     const tmx::TileSet* GetTileSet(unsigned int gid) const;
-    tmx::Layer& GetLayer(const std::string& layername);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the layer based on its name
+    ///
+    /// \param layer_name The name of the layer
+    ///
+    /// \return Reference to a tmx::Layer
+    ///
+    ////////////////////////////////////////////////////////////
+    tmx::Layer& GetLayer(const std::string& layer_name);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the object group based on its name
+    ///
+    /// \param objectgroup_name The name of the object group
+    ///
+    /// \return Reference to a tmx::ObjectGroup
+    ///
+    ////////////////////////////////////////////////////////////
     tmx::ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the image layer based on its name
+    ///
+    /// \param imagelayer_name The name of the image layer
+    ///
+    /// \return Reference to a tmx::ImageLayer
+    ///
+    ////////////////////////////////////////////////////////////
     tmx::ImageLayer& GetImageLayer(const std::string& imagelayer_name);
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Display the objects in the map
+    ///
+    /// \param show true, displays it\n
+    ///             false, hides it
+    ///
+    /// \return Reference to a tmx::ImageLayer
+    ///
+    ////////////////////////////////////////////////////////////
     void ShowObjects(bool show = true);
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the map width
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetWidth() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the map height
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetHeight() const;
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the tile width
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetTileWidth() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the tile height
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
 
  private:

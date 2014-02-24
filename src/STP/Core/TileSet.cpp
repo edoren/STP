@@ -65,9 +65,7 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
     lastgid_ = firstgid + (width_no_spacing_ / tilewidth) * (height_no_spacing_ / tileheight) - 1;
 }
 
-TileSet::~TileSet() {}
-
-std::string TileSet::GetName() const {
+const std::string& TileSet::GetName() const {
     return name_;
 }
 

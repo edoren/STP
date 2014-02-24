@@ -27,6 +27,9 @@
 #ifndef STP_OBJECTGROUP_HPP
 #define STP_OBJECTGROUP_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -42,19 +45,64 @@ namespace tmx {
 
 enum ObjectType { Rectangle, Ellipse, Polygon, Polyline };
 
+////////////////////////////////////////////////////////////
+/// \brief Class for manage the TMX ObjectGroups
+///
+////////////////////////////////////////////////////////////
 class STP_API ObjectGroup : public MapObject {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    /// Constructs an empty object group with no values.
+    ///
+    ////////////////////////////////////////////////////////////
     ObjectGroup();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructs a object group given a name, width, height
+    ///        opacity, visible and hexcolor atributes
+    ///
+    /// \param name     The name of the object group
+    /// \param width    The width of the object group in tiles
+    /// \param height   The height of the object group in tiles
+    /// \param opacity  Float value between 0.0 to 1.0
+    /// \param visible  The visibility of the object group
+    /// \param hexcolor Hexadecimal color used to display the objects in this group. (example value: 0x0000FF for blue)
+    ///
+    ////////////////////////////////////////////////////////////
     ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
                 float opacity, bool visible, int32_t hexcolor = -1);
-    ~ObjectGroup();
 
+    ////////////////////////////////////////////////////////////
+    /// Nested classes
+    ///
+    ////////////////////////////////////////////////////////////
     class Object;
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Add a new Object to the object group
+    ///
+    /// \param newobject Object to be added
+    ///
+    ////////////////////////////////////////////////////////////
     void AddObject(tmx::ObjectGroup::Object newobject);
 
-    void SetOpacity(float opacity);
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the color of the object group, does not affect the opacity
+    ///
+    /// \param color sf::Color RGB value
+    ///
+    ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the opacity of the object group
+    ///
+    /// \param opacity Float value between 0.0 to 1.0
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetOpacity(float opacity);
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -63,13 +111,39 @@ class STP_API ObjectGroup : public MapObject {
     std::vector<tmx::ObjectGroup::Object> objects_;
 };
 
+////////////////////////////////////////////////////////////
+/// \brief Class for manage each Object inside of the ObjectGroup
+///
+////////////////////////////////////////////////////////////
 class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Construct a Object given a name, width, height
+    ///        rotation, visible and image atributes
+    ///
+    /// \param name            The name of the object (An arbitrary string)
+    /// \param type            The type of the object (An arbitrary string)
+    /// \param x               The x coordinate of the object in pixels
+    /// \param y               The y coordinate of the object in pixels
+    /// \param width           The width of the object in pixels (defaults to 0)
+    /// \param height          The width of the object in pixels (defaults to 0)
+    /// \param rotation        The rotation of the object in degrees clockwise (defaults to 0)
+    /// \param visible         The visibility of the object
+    /// \param shape_type      The shape type of the object, see tmx::ObjectType
+    /// \param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
+    ///
+    ////////////////////////////////////////////////////////////
     Object(const std::string& name, const std::string& type, int x, int y,
            unsigned int width, unsigned int height, float rotation, bool visible,
            tmx::ObjectType shape_type, const std::string& vertices_points = std::string());
-    ~Object();
 
+ public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the color of the tile, affect the opacity.
+    ///
+    /// \param color sf::Color RGBA value
+    ///
+    ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
  private:
@@ -85,6 +159,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     std::vector<sf::Vertex> vertices_;
 
  public:
+    /// \brief Visibility of the Object
     bool visible;
 };
 

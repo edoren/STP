@@ -27,6 +27,9 @@
 #ifndef STP_TILESET_HPP
 #define STP_TILESET_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 
 #include "SFML/Graphics/Texture.hpp"
@@ -38,6 +41,10 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Class for manage the TMX TileSets
+///
+////////////////////////////////////////////////////////////
 class STP_API TileSet : public tmx::Properties {
  public:
     class Tile : public tmx::Properties {  // 0.2
@@ -48,22 +55,94 @@ class STP_API TileSet : public tmx::Properties {
     };
 
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
     TileSet();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructs a tileset
+    ///
+    /// \param firstgid   The first global tile ID of this tileset (this global ID maps to the first tile in this tileset)
+    /// \param name       The name of the tileset in tiles
+    /// \param tilewidth  The width of the tiles in pixels
+    /// \param tileheight The height of the tiles in pixels
+    /// \param image      The tmx::Image attached to it
+    /// \param spacing    The spacing in pixels between the tiles
+    /// \param margin     The margin around the tiles
+    /// \param tileoffset Offset in pixels, to be applied when drawing a tile from the related tileset
+    ///
+    ////////////////////////////////////////////////////////////
     TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
             unsigned int tileheight, tmx::Image image, unsigned int spacing = 0,
             unsigned int margin = 0, sf::Vector2i tileoffset = {0, 0});
 
-    ~TileSet();
-
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns a sf::IntRect with the position of the
+    ///        tile texture in the attached image
+    ///
+    /// \param gid The global id of the tile
+    ///
+    /// \return The position of the tile texture in the image
+    ///
+    ////////////////////////////////////////////////////////////
     sf::IntRect GetTextureRect(unsigned int gid) const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the texture attached to the tileset
+    ///
+    /// \return Pointer to a constant sf::Texture
+    ///
+    ////////////////////////////////////////////////////////////
     const sf::Texture* GetTexture() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the tile offset
+    ///
+    /// \return sf::Vector2i with the offset
+    ///
+    ////////////////////////////////////////////////////////////
     const sf::Vector2i GetTileOffSet() const;
 
-    std::string GetName() const;
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the tileset name
+    ///
+    /// \return The name of the tileset
+    ///
+    ////////////////////////////////////////////////////////////
+    const std::string& GetName() const;
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the width of the tiles in this tileset.
+    ///
+    /// \return The width of the tiles in pixels
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetTileWidth() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the height of the tiles in this tileset.
+    ///
+    /// \return The height of the tiles in pixels
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the first global tile ID of this tileset
+    ///
+    /// \return Global tile ID of the first tile in this tileset
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetFirstGID() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the last global tile ID of this tileset
+    ///
+    /// \return Global tile ID of the last tile in this tileset
+    ///
+    ////////////////////////////////////////////////////////////
     unsigned int GetLastGID() const;
 
  private:

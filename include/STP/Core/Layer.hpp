@@ -27,6 +27,9 @@
 #ifndef STP_LAYER_HPP
 #define STP_LAYER_HPP
 
+////////////////////////////////////////////////////////////
+// Headers
+////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
 
@@ -38,37 +41,97 @@
 
 namespace tmx {
 
+////////////////////////////////////////////////////////////
+/// \brief Class for manage the TMX Layers
+///
+////////////////////////////////////////////////////////////
 class STP_API Layer : public MapObject {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    /// Constructs an empty layer with no values.
+    ///
+    ////////////////////////////////////////////////////////////
     Layer();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructs a layer given a name, width, height,
+    ///        opacity and visible attributes
+    ///
+    /// \param name    The name of the layer
+    /// \param width   The width of the layer in tiles
+    /// \param height  The height of the layer in tiles
+    /// \param opacity Float value between 0.0 to 1.0
+    /// \param visible The visibility of the layer
+    ///
+    ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
           unsigned int height, float opacity, bool visible);
-    ~Layer();
 
-    friend class Parser;
-
+    ////////////////////////////////////////////////////////////
+    /// Nested classes
+    ///
+    ////////////////////////////////////////////////////////////
     class Tile;
 
-    void SetOpacity(float opacity);
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the color of the layer, does not affect the opacity
+    ///
+    /// \param color sf::Color RGB value
+    ///
+    ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
- private:
-    void AddTile(tmx::Layer::Tile&& newtile);
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the opacity of the layer
+    ///
+    /// \param opacity Float value between 0.0 to 1.0
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetOpacity(float opacity);
 
  private:
+    ////////////////////////////////////////////////////////////
+    /// \brief Friend class
+    ///
+    ////////////////////////////////////////////////////////////
+    friend class Parser;
+
+    void AddTile(tmx::Layer::Tile&& newtile);
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     std::vector<tmx::Layer::Tile> tiles_;
 };
 
+////////////////////////////////////////////////////////////
+/// \brief Class for manage each Tile inside a Layer
+///
+////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
  public:
+    ////////////////////////////////////////////////////////////
+    /// \brief Move constructor
+    ///
+    /// \param other Tile to be moved
+    ///
+    ////////////////////////////////////////////////////////////
     Tile(Tile&& other) = default;
-    ~Tile();
 
-    friend class Parser;
-
-    void SetColor(const sf::Color& color);
+    ////////////////////////////////////////////////////////////
+    /// \brief Get the global bounds of the tile
+    ///
+    /// \return Global bounds of the tile
+    ///
+    ////////////////////////////////////////////////////////////
     sf::FloatRect GetGlobalBounds() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Change the color of the tile, affect the opacity.
+    ///
+    /// \param color sf::Color RGBA value
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetColor(const sf::Color& color);
 
  private:
     Tile();
@@ -77,6 +140,8 @@ class STP_API Layer::Tile : public sf::Drawable {
     Tile(unsigned int gid, sf::IntRect tile_rect,
          const sf::Texture* texture,
          sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
+
+    friend class Parser;
 
  private:
     unsigned int gid_;

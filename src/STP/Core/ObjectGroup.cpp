@@ -48,8 +48,6 @@ ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned i
     color_.a = static_cast<unsigned char>(255 * opacity);
 }
 
-ObjectGroup::~ObjectGroup() {}
-
 void ObjectGroup::AddObject(tmx::ObjectGroup::Object newobject) {
     newobject.SetColor(color_);
     objects_.push_back(newobject);
@@ -132,8 +130,6 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
         }
     }
 }
-
-ObjectGroup::Object::~Object() {}
 
 void ObjectGroup::Object::SetColor(const sf::Color& color) {
     for (auto& vertice : vertices_) {
