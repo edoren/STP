@@ -81,3 +81,7 @@ if(SFML_FOUND)
 else()
     message("\n-> SFML directory not found. Put the SFML's top-level path (containing \"include\" and \"lib\" directories) in the /extlibs folder.\n")
 endif()
+
+# Install rules
+install(TARGETS ${STP_LIB} RUNTIME DESTINATION bin COMPONENT bin
+                           LIBRARY DESTINATION lib COMPONENT bin)

@@ -58,3 +58,6 @@ endif()
 
 # Source directory
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/STP)
+
+# Install the headers
+install(DIRECTORY include DESTINATION . COMPONENT devel)
