@@ -68,10 +68,21 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ///
     /// \param gid The gid of the tile
     ///
+    /// \return Pointer to a tmx::TileSet or nullptr if 
+    ///         the gid does not exist or is 0
+    ///
+    ////////////////////////////////////////////////////////////
+    tmx::TileSet* GetTileSet(unsigned int gid);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the tile set given a name
+    ///
+    /// \param tileset_name The name of the tile set
+    ///
     /// \return Pointer to a constant tmx::TileSet
     ///
     ////////////////////////////////////////////////////////////
-    const tmx::TileSet* GetTileSet(unsigned int gid) const;
+    tmx::TileSet& GetTileSet(const std::string& tileset_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the layer based on its name
@@ -165,6 +176,7 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     std::unordered_map<std::string, tmx::ImageLayer*> image_layers_;
     std::vector<std::unique_ptr<tmx::MapObject>> map_objects_;
 
+    std::unordered_map<std::string, tmx::TileSet*> tilesets_hash_;
     std::vector<std::unique_ptr<tmx::TileSet>> tilesets_;
 };
 

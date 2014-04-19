@@ -61,7 +61,7 @@ class STP_API Properties {
     ////////////////////////////////////////////////////////////
     /// \brief Return a property value given a name
     ///
-    /// \param name  The name of the property
+    /// \param name The name of the property
     ///
     /// \return Reference to the property value
     ///

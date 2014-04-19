@@ -40,13 +40,13 @@ TileMap::TileMap(const std::string& file_to_parse) {
     pugi::xml_document tmx_file;
 
     if (!tmx_file.load_file(file_to_parse.c_str())) {
-        printf("%s\n", "Error loading the XML document.");
+        fprintf(stdout, "Error loading the XML document.\n");
     }
 
     pugi::xml_node map_node;
 
     if (!(map_node = tmx_file.child("map"))) {
-        printf("%s\n", "The document is not a valid TMX file.");
+        fprintf(stdout, "The document is not a valid TMX file.\n");
     }
 
     working_dir_ = file_to_parse.substr(0, file_to_parse.find_last_of('/') + 1);
@@ -96,15 +96,20 @@ void TileMap::AddImageLayer(tmx::ImageLayer* newimagelayer) {
 
 void TileMap::AddTileSet(tmx::TileSet* newtileset) {
     tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
+    tilesets_hash_[newtileset->GetName()] = newtileset;
 }
 
-const tmx::TileSet* TileMap::GetTileSet(unsigned int gid) const {
+tmx::TileSet* TileMap::GetTileSet(unsigned int gid) {
     if (gid == 0) return nullptr;
     for (unsigned int i = 0; i < tilesets_.size(); ++i) {
         if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
             return &(*tilesets_[i]);
     }
     return nullptr;
+}
+
+tmx::TileSet& TileMap::GetTileSet(const std::string& tileset_name) {
+    return *tilesets_hash_[tileset_name];
 }
 
 tmx::Layer& TileMap::GetLayer(const std::string& layer_name) {

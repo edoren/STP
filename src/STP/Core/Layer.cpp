@@ -26,6 +26,7 @@
 
 #include "STP/Core/Layer.hpp"
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -49,17 +50,34 @@ void Layer::AddTile(tmx::Layer::Tile&& newtile) {
     tiles_.push_back(std::move((newtile)));
 }
 
-void Layer::SetOpacity(float opacity) {
-    color_.a = static_cast<unsigned char>(255 * opacity);
-    for (auto& tile : tiles_) {
-        tile.SetColor(color_);
+tmx::Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
+    if (x >= width_ || y >= height_) {
+        char error[100];
+        sprintf(error, "Error: tile (%u, %u) out of range.\n", x, y);
+        throw std::out_of_range(error);
     }
+
+    unsigned int pos = (y * width_) + x;
+
+    if (tiles_[pos].gid_ == 0) {
+        char error[100];
+        sprintf(error, "Trying to access an empty tile (%u, %u).\n", x, y);
+        throw std::runtime_error(error);
+    }
+    return tiles_[pos];
 }
 
 void Layer::SetColor(const sf::Color& color) {
     color_.r = color.r;
     color_.g = color.g;
     color_.b = color.b;
+    for (auto& tile : tiles_) {
+        tile.SetColor(color_);
+    }
+}
+
+void Layer::SetOpacity(float opacity) {
+    color_.a = static_cast<unsigned char>(255 * opacity);
     for (auto& tile : tiles_) {
         tile.SetColor(color_);
     }
@@ -78,12 +96,19 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 Layer::Tile::Tile() {}
 
-Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect,
-                  const sf::Texture* texture, sf::IntRect texture_rect) :
+Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset) :
         gid_(gid),
         tile_rect_(tile_rect),
-        texture_(texture),
-        texture_rect_(texture_rect) {
+        tile_properties_(nullptr),
+        texture_(nullptr),
+        texture_rect_() {
+    if (tileset) {
+        unsigned int id = gid - tileset->GetFirstGID();  // The local id of the tile in the tileset
+
+        texture_ = tileset->GetTexture();
+        texture_rect_ = tileset->GetTextureRect(id);
+        tile_properties_ = &tileset->GetTile(id);
+    }
     UpdatePositions();
     UpdateTexCoords();
 }
@@ -123,6 +148,14 @@ void Layer::Tile::SetColor(const sf::Color& color) {
     vertices_[1].color = color;
     vertices_[2].color = color;
     vertices_[3].color = color;
+}
+
+void Layer::Tile::AddProperty(const std::string& name, const std::string& value) {
+    tile_properties_->AddProperty(name, value);
+}
+
+std::string& Layer::Tile::GetPropertyValue(const std::string& name) {
+    return tile_properties_->GetPropertyValue(name);
 }
 
 void Layer::Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {

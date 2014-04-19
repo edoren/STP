@@ -37,6 +37,7 @@
 #include "SFML/Graphics/Drawable.hpp"
 
 #include "STP/Config.hpp"
+#include "STP/Core/TileSet.hpp"
 #include "STP/Core/MapObject.hpp"
 
 namespace tmx {
@@ -74,6 +75,20 @@ class STP_API Layer : public MapObject {
     ///
     ////////////////////////////////////////////////////////////
     class Tile;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Get the tile given a coordinate. Left-Up tile is (0, 0).
+    ///
+    /// \param x The x position of the Tile
+    /// \param y The y position of the Tile
+    /// 
+    /// \exception std::out_of_range If no tile within the range of the layer.
+    /// \exception std::runtime_error If the tile is an empty tile.
+    ///
+    /// \return Reference to the Tile.
+    ///
+    ////////////////////////////////////////////////////////////
+    tmx::Layer::Tile& GetTile(unsigned int x, unsigned int y);
 
     ////////////////////////////////////////////////////////////
     /// \brief Change the color of the layer, does not affect the opacity
@@ -133,15 +148,34 @@ class STP_API Layer::Tile : public sf::Drawable {
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
+    ////////////////////////////////////////////////////////////
+    /// \brief Add new property.
+    ///
+    /// \param name  The name of the property
+    /// \param value The value of the property
+    ///
+    ////////////////////////////////////////////////////////////
+    void AddProperty(const std::string& name, const std::string& value);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return a property value given a name
+    ///
+    /// \param name The name of the property
+    ///
+    /// \return Reference to the property value
+    ///
+    ////////////////////////////////////////////////////////////
+    std::string& GetPropertyValue(const std::string& name);
+
  private:
     Tile();
     Tile(const Tile& other) = delete;
     Tile& operator= (const Tile& x) = delete;
     Tile(unsigned int gid, sf::IntRect tile_rect,
-         const sf::Texture* texture,
-         sf::IntRect texture_rect = sf::IntRect(0, 0, 0, 0));
+         tmx::TileSet* tileset = nullptr);
 
     friend class Parser;
+    friend class tmx::Layer;
 
  private:
     unsigned int gid_;
@@ -149,11 +183,13 @@ class STP_API Layer::Tile : public sf::Drawable {
     sf::Vertex vertices_[4];
     sf::IntRect tile_rect_;
 
+    tmx::Properties* tile_properties_;
+
     const sf::Texture* texture_;
     sf::IntRect texture_rect_;
 
     void setTexture(unsigned int gid);
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     void UpdatePositions();
     void UpdateTexCoords();

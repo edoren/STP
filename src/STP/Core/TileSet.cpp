@@ -26,7 +26,7 @@
 
 #include "STP/Core/TileSet.hpp"
 
-#include <cassert>
+#include <stdexcept>
 #include <cmath>
 #include <string>
 
@@ -63,30 +63,48 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         height_no_spacing_ = height_no_margin;
     }
     lastgid_ = firstgid + (width_no_spacing_ / tilewidth) * (height_no_spacing_ / tileheight) - 1;
+
+    // Add each tile to the TileSet
+    unsigned int tile_amount = lastgid_ - firstgid_ + 1;
+    sf::Vector2u cont;
+    sf::Vector2u tile_pos;
+    tiles_.reserve(tile_amount);
+    for (unsigned int i = 0; i < tile_amount; ++i) {
+        tile_pos.x = (cont.x * tilewidth_) + (spacing_ * i) + margin_;
+        tile_pos.y = (cont.y * tileheight_) + (spacing_ * i) + margin_;
+        sf::IntRect texture_rect(tile_pos.x, tile_pos.y, tilewidth_, tileheight_);
+
+        tiles_.push_back(tmx::TileSet::Tile(i, texture_rect, this));
+
+        cont.x = (cont.x + 1) % (width_no_spacing_ / tilewidth_);
+        if (cont.x == 0) cont.y += 1;
+    }
 }
 
-const std::string& TileSet::GetName() const {
-    return name_;
+tmx::TileSet::Tile& TileSet::GetTile(unsigned int id) {
+    if (id >= tiles_.size()) {
+        char error[100];
+        sprintf(error, "Error: tile local id %u out of range.\n", id);
+        throw std::out_of_range(error);
+    }
+    return tiles_[id];
 }
 
-sf::IntRect TileSet::GetTextureRect(unsigned int gid) const {
-    assert(gid >= firstgid_ && gid <= lastgid_);
-    unsigned int local_gid, width, x, y, x_pixels,
-                 y_pixels, x_spacing, y_spacing;
-    local_gid = gid - firstgid_ + 1;
-    width = width_no_spacing_ / tilewidth_;
-    y = static_cast<unsigned int> (std::ceil(local_gid / static_cast<float>(width))) - 1;
-    x = local_gid - (y * width) - 1;
-    y_spacing = (spacing_ * y) + margin_;
-    x_spacing = (spacing_ * x) + margin_;
-    y_pixels = (y * tileheight_) + y_spacing;
-    x_pixels = (x * tilewidth_) + x_spacing;
-    sf::IntRect texture_rect(x_pixels, y_pixels, tilewidth_, tileheight_);
-    return texture_rect;
+sf::IntRect TileSet::GetTextureRect(unsigned int id) const {
+    if (id >= tiles_.size()) {
+        char error[100];
+        sprintf(error, "Error: tile local id %u out of range.\n", id);
+        throw std::out_of_range(error);
+    }
+    return tiles_[id].GetTextureRect();
 }
 
 const sf::Texture* TileSet::GetTexture() const {
     return image_.GetTexture();
+}
+
+const std::string& TileSet::GetName() const {
+    return name_;
 }
 
 const sf::Vector2i TileSet::GetTileOffSet() const {
@@ -107,6 +125,23 @@ unsigned int TileSet::GetFirstGID() const {
 
 unsigned int TileSet::GetLastGID() const {
     return lastgid_;
+}
+
+////////////////////////////////////////////////////////////
+// TileSet::Tile implementation
+////////////////////////////////////////////////////////////
+
+TileSet::Tile::Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent) :
+        id_(id),
+        texture_rect_(texture_rect) {
+}
+
+const sf::Texture* TileSet::Tile::GetTexture() const {
+    return parent_->GetTexture();
+}
+
+sf::IntRect TileSet::Tile::GetTextureRect() const {
+    return texture_rect_;
 }
 
 }  // namespace tmx

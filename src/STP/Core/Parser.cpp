@@ -97,16 +97,17 @@ void Parser::ParseProperties(const pugi::xml_node& object_node, tmx::Properties*
     }
 }
 
-void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, const tmx::TileMap* tilemap) {
-    const tmx::TileSet* tileset = tilemap->GetTileSet(gid);
-    if (tileset != NULL) {
+void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap) {
+    tmx::TileSet* tileset = tilemap->GetTileSet(gid);
+
+    if (tileset != nullptr) {
         tile_pos.x += tileset->GetTileOffSet().x;
         tile_pos.y += tileset->GetTileOffSet().y - tileset->GetTileHeight() + tilemap->GetTileHeight();
         sf::IntRect tile_rect(tile_pos.x, tile_pos.y, tileset->GetTileWidth(), tileset->GetTileHeight());
-        layer->AddTile(tmx::Layer::Tile(gid, tile_rect, tileset->GetTexture(), tileset->GetTextureRect(gid)));
+        layer->AddTile(tmx::Layer::Tile(gid, tile_rect, tileset));
     } else {
         sf::IntRect tile_rect(tile_pos.x, tile_pos.y, 0, 0);
-        layer->AddTile(tmx::Layer::Tile(gid, tile_rect, NULL));
+        layer->AddTile(tmx::Layer::Tile(gid, tile_rect));
     }
 }
 
@@ -148,7 +149,7 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
     if (pugi::xml_attribute attribute_source = tileset_node_.attribute("source")) {
         std::string source = working_dir + attribute_source.as_string();
         if (!tsx_file.load_file(source.c_str())) {
-            printf("%s\n", "Error loading the XML document.");
+            fprintf(stdout, "Error loading the XML document.\n");
         }
         tileset_node_ = tsx_file.child("tileset");
     }
@@ -171,7 +172,6 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
         } else if (node_name == "image") {
             image_data = ParseImage(node, working_dir);
         } else if (node_name == "terraintypes") {
-        } else if (node_name == "tile") {
         }
     }
 
@@ -179,13 +179,19 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
     tmx::TileSet* tileset = new tmx::TileSet(firstgid, name, tilewidth, tileheight,
                                              image_data, spacing, margin, tileoffset_data);
 
+    // Parse each tile property
+    for (const pugi::xml_node& tile_node : tileset_node_.children("tile")) {
+        unsigned int id = tile_node.attribute("id").as_uint();
+        ParseProperties(tile_node, &tileset->GetTile(id));
+    }
+
     // Parse the tileset properties
     ParseProperties(tileset_node_, tileset);
 
     return tileset;
 }
 
-tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, const tmx::TileMap* tilemap) {
+tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* tilemap) {
     std::string name;
     unsigned int width, height;
     float opacity = 1.f;  // range 0 - 1
@@ -244,40 +250,38 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, const tmx::Tile
                 }
 
                 for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
-                    if (count_x < width) {
-                        tile_pos = sf::Vector2i(count_x++ * tilewidth, count_y * tileheight);
-                    } else {
-                        count_x = 0;
-                        tile_pos = sf::Vector2i(count_x++ * tilewidth, ++count_y * tileheight);
-                    }
                     int gid = byteVector[i] | byteVector[i + 1] << 8 | byteVector[i + 2] << 16 | byteVector[i + 3] << 24;
+                    tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
+
                     AddTileToLayer(layer, gid, tile_pos, tilemap);
+
+                    count_x = (count_x + 1) % width;
+                    if (count_x == 0) count_y += 1;
                 }
             } else if (encoding == "csv") {  // CSV encoding
                 std::stringstream data_stream(data);
                 unsigned int gid;
                 while (data_stream >> gid) {
-                    if (count_x < width) {
-                        tile_pos = sf::Vector2i(count_x++ * tilewidth, count_y * tileheight);
-                    } else {
-                        count_x = 0;
-                        tile_pos = sf::Vector2i(count_x++ * tilewidth, ++count_y * tileheight);
-                    }
                     if (data_stream.peek() == ',')
                         data_stream.ignore();
+
+                    tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
+
                     AddTileToLayer(layer, gid, tile_pos, tilemap);
+
+                    count_x = (count_x + 1) % width;
+                    if (count_x == 0) count_y += 1;
                 }
             }
         } else {  // Unencoded
             for (const pugi::xml_node& tile_node : data_node.children("tile")) {
-                if (count_x < width) {
-                    tile_pos = sf::Vector2i(count_x++ * tilewidth, count_y * tileheight);
-                } else {
-                    count_x = 0;
-                    tile_pos = sf::Vector2i(count_x++ * tilewidth, ++count_y * tileheight);
-                }
                 int gid = tile_node.attribute("gid").as_uint();
+                tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
+
                 AddTileToLayer(layer, gid, tile_pos, tilemap);
+
+                count_x = (count_x + 1) % width;
+                if (count_x == 0) count_y += 1;
             }
         }
     }
