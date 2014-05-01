@@ -78,7 +78,9 @@ if(ZLIB_FOUND)
 endif()
 
 # Find SFML
-find_package(SFML 2.1 COMPONENTS graphics window system)
+if(NOT SFML_FOUND)
+    find_package(SFML 2.1 COMPONENTS graphics window system)
+endif()
 if(SFML_FOUND)
     include_directories(${SFML_INCLUDE_DIR})
     target_link_libraries(${STP_LIB} ${SFML_LIBRARIES})
