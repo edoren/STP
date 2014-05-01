@@ -67,6 +67,11 @@ endif()
 set_target_properties(${STP_LIB} PROPERTIES FOLDER "STP")
 
 # Find Zlib
+if(WIN32)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/headers)
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/libs-win32)
+    message(SEEE)
+endif()
 find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
@@ -74,7 +79,7 @@ if(ZLIB_FOUND)
 endif()
 
 # Find SFML
-find_package(SFML 2.1 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.1 COMPONENTS graphics window system)
 if(SFML_FOUND)
     include_directories(${SFML_INCLUDE_DIR})
     target_link_libraries(${STP_LIB} ${SFML_LIBRARIES})
