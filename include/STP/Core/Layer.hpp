@@ -113,7 +113,7 @@ class STP_API Layer : public MapObject {
     ////////////////////////////////////////////////////////////
     friend class Parser;
 
-    void AddTile(tmx::Layer::Tile&& newtile);
+	void AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset = nullptr);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     std::vector<tmx::Layer::Tile> tiles_;
 };
@@ -124,13 +124,22 @@ class STP_API Layer : public MapObject {
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
  public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Move constructor
-    ///
-    /// \param other Tile to be moved
-    ///
-    ////////////////////////////////////////////////////////////
-    Tile(Tile&& other) = default;
+	 ////////////////////////////////////////////////////////////
+	 /// \brief Default constructor
+	 ///
+	 /// Constructs an empty tile with no values.
+	 ///
+	 ////////////////////////////////////////////////////////////
+	 Tile();
+
+	 ////////////////////////////////////////////////////////////
+	 /// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
+	 ///
+	 /// Constructs a tile.
+	 ///
+	 ////////////////////////////////////////////////////////////
+	 Tile(unsigned int gid, sf::IntRect tile_rect,
+		  tmx::TileSet* tileset = nullptr);
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the global bounds of the tile
@@ -168,13 +177,6 @@ class STP_API Layer::Tile : public sf::Drawable {
     std::string& GetPropertyValue(const std::string& name);
 
  private:
-    Tile();
-    Tile(const Tile& other) = delete;
-    Tile& operator= (const Tile& x) = delete;
-    Tile(unsigned int gid, sf::IntRect tile_rect,
-         tmx::TileSet* tileset = nullptr);
-
-    friend class Parser;
     friend class tmx::Layer;
 
  private:

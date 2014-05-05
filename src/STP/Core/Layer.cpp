@@ -45,9 +45,9 @@ Layer::Layer(const std::string& name, unsigned int width,
     color_.a = alpha;
 }
 
-void Layer::AddTile(tmx::Layer::Tile&& newtile) {
-    newtile.SetColor(color_);
-    tiles_.push_back(std::move((newtile)));
+void Layer::AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset) {
+    tiles_.emplace_back(gid, tile_rect, tileset);
+	tiles_.back().SetColor(color_);
 }
 
 tmx::Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {

@@ -47,7 +47,7 @@ namespace tmx {
 
 class Parser {
  private:
-    static std::string DecompressString(const std::string& compressed_string, int buffer_size = 32768);
+    static std::string DecompressString(const std::string& compressed_string);
     static void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap);
     static tmx::Image ParseImage(const pugi::xml_node& image_node, const std::string& working_dir);
 
