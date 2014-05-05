@@ -90,4 +90,5 @@ endif()
 
 # Install rules
 install(TARGETS ${STP_LIB} RUNTIME DESTINATION bin COMPONENT bin
-                           LIBRARY DESTINATION lib COMPONENT bin)
+                           LIBRARY DESTINATION lib COMPONENT bin
+                           ARCHIVE DESTINATION lib COMPONENT bin)
