@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
+macro(set_option var default type docstring)
+    if(NOT DEFINED ${var})
+        set(${var} ${default})
+    endif()
+    set(${var} ${${var}} CACHE ${type} ${docstring} FORCE)
+endmacro()
+
 # Specify default build type if none provided (before project() command)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -18,9 +25,9 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 
 # Predefined configuration options
-set(STP_SHARED_LIBS TRUE CACHE BOOL "Build shared libraries (use shared SFML librares)")
-set(STP_BUILD_EXAMPLES FALSE CACHE BOOL "Build example projects")
-set(STP_BUILD_DOC FALSE CACHE BOOL "Create HTML documentation (requires Doxygen)")
+set_option(STP_SHARED_LIBS TRUE BOOL "Build shared libraries (use shared SFML librares)")
+set_option(STP_BUILD_EXAMPLES FALSE BOOL "Build example projects")
+set_option(STP_BUILD_DOC FALSE BOOL "Create HTML documentation (requires Doxygen)")
 
 # Tell CMake where to find the FindSFML.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
