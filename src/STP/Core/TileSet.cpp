@@ -50,11 +50,11 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
     unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
     unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
     if (spacing != 0) {
-        for (unsigned int i = 0; i <= width_no_margin; ++i) {
+        for (unsigned int i = 0; i <= width_no_margin;) {
             i += tilewidth + spacing_;
             width_no_spacing_ += tilewidth;
         }
-        for (unsigned int i = 0; i <= height_no_margin; ++i) {
+        for (unsigned int i = 0; i <= height_no_margin;) {
             i += tileheight + spacing_;
             height_no_spacing_ += tileheight;
         }
@@ -70,8 +70,8 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
     sf::Vector2u tile_pos;
     tiles_.reserve(tile_amount);
     for (unsigned int i = 0; i < tile_amount; ++i) {
-        tile_pos.x = (cont.x * tilewidth_) + (spacing_ * i) + margin_;
-        tile_pos.y = (cont.y * tileheight_) + (spacing_ * i) + margin_;
+        tile_pos.x = (cont.x * tilewidth_) + (spacing_ * cont.x) + margin_;
+        tile_pos.y = (cont.y * tileheight_) + (spacing_ * cont.y) + margin_;
         sf::IntRect texture_rect(tile_pos.x, tile_pos.y, tilewidth_, tileheight_);
 
         tiles_.push_back(tmx::TileSet::Tile(i, texture_rect, this));
