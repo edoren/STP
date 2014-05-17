@@ -65,9 +65,9 @@ TileMap::TileMap(const std::string& file_to_parse) {
         if (node_name == "tileset") {
             AddTileSet(Parser::ParseTileSet(node, working_dir_));
         } else if (node_name == "layer") {
-            AddLayer(Parser::ParseLayer(node, this));
+            AddLayer(Parser::ParseLayer(node, this));  // Receive this to get the tiles stored in the TileSets
         } else if (node_name == "objectgroup") {
-            AddObjectGroup(Parser::ParseObjectGroup(node));
+            AddObjectGroup(Parser::ParseObjectGroup(node, this));  // Receive this to get the tiles stored in the TileSets
         } else if (node_name == "imagelayer") {
             AddImageLayer(Parser::ParseImageLayer(node, working_dir_));
         }

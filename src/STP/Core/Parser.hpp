@@ -54,7 +54,7 @@ class Parser {
  public:
     static tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir);
     static tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* tilemap);
-    static tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node);
+    static tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node, tmx::TileMap* tilemap);
     static tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir);
     static void ParseProperties(const pugi::xml_node& object_node, tmx::Properties* object);
 };

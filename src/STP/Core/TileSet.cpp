@@ -133,7 +133,8 @@ unsigned int TileSet::GetLastGID() const {
 
 TileSet::Tile::Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent) :
         id_(id),
-        texture_rect_(texture_rect) {
+        texture_rect_(texture_rect),
+        parent_(parent) {
 }
 
 const sf::Texture* TileSet::Tile::GetTexture() const {

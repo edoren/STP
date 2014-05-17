@@ -40,10 +40,11 @@
 
 #include "STP/Config.hpp"
 #include "STP/Core/MapObject.hpp"
+#include "STP/Core/TileSet.hpp"
 
 namespace tmx {
 
-enum ObjectType { Rectangle, Ellipse, Polygon, Polyline };
+enum ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
 
 ////////////////////////////////////////////////////////////
 /// \brief Class for manage the TMX ObjectGroups
@@ -135,7 +136,8 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     ////////////////////////////////////////////////////////////
     Object(const std::string& name, const std::string& type, int x, int y,
            unsigned int width, unsigned int height, float rotation, bool visible,
-           tmx::ObjectType shape_type, const std::string& vertices_points = std::string());
+           tmx::ObjectType shape_type, const std::string& vertices_points = std::string(),
+           tmx::TileSet::Tile* tile = nullptr);
 
  public:
     ////////////////////////////////////////////////////////////
@@ -156,6 +158,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     unsigned int width_, height_;
     float rotation_;
 
+    tmx::TileSet::Tile* tile_;
     std::vector<sf::Vertex> vertices_;
 
  public:

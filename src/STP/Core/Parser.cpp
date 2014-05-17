@@ -289,7 +289,7 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
     return layer;
 }
 
-tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_node) {
+tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_node, tmx::TileMap* tilemap) {
     std::string name;
     int32_t color = -1;
     unsigned int width, height;
@@ -353,7 +353,19 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
         if (pugi::xml_attribute attribute_visible = object_node.attribute("visible"))
             object_visible = attribute_visible.as_bool();
 
-        if (object_width && object_height) {
+        if (pugi::xml_attribute attribute_gid = object_node.attribute("gid")) {
+            // Tile Object
+            unsigned int gid = attribute_gid.as_uint();  // Tile global id
+            unsigned int id = gid - tilemap->GetTileSet(gid)->GetFirstGID();  // Tile local id
+
+            tmx::TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
+
+            tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
+                                               object_width, object_height, object_rotation,
+                                               object_visible, tmx::Tile, "", tile);
+            Parser::ParseProperties(object_node, &newobject);
+            object_group->AddObject(newobject);
+        } else if (object_width && object_height) {
             if (object_node.child("ellipse")) {
                 // Ellipse Object
                 tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
