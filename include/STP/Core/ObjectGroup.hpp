@@ -132,6 +132,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     /// \param visible         The visibility of the object
     /// \param shape_type      The shape type of the object, see tmx::ObjectType
     /// \param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
+    /// \param tile            Pointer to a Ttmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
     ///
     ////////////////////////////////////////////////////////////
     Object(const std::string& name, const std::string& type, int x, int y,
