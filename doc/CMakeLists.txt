@@ -30,5 +30,5 @@ set_target_properties(doc PROPERTIES FOLDER "DOC")
 
 # Set the install rule
 install(DIRECTORY ${DOXYGEN_OUTPUT_DIR}/html
-        DESTINATION ${INSTALL_MISC_DIR}/doc
+        DESTINATION doc/STP
         COMPONENT doc)
