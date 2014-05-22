@@ -50,6 +50,14 @@ void Layer::AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tile
 	tiles_.back().SetColor(color_);
 }
 
+unsigned int Layer::GetWidth() const {
+    return width_;
+}
+
+unsigned int Layer::GetHeight() const {
+    return height_;
+}
+
 tmx::Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
     if (x >= width_ || y >= height_) {
         char error[100];
@@ -59,11 +67,6 @@ tmx::Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
 
     unsigned int pos = (y * width_) + x;
 
-    if (tiles_[pos].gid_ == 0) {
-        char error[100];
-        sprintf(error, "Trying to access an empty tile (%u, %u).\n", x, y);
-        throw std::runtime_error(error);
-    }
     return tiles_[pos];
 }
 
@@ -101,7 +104,8 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset
         tile_rect_(tile_rect),
         tile_properties_(nullptr),
         texture_(nullptr),
-        texture_rect_() {
+        texture_rect_(),
+        visible(true) {
     if (tileset) {
         unsigned int id = gid - tileset->GetFirstGID();  // The local id of the tile in the tileset
 
@@ -143,6 +147,11 @@ sf::FloatRect Layer::Tile::GetGlobalBounds() const {
     return sf::FloatRect(left, top, width, height);
 }
 
+bool Layer::Tile::empty() const {
+    if (gid_ == 0 || !texture_) return true;
+    else return false;
+}
+
 void Layer::Tile::SetColor(const sf::Color& color) {
     vertices_[0].color = color;
     vertices_[1].color = color;
@@ -159,7 +168,7 @@ std::string& Layer::Tile::GetPropertyValue(const std::string& name) {
 }
 
 void Layer::Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    if (texture_) {
+    if (texture_ && visible) {
         states.texture = texture_;
         target.draw(vertices_, 4, sf::Quads, states);
     }

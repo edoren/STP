@@ -77,13 +77,28 @@ class STP_API Layer : public MapObject {
     class Tile;
 
     ////////////////////////////////////////////////////////////
+    /// \brief Returns the width in tiles.
+    ///
+    /// \return The width of the layer in tiles.
+    ///
+    ////////////////////////////////////////////////////////////
+    unsigned int GetWidth() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Returns the height in tiles.
+    ///
+    /// \return The height of the layer in tiles.
+    ///
+    ////////////////////////////////////////////////////////////
+    unsigned int GetHeight() const;
+
+    ////////////////////////////////////////////////////////////
     /// \brief Get the tile given a coordinate. Left-Up tile is (0, 0).
     ///
     /// \param x The x position of the Tile
     /// \param y The y position of the Tile
     /// 
     /// \exception std::out_of_range If no tile within the range of the layer.
-    /// \exception std::runtime_error If the tile is an empty tile.
     ///
     /// \return Reference to the Tile.
     ///
@@ -124,22 +139,32 @@ class STP_API Layer : public MapObject {
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
  public:
-	 ////////////////////////////////////////////////////////////
-	 /// \brief Default constructor
-	 ///
-	 /// Constructs an empty tile with no values.
-	 ///
-	 ////////////////////////////////////////////////////////////
-	 Tile();
+	////////////////////////////////////////////////////////////
+	/// \brief Default constructor
+	///
+	/// Constructs an empty tile with no values.
+	///
+	////////////////////////////////////////////////////////////
+	Tile();
 
-	 ////////////////////////////////////////////////////////////
-	 /// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
-	 ///
-	 /// Constructs a tile.
-	 ///
-	 ////////////////////////////////////////////////////////////
-	 Tile(unsigned int gid, sf::IntRect tile_rect,
-		  tmx::TileSet* tileset = nullptr);
+	////////////////////////////////////////////////////////////
+	/// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
+	///
+    /// \param gid       The global id of the tmx::TileSet::Tile attached.
+    /// \param tile_rect The global bounds of the tile.
+    /// \param tileset   A pointer to a tmx::TileSet to get the texture.
+	///
+	////////////////////////////////////////////////////////////
+	Tile(unsigned int gid, sf::IntRect tile_rect,
+	     tmx::TileSet* tileset = nullptr);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Check if the tile is empty (Doesn't have a texture).
+    ///
+    /// \return true if the tile is empty, false otherwise.
+    ///
+    ////////////////////////////////////////////////////////////
+    bool empty() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the global bounds of the tile
@@ -195,6 +220,10 @@ class STP_API Layer::Tile : public sf::Drawable {
 
     void UpdatePositions();
     void UpdateTexCoords();
+
+ public:
+    /// \brief Visibility of the Tile   
+    bool visible;
 };
 
 }  // namespace tmx
