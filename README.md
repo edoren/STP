@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/edoren/STP.svg?branch=master)](https://travis-ci.org/edoren/STP)
 
-STP is a library extension for [SFML2](https://github.com/LaurentGomila/SFML) designed to load the Tiled map format and use it with the SFML library.
-
+STP is an extension library for [SFML2](https://github.com/LaurentGomila/SFML) designed to read the [Tiled](http://www.mapeditor.org/) map format, it uses the new C++11 standard features, so be sure to have a C++11 compatible compiler like g++ 4.7, clang 3.3 or Visual Studio 2013 compiler.
 
 ## Features
 
