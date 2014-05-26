@@ -17,6 +17,16 @@ install:
     - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
     - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
 
+    # Fix clang build on linux
+    - if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi
+    - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@181765 libcxx; fi
+    - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
+    - if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
+    - if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
+    - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
+    - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
+    - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
+
     # Install SFML
     - sudo apt-get install libsfml-dev
 
