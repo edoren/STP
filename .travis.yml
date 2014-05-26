@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+    - gcc
+before_install:  # Add the SFML repository
+    - sudo add-apt-repository ppa:sonkun/sfml
+    - sudo apt-get update
+install:  # Installs SFML, pugixml and zlib
+    - sudo apt-get install libsfml-dev
+    - sudo apt-get install libpugixml-dev
+    - sudo apt-get install zlib1g-dev
+script: cmake . && make
