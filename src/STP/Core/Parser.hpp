@@ -33,7 +33,7 @@
 #include <vector>
 #include <string>
 
-#include "pugixml.hpp"
+#include <pugixml.hpp>
 
 #include "STP/Config.hpp"
 #include "STP/Core/Properties.hpp"

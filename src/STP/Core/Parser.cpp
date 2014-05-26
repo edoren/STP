@@ -31,7 +31,7 @@
 #include <vector>
 
 #include "SFML/Graphics/PrimitiveType.hpp"
-#include "zlib.h"
+#include <zlib.h>
 
 #include "Base64.hpp"
 
