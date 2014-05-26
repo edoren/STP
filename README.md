@@ -1,6 +1,9 @@
 # What is STP?
 
+[![Build Status](https://travis-ci.org/edoren/STP.svg?branch=master)](https://travis-ci.org/edoren/STP)
+
 STP is a library extension for [SFML2](https://github.com/LaurentGomila/SFML) designed to load the Tiled map format and use it with the SFML library.
+
 
 ## Features
 
