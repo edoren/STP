@@ -11,6 +11,18 @@ STP is a library extension for [SFML2](https://github.com/LaurentGomila/SFML) de
 *   Support all the encoding and compression formats.
 *   Only Support for orthogonal maps (At the moment).
 
+## Installing STP ##
+
+You need at least g++ 4.8.  There are *other external dependencies*
+
+### Mac ###
+
+* *Homebrew*: `brew install sfml && brew install zlib`
+### Linux ###
+
+* *Apt*:
+    `sudo apt-get install libsfml-dev && sudo apt-get install zlib1g-dev`
+
 ## Usage
 
 STP is easy to use, here is a example code.
@@ -25,7 +37,7 @@ int main()
     tmx::TileMap map("path/to/my/file/map.tmx");
 
     map.ShowObjects(); // Display all the layer objects.
-    
+
     map.GetLayer("World").visible = false; // Hide a Layer named World
 
     // Start the game loop
