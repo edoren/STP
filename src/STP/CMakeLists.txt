@@ -3,7 +3,7 @@ set(HEADER_DIR ${PROJECT_SOURCE_DIR}/include/STP)
 
 set(EXTLIBS_DIR ${PROJECT_SOURCE_DIR}/extlibs)
 
-set(STP_SOURCE 
+set(STP_SOURCE
     ${SRC_DIR}/Core/Properties.cpp
     ${SRC_DIR}/Core/MapObject.cpp
     ${SRC_DIR}/Core/Parser.hpp
@@ -41,12 +41,12 @@ set(PUGIXML_SOURCE
 # Library name
 set(STP_LIB ${PROJECT_NAME})
 
-# Set the output path for the 
+# Set the output path for the
 set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
 # Build the library
 if(STP_SHARED_LIBS)
-    add_library(${STP_LIB} SHARED ${STP_SOURCE} ${STP_HEADERS} ${PUGIXML_SOURCE})
+    add_library(${STP_LIB} SHARED ${STP_SOURCE} ${STP_HEADERS})
     set_target_properties(${STP_LIB} PROPERTIES DEBUG_POSTFIX -d)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         set_target_properties(${STP_LIB} PROPERTIES SUFFIX "-${VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -58,13 +58,31 @@ if(STP_SHARED_LIBS)
         set_target_properties(${STP_LIB} PROPERTIES IMPORT_SUFFIX ".a")
     endif()
 else()
-    add_library(${STP_LIB} STATIC ${STP_SOURCE} ${STP_HEADERS} ${PUGIXML_SOURCE})
+    add_library(${STP_LIB} STATIC ${STP_SOURCE} ${STP_HEADERS})
     set_target_properties(${STP_LIB} PROPERTIES DEBUG_POSTFIX -s-d)
     set_target_properties(${STP_LIB} PROPERTIES RELEASE_POSTFIX -s)
 endif()
 
 # Configuration for some IDEs
 set_target_properties(${STP_LIB} PROPERTIES FOLDER "STP")
+
+# Find PugiXML
+find_package(PugiXML)
+if(PUGIXML_FOUND)
+    include_directories(${PUGIXML_INCLUDE_DIR})
+    target_link_libraries(${STP_LIB} ${PUGIXML_LIBRARY})
+else()
+    message("-> Building PugiXML from source.")
+    if(STP_SHARED_LIBS)
+        add_library(pugixml SHARED ${PUGIXML_SOURCE})
+    else()
+        add_library(pugixml STATIC ${PUGIXML_SOURCE})
+    endif()
+    target_link_libraries(${STP_LIB} pugixml)
+    install(TARGETS pugixml RUNTIME DESTINATION bin COMPONENT bin
+                            LIBRARY DESTINATION lib COMPONENT bin
+                            ARCHIVE DESTINATION lib COMPONENT bin)
+endif()
 
 # Find Zlib
 if(WIN32)
