@@ -39,7 +39,7 @@ static inline bool is_valid_base64(unsigned char c) {
 
 std::string base64_decode(const std::string& string_to_decode) {
     int count = 0;
-    std::vector<unsigned char> input_bytes(4, '\0');
+    unsigned char input_bytes[4] = { '\0', '\0', '\0', '\0' };
     unsigned char byte_array[3];
     std::string result;
 
@@ -51,7 +51,7 @@ std::string base64_decode(const std::string& string_to_decode) {
             byte_array[1] = ((input_bytes[1] & 0xf) << 4) | ((input_bytes[2] & 0x3c) >> 2);
             byte_array[2] = ((input_bytes[2] & 0x3) << 6) | input_bytes[3];
 
-            input_bytes = std::vector<unsigned char>(4, '\0');
+            memset(input_bytes, '\0', 4);
 
             for (int j = 0; j < count - 1; j++)
                 result += byte_array[j];
@@ -68,7 +68,7 @@ std::string base64_decode(const std::string& string_to_decode) {
 
 std::string base64_encode(const std::string& string_to_encode) {
     int count = 0;
-    std::vector<unsigned char> input_bytes(3, '\0');
+    unsigned char input_bytes[3] = { '\0', '\0', '\0' };
     unsigned char byte_array[4];
     std::string result;
 
@@ -80,7 +80,7 @@ std::string base64_encode(const std::string& string_to_encode) {
             byte_array[2] = ((input_bytes[1] & 0xf) << 2) | (input_bytes[2] >> 6);
             byte_array[3] = input_bytes[2] & 0x3f;
 
-            input_bytes = std::vector<unsigned char>(3, '\0');
+            memset(input_bytes, '\0', 3);
 
             for (int j = 0; j < count + 1; j++)
                 result += base64_table[byte_array[j]];
