@@ -27,7 +27,6 @@
 #include "Base64.hpp"
 
 #include <string>
-#include <vector>
 
 static const std::string base64_table = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                         "abcdefghijklmnopqrstuvwxyz"
