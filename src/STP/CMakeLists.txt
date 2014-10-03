@@ -42,12 +42,12 @@ set(PUGIXML_SOURCE
 set(STP_LIB ${PROJECT_NAME})
 
 # Set the output path for the library and runtime libraries
-set_target_properties(${EDGE_LIB} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
-set_target_properties(${EDGE_LIB} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
-set_target_properties(${EDGE_LIB} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
-set_target_properties(${EDGE_LIB} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
-set_target_properties(${EDGE_LIB} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/bin")
-set_target_properties(${EDGE_LIB} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin")
 
 # Build the library
 if(STP_SHARED_LIBS)
@@ -91,10 +91,10 @@ if(PUGIXML_FOUND)
     target_link_libraries(${STP_LIB} ${PUGIXML_LIBRARY})
 else()
     message("-> Building PugiXML from source.")
-    if(STP_SHARED_LIBS)
-        add_library(pugixml SHARED ${PUGIXML_SOURCE})
-    else()
+    if(${OS} STREQUAL "Windows")
         add_library(pugixml STATIC ${PUGIXML_SOURCE})
+    else()
+        add_library(pugixml SHARED ${PUGIXML_SOURCE})
     endif()
     target_link_libraries(${STP_LIB} pugixml)
     install(TARGETS pugixml RUNTIME DESTINATION bin COMPONENT bin

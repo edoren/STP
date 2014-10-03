@@ -18,10 +18,6 @@ mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 # Project name
 project(STP)
 
-# Version numbers
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 1)
-
 # Predefined configuration options
 set_option(STP_SHARED_LIBS TRUE BOOL "Build shared libraries (use shared SFML librares)")
 set_option(STP_BUILD_EXAMPLES FALSE BOOL "Build example projects")
