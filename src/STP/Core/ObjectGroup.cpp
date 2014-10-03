@@ -130,7 +130,7 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
             vertices_.push_back(sf::Vertex(sf::Vector2f(x, y)));
         }
     } else if (shape_type == tmx::Tile) {
-        sf::IntRect tile_rect = tile->GetTextureRect();
+        sf::FloatRect tile_rect = static_cast<sf::FloatRect>(tile->GetTextureRect());
 
         vertices_.resize(4);
 
