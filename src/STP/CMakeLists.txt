@@ -6,9 +6,7 @@ set(EXTLIBS_DIR ${PROJECT_SOURCE_DIR}/extlibs)
 set(STP_SOURCE
     ${SRC_DIR}/Core/Properties.cpp
     ${SRC_DIR}/Core/MapObject.cpp
-    ${SRC_DIR}/Core/Parser.hpp
     ${SRC_DIR}/Core/Parser.cpp
-    ${SRC_DIR}/Core/Base64.hpp
     ${SRC_DIR}/Core/Base64.cpp
     ${SRC_DIR}/Core/Layer.cpp
     ${SRC_DIR}/Core/ObjectGroup.cpp
@@ -19,6 +17,8 @@ set(STP_SOURCE
 )
 
 set(STP_HEADERS
+    ${SRC_DIR}/Core/Parser.hpp
+    ${SRC_DIR}/Core/Base64.hpp
     ${HEADER_DIR}/Config.hpp
     ${HEADER_DIR}/Core/Properties.hpp
     ${HEADER_DIR}/Core/MapObject.hpp
@@ -41,17 +41,19 @@ set(PUGIXML_SOURCE
 # Library name
 set(STP_LIB ${PROJECT_NAME})
 
-# Set the output path for the
-set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
+# Set the output path for the library and runtime libraries
+set_target_properties(${EDGE_LIB} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
+set_target_properties(${EDGE_LIB} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
+set_target_properties(${EDGE_LIB} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/lib")
+set_target_properties(${EDGE_LIB} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/lib")
+set_target_properties(${EDGE_LIB} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/bin")
+set_target_properties(${EDGE_LIB} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin")
 
 # Build the library
 if(STP_SHARED_LIBS)
     add_library(${STP_LIB} SHARED ${STP_SOURCE} ${STP_HEADERS})
     set_target_properties(${STP_LIB} PROPERTIES DEBUG_POSTFIX -d)
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set_target_properties(${STP_LIB} PROPERTIES SUFFIX "-${VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    endif()
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" AND CMAKE_COMPILER_IS_GNUCXX)
+    if (${OS} STREQUAL "Windows" AND ${COMPILER} STREQUAL "MinGW")
         # on Windows/gcc get rid of "lib" prefix for shared libraries,
         # and transform the ".dll.a" suffix into ".a" for import libraries
         set_target_properties(${STP_LIB} PROPERTIES PREFIX "")
@@ -63,8 +65,24 @@ else()
     set_target_properties(${STP_LIB} PROPERTIES RELEASE_POSTFIX -s)
 endif()
 
-# Configuration for some IDEs
-set_target_properties(${STP_LIB} PROPERTIES FOLDER "STP")
+# Configuration for Visual Studio
+if(${OS} STREQUAL "Windows" AND ${COMPILER} STREQUAL "MSVC")
+    # Add the include directories for external libraries for search
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/headers)
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/libs-win32)
+
+    # Add the libraries of the external libraries for search
+    if(${COMPILER} STREQUAL "MSVC")
+        # Improve the visual studio project generator
+        source_group("Source Files\\Core" FILES ${STP_SOURCE})
+        source_group("Header Files\\Core" FILES ${STP_HEADERS})
+        if(${COMPILER_ARCH} EQUAL 32)
+            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${PROJECT_SOURCE_DIR}/extlibs/lib-msvc/x86)
+        elseif(${COMPILER_ARCH} EQUAL 64)
+            set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${PROJECT_SOURCE_DIR}/extlibs/lib-msvc/x64)
+        endif()
+    endif()
+endif()
 
 # Find PugiXML
 find_package(PugiXML)
@@ -85,10 +103,6 @@ else()
 endif()
 
 # Find Zlib
-if(WIN32)
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/headers)
-    set(CMAKE_LIBRARY_PATH ${CMAKE_INCLUDE_PATH} ${EXTLIBS_DIR}/libs-win32)
-endif()
 find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
@@ -97,7 +111,7 @@ endif()
 
 # Find SFML
 if(NOT SFML_FOUND)
-    find_package(SFML 2.1 COMPONENTS graphics window system)
+    find_package(SFML 2 COMPONENTS graphics window system)
 endif()
 if(SFML_FOUND)
     include_directories(${SFML_INCLUDE_DIR})

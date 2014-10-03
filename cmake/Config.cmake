@@ -1,78 +1,70 @@
-# detect the OS
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(SFML_OS_WINDOWS 1)
+# Configuration module that set some useful variables to detect OS, compiler
+# and compiler architecture
 
-    # detect the architecture (note: this test won't work for cross-compilation)
-    include(CheckTypeSize)
-    check_type_size(void* SIZEOF_VOID_PTR)
-    if("${SIZEOF_VOID_PTR}" STREQUAL "4")
-        set(ARCH_32BITS 1)
-    elseif("${SIZEOF_VOID_PTR}" STREQUAL "8")
-        set(ARCH_64BITS 1)
-    else()
-        message(FATAL_ERROR "Unsupported architecture")
-        return()
-    endif()
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(SFML_OS_LINUX 1)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-    set(SFML_OS_FREEBSD 1)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(SFML_OS_MACOSX 1)
+# It defines the following variables:
+#  OS => Windows - Microsoft Windows
+#        OSX     - Mac OSX
+#        Linux   - Linux OS
+#        FreeBSD - FreeBSD OS
+#  COMPILER => MSVC  - Microsoft Visual C++
+#              MinGW - MinGW compiler
+#              Clang - Clang compiler
+#              GCC   - GNU Compiler Collection
+#  COMPILER_ARCH => It could be 64 or 32
 
-    # detect OS X version. (use '/usr/bin/sw_vers -productVersion' to extract V from '10.V.x'.)
-    EXEC_PROGRAM(/usr/bin/sw_vers ARGS -productVersion OUTPUT_VARIABLE MACOSX_VERSION_RAW)
-    STRING(REGEX REPLACE "10\\.([0-9]).*" "\\1" MACOSX_VERSION "${MACOSX_VERSION_RAW}")
-    if(${MACOSX_VERSION} LESS 5)
-        message(FATAL_ERROR "Unsupported version of OS X : ${MACOSX_VERSION_RAW}")
-        return()
-    endif()
+#=============================================================================
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Manuel Sabogal
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#=============================================================================
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    SET(OS "Windows")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    SET(OS "OSX")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    SET(OS "Linux")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+    SET(OS "FreeBSD")
 else()
-    message(FATAL_ERROR "Unsupported operating system")
-    return()
+    message(FATAL_ERROR "Unsupported operating system.")
 endif()
 
-# detect the compiler and its version
-# Note: on some platforms (OS X), CMAKE_COMPILER_IS_GNUCXX is true
-# even when CLANG is used, therefore the Clang test is done first
-if(CMAKE_CXX_COMPILER MATCHES ".*clang[+][+]" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-   # CMAKE_CXX_COMPILER_ID is an internal CMake variable subject to change,
-   # but there is no other way to detect CLang at the moment
-   set(SFML_COMPILER_CLANG 1)
-   execute_process(COMMAND "${CMAKE_CXX_COMPILER}" "--version" OUTPUT_VARIABLE CLANG_VERSION_OUTPUT)
-   string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" SFML_CLANG_VERSION "${CLANG_VERSION_OUTPUT}")
+if(MSVC)
+    set(COMPILER "MSVC")
+elseif(MINGW)
+    set(COMPILER "MINGW")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-    set(SFML_COMPILER_GCC 1)
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" "-dumpversion" OUTPUT_VARIABLE GCC_VERSION_OUTPUT)
-    string(REGEX REPLACE "([0-9]+\\.[0-9]+).*" "\\1" SFML_GCC_VERSION "${GCC_VERSION_OUTPUT}")
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" "--version" OUTPUT_VARIABLE GCC_COMPILER_VERSION)
-    string(REGEX MATCHALL ".*(tdm[64]*-[1-9]).*" SFML_COMPILER_GCC_TDM "${GCC_COMPILER_VERSION}")
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" "-dumpmachine" OUTPUT_VARIABLE GCC_MACHINE)
-    string(STRIP "${GCC_MACHINE}" GCC_MACHINE)
-    if(${GCC_MACHINE} MATCHES ".*w64.*")
-        set(SFML_COMPILER_GCC_W64 1)
-    endif()
-elseif(MSVC)
-    set(SFML_COMPILER_MSVC 1)
-    if(MSVC_VERSION EQUAL 1400)
-        set(SFML_MSVC_VERSION 8)
-    elseif(MSVC_VERSION EQUAL 1500)
-        set(SFML_MSVC_VERSION 9)
-    elseif(MSVC_VERSION EQUAL 1600)
-        set(SFML_MSVC_VERSION 10)
-    elseif(MSVC_VERSION EQUAL 1700)
-        set(SFML_MSVC_VERSION 11)
-    elseif(MSVC_VERSION EQUAL 1800)
-        set(SFML_MSVC_VERSION 12)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(COMPILER "Clang")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(COMPILER "GCC")
     endif()
 else()
-    message(FATAL_ERROR "Unsupported compiler")
-    return()
+    message(FATAL_ERROR "Unsupported compiler.")
 endif()
 
-# define the install directory for miscellaneous files
-if(SFML_OS_WINDOWS)
-    set(INSTALL_MISC_DIR .)
-elseif(SFML_OS_LINUX OR SFML_OS_FREEBSD OR SFML_OS_MACOSX)
-    set(INSTALL_MISC_DIR share/SFML)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(COMPILER_ARCH 64)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(COMPILER_ARCH 32)
+else()
+    message(FATAL_ERROR "Unsupported compiler architecture.")
 endif()

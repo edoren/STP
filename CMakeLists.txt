@@ -12,10 +12,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
 endif()
 
-if(CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited configurations" FORCE)
-    mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
-endif()
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited configurations" FORCE)
+mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 
 # Project name
 project(STP)
@@ -32,16 +30,19 @@ set_option(STP_BUILD_DOC FALSE BOOL "Create HTML documentation (requires Doxygen
 # Tell CMake where to find the FindSFML.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
+# Include the config file
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake)
+
 # If compiler is GNU GCC based it enable the warnings
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions ("-Wall")
+    add_definitions("-Wall")
 endif()
 
 # Adding C++11 support in GCC compiler and Clang compiler
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions("-std=c++0x -stdlib=libc++")
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions("-std=c++0x")
+if(${COMPILER} STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++")
+elseif(${COMPILER} STREQUAL "GCC")
+    set(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
 # Set the SFML_ROOT folder
