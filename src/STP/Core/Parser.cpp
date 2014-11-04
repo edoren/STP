@@ -226,7 +226,7 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
     if (attribute_visible) visible = attribute_visible.as_bool();
 
     // Create the new Layer
-    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible);
+    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
 
     // Parse the layer properties
     Parser::ParseProperties(layer_node, layer);
