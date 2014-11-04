@@ -145,6 +145,9 @@ unsigned int TileMap::GetTileHeight() const {
     return tileheight_;
 }
 
+const std::string& TileMap::GetOrientation() const {
+    return orientation_;
+}
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     for (unsigned int i = 0; i < map_objects_.size(); ++i) {
