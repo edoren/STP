@@ -68,7 +68,7 @@ class STP_API Layer : public MapObject {
     ///
     ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
-          unsigned int height, float opacity, bool visible);
+          unsigned int height, float opacity, bool visible, std::string orientation);
 
     ////////////////////////////////////////////////////////////
     /// Nested classes
@@ -131,6 +131,7 @@ class STP_API Layer : public MapObject {
 	void AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset = nullptr);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     std::vector<tmx::Layer::Tile> tiles_;
+    std::string orientation_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -155,7 +156,7 @@ class STP_API Layer::Tile : public sf::Drawable {
     /// \param tileset   A pointer to a tmx::TileSet to get the texture.
 	///
 	////////////////////////////////////////////////////////////
-	Tile(unsigned int gid, sf::IntRect tile_rect,
+	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
 	     tmx::TileSet* tileset = nullptr);
 
     ////////////////////////////////////////////////////////////
