@@ -145,6 +145,7 @@ unsigned int TileMap::GetTileHeight() const {
     return tileheight_;
 }
 
+
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     for (unsigned int i = 0; i < map_objects_.size(); ++i) {
         if (map_objects_[i]->visible == true)
