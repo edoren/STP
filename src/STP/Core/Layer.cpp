@@ -38,7 +38,7 @@ Layer::Layer() {}
 
 Layer::Layer(const std::string& name, unsigned int width,
              unsigned int height, float opacity, bool visible, std::string orientation) :
-        MapObject(name, width, height, opacity, visible) 
+        MapObject(name, width, height, opacity, visible),
         orientation_(orientation) {
     // Reserve space for each vector to avoid reallocate
     tiles_.reserve(width * height);
