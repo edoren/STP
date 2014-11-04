@@ -156,6 +156,14 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the orientation of the map
+    ///
+    /// \return The orienation of the map as std::string
+    ///
+    ////////////////////////////////////////////////////////////
+    const std::string& GetOrientation() const;
 
  private:
     void AddLayer(tmx::Layer* newlayer);
