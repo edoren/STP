@@ -115,17 +115,25 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
         texture_rect_ = tileset->GetTextureRect(id);
         tile_properties_ = &tileset->GetTile(id);
     }
-
-    if (orientation == "isometric") {
+    
+    if (orienation != "orthogonal") {
     	float x = tile_rect_.left / tilesize.x;
         float y = tile_rect_.top / tilesize.y;
+        
+    	if (orientation == "isometric") {
+    		tile_rect_.left = (x-y) * tilesize.x * 0.5;
+            tile_rect_.top = (x+y) * tilesize.y * 0.5;
+        }
 
-        tile_rect_.left = (x-y) * tilesize.x * 0.5;
-        tile_rect_.top = (x+y) * tilesize.y * 0.5;
-    }
-
-    if (orientation == "staggered") {
-        //TODO : Add Staggered
+        if (orientation == "staggered") {
+        	if ((y % 2) == 0) {
+        		tile_rect_.left = x * tilesize.x;
+        	}
+        	else {
+        		tile_rect_.left = x * tilesize.x + tilesize.x /2;
+        	}
+        	tile_rect_.top = y * tilesize.y / 2;
+        }
     }
 
     UpdatePositions();
