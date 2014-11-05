@@ -8,7 +8,7 @@ STP is an extension library for [SFML2](https://github.com/LaurentGomila/SFML) d
 
 *   Low memory usage.
 *   Support all the encoding and compression formats.
-*   Support for orthogonal and isometric maps.
+*   Support for orthogonal, isometric and staggered maps.
 
 ## Usage
 
