@@ -221,12 +221,12 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
     // Check if some attributes exists in layer_node
     pugi::xml_attribute attribute_opacity = layer_node.attribute("opacity");
     pugi::xml_attribute attribute_visible = layer_node.attribute("visible");
-    
+
     if (attribute_opacity) opacity = attribute_opacity.as_float();
     if (attribute_visible) visible = attribute_visible.as_bool();
 
     // Create the new Layer
-    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
+    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation(), sf::Vector2i(tilewidth,tileheight));
 
     // Parse the layer properties
     Parser::ParseProperties(layer_node, layer);

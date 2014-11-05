@@ -37,9 +37,10 @@ namespace tmx {
 Layer::Layer() {}
 
 Layer::Layer(const std::string& name, unsigned int width,
-             unsigned int height, float opacity, bool visible, std::string orientation) :
+             unsigned int height, float opacity, bool visible, std::string orientation, sf::Vector2i tilesize) :
         MapObject(name, width, height, opacity, visible),
-        orientation_(orientation) {
+        orientation_(orientation),
+        tile_size_(tilesize) {
     // Reserve space for each vector to avoid reallocate
     tiles_.reserve(width * height);
     unsigned char alpha = static_cast<unsigned char>(255 * opacity);
@@ -47,7 +48,7 @@ Layer::Layer(const std::string& name, unsigned int width,
 }
 
 void Layer::AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset) {
-    tiles_.emplace_back(gid, tile_rect, orientation_, tileset);
+    tiles_.emplace_back(gid, tile_rect, orientation_, tile_size_, tileset);
 	tiles_.back().SetColor(color_);
 }
 
@@ -100,7 +101,7 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 Layer::Tile::Tile() {}
 
-Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, tmx::TileSet* tileset) :
+Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, sf::Vector2i tilesize, tmx::TileSet* tileset) :
         gid_(gid),
         tile_rect_(tile_rect),
         tile_properties_(nullptr),
@@ -114,15 +115,19 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
         texture_rect_ = tileset->GetTextureRect(id);
         tile_properties_ = &tileset->GetTile(id);
     }
-    
-    if (orientation == "isometric") {
-    	float x = tile_rect_.left / tile_rect_.width;
-        float y = tile_rect_.top / tile_rect_.height;
 
-        tile_rect_.left = (x-y) * tile_rect_.width * 0.5;
-        tile_rect_.top = (x+y) * tile_rect_.height * 0.5;
+    if (orientation == "isometric") {
+    	float x = tile_rect_.left / tilesize.x;
+        float y = tile_rect_.top / tilesize.y;
+
+        tile_rect_.left = (x-y) * tilesize.x * 0.5;
+        tile_rect_.top = (x+y) * tilesize.y * 0.5;
     }
-    
+
+    if (orientation == "staggered") {
+        //TODO : Add Staggered
+    }
+
     UpdatePositions();
     UpdateTexCoords();
 }

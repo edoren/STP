@@ -68,7 +68,7 @@ class STP_API Layer : public MapObject {
     ///
     ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
-          unsigned int height, float opacity, bool visible, std::string orientation);
+          unsigned int height, float opacity, bool visible, std::string orientation, sf::Vector2i tilesize);
 
     ////////////////////////////////////////////////////////////
     /// Nested classes
@@ -97,7 +97,7 @@ class STP_API Layer : public MapObject {
     ///
     /// \param x The x position of the Tile
     /// \param y The y position of the Tile
-    /// 
+    ///
     /// \exception std::out_of_range If no tile within the range of the layer.
     ///
     /// \return Reference to the Tile.
@@ -130,8 +130,10 @@ class STP_API Layer : public MapObject {
 
 	void AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset = nullptr);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
     std::vector<tmx::Layer::Tile> tiles_;
     std::string orientation_;
+    sf::Vector2i tile_size_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -156,7 +158,7 @@ class STP_API Layer::Tile : public sf::Drawable {
     /// \param tileset   A pointer to a tmx::TileSet to get the texture.
 	///
 	////////////////////////////////////////////////////////////
-	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
+	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, sf::Vector2i tilesize,
 	     tmx::TileSet* tileset = nullptr);
 
     ////////////////////////////////////////////////////////////
@@ -223,7 +225,7 @@ class STP_API Layer::Tile : public sf::Drawable {
     void UpdateTexCoords();
 
  public:
-    /// \brief Visibility of the Tile   
+    /// \brief Visibility of the Tile
     bool visible;
 };
 
