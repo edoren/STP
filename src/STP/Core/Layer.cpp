@@ -115,7 +115,7 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
         tile_properties_ = &tileset->GetTile(id);
     }
 
-    if (orientation != "orthogonal") {
+    if (orientation != "orthogonal" && tile_rect.width != 0 && tile_rect_.height != 0) {
     	int x = tile_rect_.left / tile_rect_.width;
         int y = tile_rect_.top / tile_rect_.height;
 
@@ -133,6 +133,11 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
             }
             tile_rect_.top = y * tile_rect_.height / 2;
         }
+    }
+    else if (tile_rect_.width == 0 || tile_rect_.height == 0)
+    {
+        tile_rect_.width = texture_rect_.width;
+        tile_rect_.height = texture_rect_.height;
     }
 
     UpdatePositions();
