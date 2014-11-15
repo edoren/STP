@@ -105,12 +105,11 @@ void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, t
 
     if (tileset != nullptr) {
         tile_pos.x += tileset->GetTileOffSet().x;
-        tile_pos.y += tileset->GetTileOffSet().y - tileset->GetTileHeight() + tilemap->GetTileHeight();
-        sf::IntRect tile_rect(tile_pos.x, tile_pos.y, tileset->GetTileWidth(), tileset->GetTileHeight());
+        tile_pos.y += tileset->GetTileOffSet().y;
+        sf::IntRect tile_rect(tile_pos.x, tile_pos.y, tilemap->GetTileWidth(), tilemap->GetTileHeight());
         layer->AddTile(gid, tile_rect, tileset);
     } else {
-        sf::IntRect tile_rect(tile_pos.x, tile_pos.y, 0, 0);
-        layer->AddTile(gid, tile_rect);
+        layer->AddTile(gid, sf::IntRect(tile_pos.x, tile_pos.y, 0, 0));
     }
 }
 
@@ -221,12 +220,12 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
     // Check if some attributes exists in layer_node
     pugi::xml_attribute attribute_opacity = layer_node.attribute("opacity");
     pugi::xml_attribute attribute_visible = layer_node.attribute("visible");
-    
+
     if (attribute_opacity) opacity = attribute_opacity.as_float();
     if (attribute_visible) visible = attribute_visible.as_bool();
 
     // Create the new Layer
-    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible);
+    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
 
     // Parse the layer properties
     Parser::ParseProperties(layer_node, layer);

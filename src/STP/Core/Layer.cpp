@@ -37,16 +37,17 @@ namespace tmx {
 Layer::Layer() {}
 
 Layer::Layer(const std::string& name, unsigned int width,
-             unsigned int height, float opacity, bool visible) :
-        MapObject(name, width, height, opacity, visible) {
+             unsigned int height, float opacity, bool visible, std::string orientation) :
+        MapObject(name, width, height, opacity, visible),
+        orientation_(orientation) {
     // Reserve space for each vector to avoid reallocate
     tiles_.reserve(width * height);
     unsigned char alpha = static_cast<unsigned char>(255 * opacity);
     color_.a = alpha;
 }
 
-void Layer::AddTile(unsigned int gid, sf::IntRect& tile_rect, tmx::TileSet* tileset) {
-    tiles_.emplace_back(gid, tile_rect, tileset);
+void Layer::AddTile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset) {
+    tiles_.emplace_back(gid, tile_rect, orientation_, tileset);
 	tiles_.back().SetColor(color_);
 }
 
@@ -99,7 +100,7 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 Layer::Tile::Tile() {}
 
-Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset) :
+Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, tmx::TileSet* tileset) :
         gid_(gid),
         tile_rect_(tile_rect),
         tile_properties_(nullptr),
@@ -113,6 +114,32 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset
         texture_rect_ = tileset->GetTextureRect(id);
         tile_properties_ = &tileset->GetTile(id);
     }
+
+    if (orientation != "orthogonal" && tile_rect.width != 0 && tile_rect_.height != 0) {
+    	int x = tile_rect_.left / tile_rect_.width;
+        int y = tile_rect_.top / tile_rect_.height;
+
+    	if (orientation == "isometric") {
+    	    tile_rect_.left = (x-y) * tile_rect_.width * 0.5;
+            tile_rect_.top = (x+y) * tile_rect_.height * 0.5;
+        }
+
+        if (orientation == "staggered") {
+            if ((y % 2) == 0) {
+                tile_rect_.left = x * tile_rect_.width;
+            }
+            else {
+                tile_rect_.left = x * tile_rect_.width + tile_rect_.width /2;
+            }
+            tile_rect_.top = y * tile_rect_.height / 2;
+        }
+    }
+    else if (tile_rect_.width == 0 || tile_rect_.height == 0)
+    {
+        tile_rect_.width = texture_rect_.width;
+        tile_rect_.height = texture_rect_.height;
+    }
+
     UpdatePositions();
     UpdateTexCoords();
 }
@@ -121,9 +148,9 @@ void Layer::Tile::UpdatePositions() {
     sf::FloatRect bounds = GetGlobalBounds();
 
     vertices_[0].position = sf::Vector2f(bounds.left, bounds.top);
-    vertices_[1].position = sf::Vector2f(bounds.left + bounds.width, bounds.top);
-    vertices_[2].position = sf::Vector2f(bounds.left + bounds.width, bounds.top + bounds.height);
-    vertices_[3].position = sf::Vector2f(bounds.left, bounds.top + bounds.height);
+    vertices_[1].position = sf::Vector2f(bounds.left + texture_rect_.width, bounds.top);
+    vertices_[2].position = sf::Vector2f(bounds.left + texture_rect_.width, bounds.top + texture_rect_.height);
+    vertices_[3].position = sf::Vector2f(bounds.left, bounds.top + texture_rect_.height);
 }
 
 void Layer::Tile::UpdateTexCoords() {
