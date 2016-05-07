@@ -27,6 +27,7 @@
 #include "STP/Core/TileSet.hpp"
 
 #include <stdexcept>
+#include <cassert>
 #include <cmath>
 #include <string>
 
