@@ -1,0 +1,9 @@
+[submodule "extlibs/SFML"]
+	path = extlibs/SFML
+	url = https://github.com/SFML/SFML.git
+[submodule "extlibs/pugixml"]
+    path = extlibs/pugixml
+    url = https://github.com/zeux/pugixml.git
+[submodule "extlibs/zlib"]
+    path = extlibs/zlib
+    url = https://github.com/madler/zlib.git

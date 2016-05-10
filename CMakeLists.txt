@@ -1,3 +1,6 @@
+###############################################################################
+# CMake configuration
+
 cmake_minimum_required(VERSION 2.8)
 
 macro(set_option var default type docstring)
@@ -15,6 +18,9 @@ endif()
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited configurations" FORCE)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 
+###############################################################################
+# Project configuration
+
 # Project name
 project(STP)
 
@@ -23,11 +29,24 @@ set_option(STP_SHARED_LIBS TRUE BOOL "Build shared libraries (use shared SFML li
 set_option(STP_BUILD_EXAMPLES FALSE BOOL "Build example projects")
 set_option(STP_BUILD_DOC FALSE BOOL "Create HTML documentation (requires Doxygen)")
 
+# Enable the folders in the projects
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+
 # Tell CMake where to find the FindSFML.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 # Include the config file
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake)
+
+# Preprocessor definitions and include directories
+add_definitions(-DSTP_EXPORTS)
+if(NOT STP_SHARED_LIBS)
+    add_definitions(-DSTP_STATIC)
+endif()
+
+###############################################################################
+# Compiler configuration
 
 # If compiler is GNU GCC based it enable the warnings
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -41,26 +60,52 @@ elseif(${COMPILER} STREQUAL "GCC")
     set(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
-# Set the SFML_ROOT folder
-set(SFML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/SFML)
+###############################################################################
+# Third party libraries configuration
 
-# Preprocessor definitions and include directories
-add_definitions(-DSTP_EXPORTS)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extlibs/headers)
-if(NOT STP_SHARED_LIBS)
-    add_definitions(-DSTP_STATIC)
+set(DEFAULT_OPTION TRUE)
+if(${OS} STREQUAL "Windows")
+    set(DEFAULT_OPTION FALSE)
 endif()
 
-# Enable the folders in the projects
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+set_option(USE_SHARED_PUGIXML ${DEFAULT_OPTION} BOOL "Use your installed copy of PUGIXML")
+set_option(USE_SHARED_ZLIB ${DEFAULT_OPTION} BOOL "Use your installed copy of ZLIB")
+
+###############################################################################
+# Directories
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/bin")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
+
+set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/extlibs")
+set(ENGINE_DIR "${CMAKE_SOURCE_DIR}/src")
+set(TEMP_DIR "${CMAKE_BINARY_DIR}/obj")
+
+###############################################################################
+# Set the dependencies folder
+
+add_subdirectory(${DEPENDENCIES_DIR})
+include_directories(${DEPENDENCIES_INCLUDES})
+
+###############################################################################
 
 if(STP_BUILD_DOC)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/doc)
 endif()
 
 # Source directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/STP)
 
 # Install the headers
