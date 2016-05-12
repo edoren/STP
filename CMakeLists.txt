@@ -25,19 +25,19 @@ mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 project(STP)
 
 # Predefined configuration options
-set_option(STP_SHARED_LIBS TRUE BOOL "Build shared libraries (use shared SFML librares)")
-set_option(STP_BUILD_EXAMPLES FALSE BOOL "Build example projects")
+set_option(STP_SHARED_LIBS TRUE BOOL "Build shared libraries (use shared SFML libraries)")
+set_option(STP_BUILD_TESTS FALSE BOOL "Build test projects")
 set_option(STP_BUILD_DOC FALSE BOOL "Create HTML documentation (requires Doxygen)")
 
 # Enable the folders in the projects
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
-# Tell CMake where to find the FindSFML.cmake
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
+# Tell CMake where to find additional modules
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 
 # Include the config file
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake")
 
 # Preprocessor definitions and include directories
 add_definitions(-DSTP_EXPORTS)
@@ -68,8 +68,8 @@ if(${OS} STREQUAL "Windows")
     set(DEFAULT_OPTION FALSE)
 endif()
 
-set_option(USE_SHARED_PUGIXML ${DEFAULT_OPTION} BOOL "Use your installed copy of PUGIXML")
-set_option(USE_SHARED_ZLIB ${DEFAULT_OPTION} BOOL "Use your installed copy of ZLIB")
+set_option(USE_SHARED_PUGIXML ${DEFAULT_OPTION} BOOL "Use your installed copy of PugiXML")
+set_option(USE_SHARED_ZLIB ${DEFAULT_OPTION} BOOL "Use your installed copy of zlib")
 
 ###############################################################################
 # Directories
@@ -89,24 +89,32 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/extlibs")
-set(ENGINE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TEMP_DIR "${CMAKE_BINARY_DIR}/obj")
 
 ###############################################################################
-# Set the dependencies folder
+# Build the dependencies
 
 add_subdirectory(${DEPENDENCIES_DIR})
 include_directories(${DEPENDENCIES_INCLUDES})
 
 ###############################################################################
+# Build STP
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/STP")
+
+###############################################################################
+# Build the documentation
 
 if(STP_BUILD_DOC)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/doc)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/doc")
 endif()
 
-# Source directory
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/STP)
+###############################################################################
+# Build the tests
 
-# Install the headers
-install(DIRECTORY include DESTINATION . COMPONENT devel)
+if(STP_BUILD_TESTS)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
+endif()
+
+###############################################################################

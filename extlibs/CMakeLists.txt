@@ -8,6 +8,7 @@ set(ZLIB_DIR "${DEPENDENCIES_DIR}/zlib")
 
 
 # Find SFML
+set(SFML_ROOT ${SFML_DIR})
 find_package(SFML 2 COMPONENTS graphics window system)
 if(SFML_FOUND)
     set(SFML_INCLUDE_DIR ${SFML_INCLUDE_DIR})
