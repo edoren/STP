@@ -9,7 +9,7 @@ compiler:
 
 install:
     # Install clang c++ std library
-    - if [ "$CXX" == "clang++" ]; sudo apt-get install libc++-dev; fi
+    - if [ "$CXX" == "clang++" ]; then sudo apt-get install libc++-dev; fi
 
     # Install all the dependencies
     - sudo apt-get install libsfml-dev
