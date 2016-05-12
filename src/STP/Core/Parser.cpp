@@ -27,7 +27,9 @@
 #include "Parser.hpp"
 
 #include <cstring>
-
+#include <cassert>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -36,6 +38,16 @@
 #include <zlib.h>
 
 #include "Base64.hpp"
+
+///Determines if a filename is a regular file
+///From http://www.richelbilderbeek.nl/CppIsRegularFile.htm
+bool is_regular_file2(const std::string& filename) noexcept
+{
+  std::fstream f;
+  f.open(filename.c_str(),std::ios::in);
+  return f.is_open();
+}
+
 
 namespace tmx {
 
@@ -134,13 +146,23 @@ tmx::Image Parser::ParseImage(const pugi::xml_node& image_node, const std::strin
     }
     if (attribute_format) format = attribute_format.as_string();
 
-    return tmx::Image(source, width, height, trans, format);
+    if (!is_regular_file2(source)) {
+      std::cerr << __func__ << ": could not find file '" << source << "'\n";
+    }
+    assert(is_regular_file2(source));
+    tmx::Image result(source, width, height, trans, format);
+    assert(result.GetWidth() < 10000); //RJCB
+    assert(result.GetWidth() == width); //RJCB
+    assert(result.GetHeight() < 10000); //RJCB
+    assert(result.GetHeight() == height); //RJCB
+    return result;
 }
 
 tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir) {
     unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
     std::string name;
     tmx::Image image_data;
+    assert(image_data.GetWidth() < 100000); //RJCB
     sf::Vector2i tileoffset_data = {0, 0};
 
     pugi::xml_node& tileset_node_ = tileset_node;
@@ -183,6 +205,7 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
     }
 
     // Create the new TileSet
+    assert(image_data.GetWidth() < 100000); //RJCB
     tmx::TileSet* tileset = new tmx::TileSet(firstgid, name, tilewidth, tileheight,
                                              image_data, spacing, margin, tileoffset_data);
 
@@ -364,6 +387,8 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
         if (attribute_gid) {
             // Tile Object
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
+            std::cerr << "gid: " << gid << std::endl; //RJCB
+            assert(tilemap->GetTileSet(gid));
             unsigned int id = gid - tilemap->GetTileSet(gid)->GetFirstGID();  // Tile local id
 
             tmx::TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);

@@ -30,7 +30,16 @@
 
 namespace tmx {
 
-Image::Image() {}
+Image::Image()
+ : source_{""},
+  trans_{-1},
+  width_{0},
+  height_{0},
+  format_{""},
+  texture_{}
+{
+
+}
 
 Image::Image(const std::string& source, unsigned int width,
              unsigned int height, int32_t trans, const std::string& format) :
