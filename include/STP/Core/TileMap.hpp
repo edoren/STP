@@ -164,7 +164,7 @@ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
-    friend class tmx::Parser;
+    friend class Parser;
 
     std::string working_dir_;
 

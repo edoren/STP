@@ -185,8 +185,8 @@ public:
     std::string& GetPropertyValue(const std::string& name);
 
 private:
-    friend class tmx::Layer;
-    friend class tmx::Parser;
+    friend class Layer;
+    friend class Parser;
 
     unsigned int gid_;
 

@@ -153,7 +153,7 @@ public:
     unsigned int GetLastGID() const;
 
 private:
-    friend class tmx::Parser;
+    friend class Parser;
 
     unsigned int firstgid_, lastgid_;
     std::string name_;
