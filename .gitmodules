@@ -4,3 +4,4 @@
 [submodule "extlibs/zlib"]
     path = extlibs/zlib
     url = https://github.com/madler/zlib.git
+    ignore = dirty
