@@ -6,6 +6,10 @@ cmake_install.cmake
 install_manifest.txt
 build/
 
+# SFML root directory
+extlibs/SFML/**
+!extlibs/SFML/README.md
+
 # Compiled Object files
 *.slo
 *.lo
