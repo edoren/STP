@@ -51,15 +51,7 @@ enum ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ObjectGroup : public MapObject {
- public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// Constructs an empty object group with no values.
-    ///
-    ////////////////////////////////////////////////////////////
-    ObjectGroup();
-
+private:
     ////////////////////////////////////////////////////////////
     /// \brief Constructs a object group given a name, width, height
     ///        opacity, visible and hexcolor atributes
@@ -75,6 +67,7 @@ class STP_API ObjectGroup : public MapObject {
     ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
                 float opacity, bool visible, int32_t hexcolor = -1);
 
+public:
     ////////////////////////////////////////////////////////////
     /// Nested classes
     ///
@@ -105,10 +98,12 @@ class STP_API ObjectGroup : public MapObject {
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);
 
- private:
+private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
- private:
+private:
+    friend class Parser;
+
     std::vector<tmx::ObjectGroup::Object> objects_;
 };
 

@@ -42,7 +42,7 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Properties {
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
@@ -68,7 +68,7 @@ class STP_API Properties {
     ////////////////////////////////////////////////////////////
     std::string& GetPropertyValue(const std::string& name);
 
- protected:
+protected:
     /// \brief Hash table to store the values
     std::unordered_map<std::string, std::string> properties_;
 };

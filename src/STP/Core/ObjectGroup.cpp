@@ -35,8 +35,6 @@
 
 namespace tmx {
 
-ObjectGroup::ObjectGroup() {}
-
 ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
                          float opacity, bool visible, int32_t hexcolor) :
         MapObject(name, width, height, opacity, visible) {

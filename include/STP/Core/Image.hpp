@@ -45,7 +45,7 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Image {
- public:
+private:
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
@@ -65,7 +65,7 @@ class STP_API Image {
     Image(const std::string& source, unsigned int width = 0, unsigned int height = 0,
           int32_t trans = -1, const std::string& format = std::string());
 
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Return the image width
     ///
@@ -90,7 +90,9 @@ class STP_API Image {
     ////////////////////////////////////////////////////////////
     const sf::Texture* GetTexture() const;
 
- private:
+private:
+    friend class Parser;
+
     std::string source_;
     int32_t trans_;
     unsigned int width_, height_;

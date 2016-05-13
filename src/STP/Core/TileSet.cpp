@@ -32,8 +32,6 @@
 
 namespace tmx {
 
-TileSet::TileSet() {}
-
 TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
                  unsigned int tileheight, tmx::Image image, unsigned int spacing,
                  unsigned int margin, sf::Vector2i tileoffset) :
@@ -50,12 +48,10 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
     unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
     unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
     if (spacing != 0) {
-        for (unsigned int i = 0; i <= width_no_margin;) {
-            i += tilewidth + spacing_;
+        for (unsigned int i = 0; i <= width_no_margin; i += tilewidth + spacing_) {
             width_no_spacing_ += tilewidth;
         }
-        for (unsigned int i = 0; i <= height_no_margin;) {
-            i += tileheight + spacing_;
+        for (unsigned int i = 0; i <= height_no_margin; i += tileheight + spacing_) {
             height_no_spacing_ += tileheight;
         }
     } else {

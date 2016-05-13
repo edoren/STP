@@ -49,26 +49,22 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API TileMap : public sf::Drawable, public tmx::Properties {
- public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Parse and load the TMX file given a path to it
-    ///
-    /// \param tmx_file Path to the TMX file
-    ///
-    ////////////////////////////////////////////////////////////
-    explicit TileMap(const std::string& tmx_file);
+public:
+    TileMap();
+    TileMap(TileMap&& other) = default;
+    TileMap& operator=(TileMap&&) = default;
 
- private:
+private:
     TileMap(const TileMap& other) = delete;
-    TileMap& operator =(const TileMap&) = delete;
+    TileMap& operator=(const TileMap&) = delete;
 
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Return the tile set attached to the global id
     ///
     /// \param gid The gid of the tile
     ///
-    /// \return Pointer to a tmx::TileSet or nullptr if 
+    /// \return Pointer to a tmx::TileSet or nullptr if
     ///         the gid does not exist or is 0
     ///
     ////////////////////////////////////////////////////////////
@@ -117,8 +113,7 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ////////////////////////////////////////////////////////////
     /// \brief Display the objects in the map
     ///
-    /// \param show true, displays it\n
-    ///             false, hides it
+    /// \param show true to display them, false to hides them
     ///
     /// \return Reference to a tmx::ImageLayer
     ///
@@ -156,7 +151,7 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
-    
+
     ////////////////////////////////////////////////////////////
     /// \brief Return the orientation of the map
     ///
@@ -165,14 +160,12 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ////////////////////////////////////////////////////////////
     const std::string& GetOrientation() const;
 
- private:
-    void AddLayer(tmx::Layer* newlayer);
-    void AddObjectGroup(tmx::ObjectGroup* newobjectgroup);
-    void AddImageLayer(tmx::ImageLayer* newimagelayer);
-    void AddTileSet(tmx::TileSet* newtileset);
+private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
- private:
+private:
+    friend class tmx::Parser;
+
     std::string working_dir_;
 
     float version_;

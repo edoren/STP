@@ -24,7 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#include "Parser.hpp"
+#include "STP/Core/Parser.hpp"
 
 #include <cstring>
 
@@ -37,7 +37,77 @@
 
 #include "Base64.hpp"
 
+using namespace pugi;
+
 namespace tmx {
+
+Parser::Parser() : tmx_document_(), working_dir_("./") {
+}
+
+ParserStatus Parser::Load(const char* buffer, size_t size) {
+    xml_parse_result result = tmx_document_.load_buffer(buffer, size);
+    if (!result) return ParserStatus::LOADING_ERROR;
+
+    xml_node map_node = tmx_document_.child("map");
+    if (!map_node) return ParserStatus::INVALID_MAP_FILE;
+
+    return ParserStatus::OK;
+}
+
+ParserStatus Parser::LoadFile(const std::string& map_file) {
+    xml_parse_result result = tmx_document_.load_file(map_file.c_str());
+    if (!result) return ParserStatus::LOADING_ERROR;
+
+    xml_node map_node = tmx_document_.child("map");
+    if (!map_node) return ParserStatus::INVALID_MAP_FILE;
+
+    working_dir_ = map_file.substr(0, map_file.find_last_of('/') + 1);
+
+    return ParserStatus::OK;
+}
+
+tmx::TileMap Parser::GetMap() {
+    tmx::TileMap map;
+
+    xml_node map_node = tmx_document_.child("map");
+
+    // Get the map data
+    map.version_ = map_node.attribute("version").as_float();
+    map.orientation_ = map_node.attribute("orientation").value();
+    map.width_ = map_node.attribute("width").as_uint();
+    map.height_ = map_node.attribute("height").as_uint();
+    map.tilewidth_ = map_node.attribute("tilewidth").as_uint();
+    map.tileheight_ = map_node.attribute("tileheight").as_uint();
+
+    for (xml_node node : map_node.children()) {
+        std::string node_name = node.name();
+        // Call the respective parse function for each node
+        if (node_name == "tileset") {
+            auto newtileset = ParseTileSet(node);
+            map.tilesets_.emplace_back(newtileset);
+            map.tilesets_hash_[newtileset->GetName()] = newtileset;
+        } else if (node_name == "layer") {
+            auto newlayer =  ParseLayer(node, &map);
+            map.map_objects_.emplace_back(newlayer);
+            map.layers_[newlayer->GetName()] = newlayer;
+        } else if (node_name == "objectgroup") {
+            auto newobjectgroup = ParseObjectGroup(node, &map);
+            map.map_objects_.emplace_back(newobjectgroup);
+            map.object_groups_[newobjectgroup->GetName()] = newobjectgroup;
+        } else if (node_name == "imagelayer") {
+            auto newimagelayer = ParseImageLayer(node);
+            map.map_objects_.emplace_back(newimagelayer);
+            map.image_layers_[newimagelayer->GetName()] = newimagelayer;
+        }
+    }
+
+    // Parse the map properties
+    ParseProperties(map_node, &map);
+
+    map.ShowObjects(false);
+
+    return map;
+}
 
 std::string Parser::DecompressString(const std::string& compressed_string) {
     z_stream zstream;
@@ -89,10 +159,10 @@ std::string Parser::DecompressString(const std::string& compressed_string) {
     return outstring;
 }
 
-void Parser::ParseProperties(const pugi::xml_node& object_node, tmx::Properties* object) {
-    pugi::xml_node properties_node = object_node.child("properties");
+void Parser::ParseProperties(const xml_node& obj_node, tmx::Properties* object) {
+    xml_node properties_node = obj_node.child("properties");
     if (properties_node) {
-        for (const pugi::xml_node& property_node : properties_node.children("property")) {
+        for (const xml_node& property_node : properties_node.children("property")) {
             std::string name = property_node.attribute("name").as_string();
             std::string value = property_node.attribute("value").as_string();
             object->AddProperty(name, value);
@@ -102,83 +172,78 @@ void Parser::ParseProperties(const pugi::xml_node& object_node, tmx::Properties*
 
 void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap) {
     tmx::TileSet* tileset = tilemap->GetTileSet(gid);
+    sf::IntRect tile_rect;
 
     if (tileset != nullptr) {
         tile_pos.x += tileset->GetTileOffSet().x;
         tile_pos.y += tileset->GetTileOffSet().y;
-        sf::IntRect tile_rect(tile_pos.x, tile_pos.y, tilemap->GetTileWidth(), tilemap->GetTileHeight());
-        layer->AddTile(gid, tile_rect, tileset);
+        tile_rect = sf::IntRect(
+            tile_pos.x, tile_pos.y,
+            tilemap->GetTileWidth(), tilemap->GetTileHeight()
+        );
     } else {
-        layer->AddTile(gid, sf::IntRect(tile_pos.x, tile_pos.y, 0, 0));
+        tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
     }
+
+    tmx::Layer::Tile tile(gid, tile_rect, layer->orientation_, tileset);
+    tile.SetColor(layer->color_);
+    layer->tiles_.push_back(std::move(tile));
 }
 
-tmx::Image Parser::ParseImage(const pugi::xml_node& image_node, const std::string& working_dir) {
-    std::string format, source;
-    unsigned int width = 0, height = 0;
-    int32_t trans = -1;
-
-    source = working_dir + image_node.attribute("source").as_string();
+tmx::Image Parser::ParseImage(const xml_node& image_node) {
+    xml_attribute attribute_source = image_node.attribute("source");
+    std::string source = working_dir_ + attribute_source.as_string();
 
     // Check if some attributes exists in image_node
-    pugi::xml_attribute attribute_width = image_node.attribute("width");
-    pugi::xml_attribute attribute_height = image_node.attribute("height");
-    pugi::xml_attribute attribute_trans = image_node.attribute("trans");
-    pugi::xml_attribute attribute_format = image_node.attribute("format");
+    unsigned int width = image_node.attribute("width").as_uint(0);
+    unsigned int height = image_node.attribute("height").as_uint(0);
+    std::string format = image_node.attribute("format").as_string("");
 
-    if (attribute_width) width = attribute_width.as_uint();
-    if (attribute_height) height = attribute_height.as_uint();
+    int32_t trans = -1;
+    xml_attribute attribute_trans = image_node.attribute("trans");
     if (attribute_trans) {
         std::stringstream ss(attribute_trans.as_string());
         ss >> std::hex >> trans;
     }
-    if (attribute_format) format = attribute_format.as_string();
 
     return tmx::Image(source, width, height, trans, format);
 }
 
-tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir) {
-    unsigned int firstgid, tilewidth, tileheight, spacing = 0, margin = 0;
-    std::string name;
-    tmx::Image image_data;
-    sf::Vector2i tileoffset_data = {0, 0};
+tmx::TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
+    xml_node& tileset_node_ = tileset_node;
 
-    pugi::xml_node& tileset_node_ = tileset_node;
+    unsigned int firstgid = tileset_node_.attribute("firstgid").as_uint(0);
 
-    firstgid = tileset_node_.attribute("firstgid").as_uint();
-
-    // If it finds a source attribute, load the file and get the tileset
-    pugi::xml_document tsx_file;
-    pugi::xml_attribute attribute_source = tileset_node_.attribute("source");
+    // Check for the source attribute, load the file and get the tileset
+    xml_document tsx_file;
+    xml_attribute attribute_source = tileset_node_.attribute("source");
     if (attribute_source) {
-        std::string source = working_dir + attribute_source.as_string();
+        std::string source = working_dir_ + attribute_source.as_string("");
         if (!tsx_file.load_file(source.c_str())) {
             fprintf(stdout, "Error loading the XML document.\n");
         }
         tileset_node_ = tsx_file.child("tileset");
     }
 
-    // Get the map data
-    name = tileset_node_.attribute("name").as_string();
-    tilewidth = tileset_node_.attribute("tilewidth").as_uint();
-    tileheight = tileset_node_.attribute("tileheight").as_uint();
+    std::string name = tileset_node_.attribute("name").as_string("");
+    unsigned int tilewidth = tileset_node_.attribute("tilewidth").as_uint(0);
+    unsigned int tileheight = tileset_node_.attribute("tileheight").as_uint(0);
+    unsigned int spacing = tileset_node_.attribute("spacing").as_uint(0);
+    unsigned int margin = tileset_node_.attribute("margin").as_uint(0);
+    unsigned int tilecount = tileset_node_.attribute("tilecount").as_uint(0);
+    unsigned int columns = tileset_node_.attribute("columns").as_uint(0);
 
-    // Check if some attributes exists in tileset_node_
-    pugi::xml_attribute attribute_spacing = tileset_node_.attribute("spacing");
-    pugi::xml_attribute attribute_margin = tileset_node_.attribute("margin");
-
-    if (attribute_spacing) spacing = attribute_spacing.as_uint();
-    if (attribute_margin) margin = attribute_margin.as_uint();
-
-    for (const pugi::xml_node& node : tileset_node.children()) {
-        const char* node_name = node.name();
+    // Check for the tileoffset, image childs
+    tmx::Image image_data;
+    sf::Vector2i tileoffset_data = {0, 0};
+    for (const xml_node& node : tileset_node.children()) {
         // Call the respective parse function for each node
-        if (strcmp(node_name, "tileoffset") == 0) {
+        if (strcmp(node.name(), "tileoffset") == 0) {
             tileoffset_data.x = node.attribute("x").as_int();
             tileoffset_data.y = node.attribute("y").as_int();
-        } else if (strcmp(node_name, "image") == 0) {
-            image_data = ParseImage(node, working_dir);
-        } else if (strcmp(node_name, "terraintypes") == 0) {
+        } else if (strcmp(node.name(), "image") == 0) {
+            image_data = ParseImage(node);
+        } else if (strcmp(node.name(), "terraintypes") == 0) {
         }
     }
 
@@ -187,7 +252,7 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
                                              image_data, spacing, margin, tileoffset_data);
 
     // Parse each tile property
-    for (const pugi::xml_node& tile_node : tileset_node_.children("tile")) {
+    for (const xml_node& tile_node : tileset_node_.children("tile")) {
         unsigned int id = tile_node.attribute("id").as_uint();
         ParseProperties(tile_node, &tileset->GetTile(id));
     }
@@ -198,44 +263,35 @@ tmx::TileSet* Parser::ParseTileSet(pugi::xml_node& tileset_node, const std::stri
     return tileset;
 }
 
-tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* tilemap) {
-    std::string name;
-    unsigned int width, height;
-    float opacity = 1.f;  // range 0 - 1
-    bool visible = true;
-
-    unsigned int count_x = 0;
-    unsigned int count_y = 0;
-
-    unsigned int tilewidth = tilemap->GetTileWidth();
-    unsigned int tileheight = tilemap->GetTileHeight();
-
-    sf::Vector2i tile_pos;
-
+tmx::Layer* Parser::ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap) {
     // Get the map data
-    name = layer_node.attribute("name").as_string();
-    width = layer_node.attribute("width").as_uint();
-    height = layer_node.attribute("height").as_uint();
-
-    // Check if some attributes exists in layer_node
-    pugi::xml_attribute attribute_opacity = layer_node.attribute("opacity");
-    pugi::xml_attribute attribute_visible = layer_node.attribute("visible");
-
-    if (attribute_opacity) opacity = attribute_opacity.as_float();
-    if (attribute_visible) visible = attribute_visible.as_bool();
+    std::string name = layer_node.attribute("name").as_string();
+    unsigned int width = layer_node.attribute("width").as_uint();
+    unsigned int height = layer_node.attribute("height").as_uint();
+    float opacity = layer_node.attribute("opacity").as_float(1.f);
+    bool visible = layer_node.attribute("visible").as_bool(true);
+    int offsetx = layer_node.attribute("offsetx").as_int(0);
+    int offsety = layer_node.attribute("offsety").as_int(0);
 
     // Create the new Layer
     tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
 
     // Parse the layer properties
-    Parser::ParseProperties(layer_node, layer);
+    ParseProperties(layer_node, layer);
+
+    // Useful variables to parse the layer data
+    sf::Vector2i tile_pos;
+    unsigned int count_x = 0;
+    unsigned int count_y = 0;
+    unsigned int tilewidth = tilemap->GetTileWidth();
+    unsigned int tileheight = tilemap->GetTileHeight();
 
     // Parse the layer data
-    pugi::xml_node data_node = layer_node.child("data");
+    xml_node data_node = layer_node.child("data");
     if (data_node) {
         std::string data = data_node.text().as_string();
         // Check if the encoding attribute exists in data_node
-        pugi::xml_attribute attribute_encoding = data_node.attribute("encoding");
+        xml_attribute attribute_encoding = data_node.attribute("encoding");
         if (attribute_encoding) {
             std::string encoding = attribute_encoding.as_string();
 
@@ -250,14 +306,11 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
                 byteVector.reserve(expectedSize);
 
                 // Check if the compression attribute exists in data_node
-                if (data_node.attribute("compression")) {
-                    std::string decompressed_data = DecompressString(data);
-                    for (std::string::iterator i = decompressed_data.begin(); i != decompressed_data.end(); ++i)
-                        byteVector.push_back(*i);
-                } else {
-                    for (std::string::iterator i = data.begin(); i != data.end(); ++i)
-                        byteVector.push_back(*i);
-                }
+                if (data_node.attribute("compression"))
+                    data = DecompressString(data);
+
+                for (std::string::iterator i = data.begin(); i != data.end(); ++i)
+                    byteVector.push_back(*i);
 
                 for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
                     int gid = byteVector[i] | byteVector[i + 1] << 8 | byteVector[i + 2] << 16 | byteVector[i + 3] << 24;
@@ -283,8 +336,8 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
                     if (count_x == 0) count_y += 1;
                 }
             }
-        } else {  // Unencoded
-            for (const pugi::xml_node& tile_node : data_node.children("tile")) {
+        } else {  // Unencoded, saved as XML
+            for (const xml_node& tile_node : data_node.children("tile")) {
                 int gid = tile_node.attribute("gid").as_uint();
                 tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
 
@@ -299,68 +352,45 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
     return layer;
 }
 
-tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_node, tmx::TileMap* tilemap) {
-    std::string name;
+tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::TileMap* tilemap) {
+    std::string name = obj_group_node.attribute("name").as_string("");
+    unsigned int width = obj_group_node.attribute("width").as_uint(0);
+    unsigned int height = obj_group_node.attribute("height").as_uint(0);
+
+    // Check if some attributes exists in obj_group_node
     int32_t color = -1;
-    unsigned int width, height;
-    float opacity = 1.f;
-    bool visible = true;
-
-    name = object_group_node.attribute("name").as_string();
-    width = object_group_node.attribute("width").as_uint();
-    height = object_group_node.attribute("height").as_uint();
-
-    // Check if some attributes exists in object_group_node
-    pugi::xml_attribute attribute_color = object_group_node.attribute("color");
-    pugi::xml_attribute attribute_opacity = object_group_node.attribute("opacity");
-    pugi::xml_attribute attribute_visible = object_group_node.attribute("visible");
-
+    xml_attribute attribute_color = obj_group_node.attribute("color");
     if (attribute_color) {
-        std::string hex_string(attribute_color.as_string());
-        hex_string.erase(0, 1);  // Deletes the '#' character in the string
+        std::string hex_string(&(attribute_color.as_string()[1]));
+        // hex_string.erase(0, 1);  // Deletes the '#' character in the string
         std::stringstream ss;
 
         ss << hex_string;
         ss >> std::hex >> color;
     }
-    if (attribute_opacity) opacity = attribute_opacity.as_float();
-    if (attribute_visible) visible = attribute_visible.as_bool();
+
+    float opacity = obj_group_node.attribute("opacity").as_float(1.f);
+    bool visible = obj_group_node.attribute("visible").as_bool(true);
 
     // Create the new ObjectGroup
-    tmx::ObjectGroup* object_group = new tmx::ObjectGroup(name, width, height, opacity,
-                                                          visible, color);
+    tmx::ObjectGroup* obj_group = new tmx::ObjectGroup(name, width, height,
+                                                       opacity, visible, color);
 
     // Parse the objectgroup properties
-    Parser::ParseProperties(object_group_node, object_group);
+    ParseProperties(obj_group_node, obj_group);
 
     // Parse each objectgroup object
-    for (const pugi::xml_node& object_node : object_group_node.children("object")) {
-        std::string object_name;
-        std::string object_type;
-        int object_x, object_y;
-        unsigned int object_width = 0, object_height = 0;
-        float object_rotation = 0;
-        bool object_visible = true;
+    for (const xml_node& obj_node : obj_group_node.children("object")) {
+        std::string obj_name = obj_node.attribute("name").as_string("");
+        std::string obj_type = obj_node.attribute("type").as_string("");
+        int obj_x = obj_node.attribute("x").as_int(0);
+        int obj_y = obj_node.attribute("y").as_int(0);
+        unsigned int obj_width = obj_node.attribute("width").as_uint(0);
+        unsigned int obj_height = obj_node.attribute("height").as_uint(0);
+        float obj_rotation = obj_node.attribute("rotation").as_float(0.f);
+        bool obj_visible = obj_node.attribute("visible").as_bool(true);
 
-        object_x = object_node.attribute("x").as_int();
-        object_y = object_node.attribute("y").as_int();
-
-        // Check if some attributes exists in object_node
-        pugi::xml_attribute attribute_name = object_node.attribute("name");
-        pugi::xml_attribute attribute_type = object_node.attribute("type");
-        pugi::xml_attribute attribute_width = object_node.attribute("width");
-        pugi::xml_attribute attribute_height = object_node.attribute("height");
-        pugi::xml_attribute attribute_rotation = object_node.attribute("rotation");
-        pugi::xml_attribute attribute_visible = object_node.attribute("visible");
-        pugi::xml_attribute attribute_gid = object_node.attribute("gid");
-
-        if (attribute_name) object_name = attribute_name.as_string();
-        if (attribute_type) object_type = attribute_type.as_string();
-        if (attribute_width) object_width = attribute_width.as_uint();
-        if (attribute_height) object_height = attribute_height.as_uint();
-        if (attribute_rotation) object_rotation = attribute_rotation.as_float();
-        if (attribute_visible) object_visible = attribute_visible.as_bool();
-
+        xml_attribute attribute_gid = obj_node.attribute("gid");
         if (attribute_gid) {
             // Tile Object
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
@@ -368,81 +398,70 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
 
             tmx::TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
 
-            tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
-                                               object_width, object_height, object_rotation,
-                                               object_visible, tmx::Tile, "", tile);
-            Parser::ParseProperties(object_node, &newobject);
-            object_group->AddObject(newobject);
-        } else if (object_width && object_height) {
-            if (object_node.child("ellipse")) {
+            tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                                               obj_width, obj_height, obj_rotation,
+                                               obj_visible, tmx::Tile, "", tile);
+            ParseProperties(obj_node, &newobject);
+            obj_group->AddObject(newobject);
+        } else if (obj_width && obj_height) {
+            if (obj_node.child("ellipse")) {
                 // Ellipse Object
-                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
-                                                   object_width, object_height, object_rotation,
-                                                   object_visible, tmx::Ellipse);
-                Parser::ParseProperties(object_node, &newobject);
-                object_group->AddObject(newobject);
+                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                                                   obj_width, obj_height, obj_rotation,
+                                                   obj_visible, tmx::Ellipse);
+                ParseProperties(obj_node, &newobject);
+                obj_group->AddObject(newobject);
             } else {
                 // Rectangle Object
-                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
-                                                   object_width, object_height, object_rotation,
-                                                   object_visible, tmx::Rectangle);
-                Parser::ParseProperties(object_node, &newobject);
-                object_group->AddObject(newobject);
+                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                                                   obj_width, obj_height, obj_rotation,
+                                                   obj_visible, tmx::Rectangle);
+                ParseProperties(obj_node, &newobject);
+                obj_group->AddObject(newobject);
             }
         } else {
-            pugi::xml_node polygon_node = object_node.child("polygon");
-            pugi::xml_node polyline_node = object_node.child("polyline");
+            xml_node polygon_node = obj_node.child("polygon");
+            xml_node polyline_node = obj_node.child("polyline");
             if (polygon_node) {
                 // Polygon Object
                 std::string vertices_points = polygon_node.attribute("points").as_string();
-                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
-                                                   object_width, object_height, object_rotation,
-                                                   object_visible, tmx::Polygon, vertices_points);
-                Parser::ParseProperties(object_node, &newobject);
-                object_group->AddObject(newobject);
+                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                                                   obj_width, obj_height, obj_rotation,
+                                                   obj_visible, tmx::Polygon, vertices_points);
+                ParseProperties(obj_node, &newobject);
+                obj_group->AddObject(newobject);
             } else if (polyline_node) {
                 // Polyline Object
                 std::string vertices_points = polyline_node.attribute("points").as_string();
-                tmx::ObjectGroup::Object newobject(object_name, object_type, object_x, object_y,
-                                                   object_width, object_height, object_rotation,
-                                                   object_visible, tmx::Polyline, vertices_points);
-                Parser::ParseProperties(object_node, &newobject);
-                object_group->AddObject(newobject);
+                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                                                   obj_width, obj_height, obj_rotation,
+                                                   obj_visible, tmx::Polyline, vertices_points);
+                ParseProperties(obj_node, &newobject);
+                obj_group->AddObject(newobject);
             }
         }
     }
 
-    return object_group;
+    return obj_group;
 }
 
-tmx::ImageLayer* Parser::ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir) {
-    std::string name;
-    unsigned int width, height;
-    float opacity = 1.f;  // range 0 - 1
-    bool visible = true;
-    tmx::Image image_data;
-
-    // Get the map data
-    name = imagelayer_node.attribute("name").as_string();
-    width = imagelayer_node.attribute("width").as_uint();
-    height = imagelayer_node.attribute("height").as_uint();
-
-    // Check if some attributes exists in imagelayer_node
-    pugi::xml_attribute attribute_opacity = imagelayer_node.attribute("opacity");
-    pugi::xml_attribute attribute_visible = imagelayer_node.attribute("visible");
-
-    if (attribute_opacity) opacity = attribute_opacity.as_float();
-    if (attribute_visible) visible = attribute_visible.as_bool();
+tmx::ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
+    std::string name = imagelayer_node.attribute("name").as_string("");
+    unsigned int width = imagelayer_node.attribute("width").as_uint(0);
+    unsigned int height = imagelayer_node.attribute("height").as_uint(0);
+    float opacity = imagelayer_node.attribute("opacity").as_float(1.f);
+    bool visible = imagelayer_node.attribute("visible").as_bool(true);
 
     // Parse the image data
-    pugi::xml_node image_node = imagelayer_node.child("image");
-    if (image_node) image_data = ParseImage(image_node, working_dir);
+    tmx::Image image_data;
+    xml_node image_node = imagelayer_node.child("image");
+    if (image_node) image_data = ParseImage(image_node);
 
     // Create the new ImageLayer
     tmx::ImageLayer* imagelayer = new tmx::ImageLayer(name, width, height, opacity, visible, image_data);
 
     // Parse the imagelayer properties
-    Parser::ParseProperties(imagelayer_node, imagelayer);
+    ParseProperties(imagelayer_node, imagelayer);
 
     return imagelayer;
 }

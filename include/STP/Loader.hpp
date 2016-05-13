@@ -24,41 +24,23 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_PARSER_HPP
-#define STP_PARSER_HPP
+#ifndef STP_LOADER_HPP
+#define STP_LOADER_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include <vector>
-#include <string>
-
-#include <pugixml.hpp>
-
-#include "STP/Config.hpp"
-#include "STP/Core/Properties.hpp"
 #include "STP/Core/TileMap.hpp"
-#include "STP/Core/TileSet.hpp"
-#include "STP/Core/Layer.hpp"
-#include "STP/Core/ObjectGroup.hpp"
-#include "STP/Core/ImageLayer.hpp"
 
 namespace tmx {
 
-class Parser {
- private:
-    static std::string DecompressString(const std::string& compressed_string);
-    static void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap);
-    static tmx::Image ParseImage(const pugi::xml_node& image_node, const std::string& working_dir);
-
- public:
-    static tmx::TileSet* ParseTileSet(pugi::xml_node& tileset_node, const std::string& working_dir);
-    static tmx::Layer* ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* tilemap);
-    static tmx::ObjectGroup* ParseObjectGroup(const pugi::xml_node& object_group_node, tmx::TileMap* tilemap);
-    static tmx::ImageLayer* ParseImageLayer(const pugi::xml_node& imagelayer_node, const std::string& working_dir);
-    static void ParseProperties(const pugi::xml_node& object_node, tmx::Properties* object);
-};
+////////////////////////////////////////////////////////////
+/// \brief Parse and load the Tiled file given a path to it
+///
+/// \exception std::runtime_error If there is an error parsing or loading the file.
+///
+/// \param map_file Path to the Tiled file
+///
+////////////////////////////////////////////////////////////
+STP_API tmx::TileMap LoadMap(const std::string& map_file);
 
 }  // namespace tmx
 
-#endif  // STP_PARSER_HPP
+#endif  // STP_LOADER_HPP

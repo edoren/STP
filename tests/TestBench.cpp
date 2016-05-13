@@ -1,5 +1,5 @@
 #include "SFML/Graphics.hpp"
-#include "STP/TMXLoader.hpp"
+#include "STP/Loader.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -37,12 +37,21 @@ int main(int argc, char* argv[]) {
 
     sf::Vector2f window_size(800, 600);
 
-    tmx::TileMap map("assets/" + option + ".tmx");
+    tmx::TileMap map;
+    try {
+        map = tmx::LoadMap("assets/" + option + ".tmx");
+    } catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    sf::RenderWindow window(
-        sf::VideoMode(window_size.x, window_size.y),
-        "STP Test Bench"
+    map.ShowObjects(true);
+
+    sf::VideoMode mode(
+        static_cast<sf::Uint32>(window_size.x),
+        static_cast<sf::Uint32>(window_size.y)
     );
+    sf::RenderWindow window(mode, "STP Test Bench");
 
     sf::Vector2f view_center = window_size / 2.f;
     sf::View view(view_center, window_size);
@@ -84,8 +93,8 @@ int main(int argc, char* argv[]) {
                     break;
                 }
                 case sf::Event::Resized: {
-                    window_size.x = event.size.width;
-                    window_size.y = event.size.height;
+                    window_size.x = static_cast<float>(event.size.width);
+                    window_size.y = static_cast<float>(event.size.height);
                     view.setSize(window_size);
                     window.setView(view);
                     break;

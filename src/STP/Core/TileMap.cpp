@@ -25,6 +25,7 @@
 ////////////////////////////////////////////////////////////
 
 #include "STP/Core/TileMap.hpp"
+#include "STP/Core/Parser.hpp"
 
 #include <cstdio>
 #include <string>
@@ -32,72 +33,9 @@
 #include "pugixml.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
-#include "Parser.hpp"
-
 namespace tmx {
 
-TileMap::TileMap(const std::string& file_to_parse) {
-    pugi::xml_document tmx_file;
-
-    if (!tmx_file.load_file(file_to_parse.c_str())) {
-        fprintf(stdout, "Error loading the XML document.\n");
-    }
-
-    pugi::xml_node map_node;
-
-    if (!(map_node = tmx_file.child("map"))) {
-        fprintf(stdout, "The document is not a valid TMX file.\n");
-    }
-
-    working_dir_ = file_to_parse.substr(0, file_to_parse.find_last_of('/') + 1);
-
-    // Get the map data
-    version_ = map_node.attribute("version").as_float();
-    orientation_ = map_node.attribute("orientation").value();
-    width_ = map_node.attribute("width").as_uint();
-    height_ = map_node.attribute("height").as_uint();
-    tilewidth_ = map_node.attribute("tilewidth").as_uint();
-    tileheight_ = map_node.attribute("tileheight").as_uint();
-
-    for (pugi::xml_node node : map_node.children()) {
-        std::string node_name = node.name();
-        // Call the respective parse function for each node
-        if (node_name == "tileset") {
-            AddTileSet(Parser::ParseTileSet(node, working_dir_));
-        } else if (node_name == "layer") {
-            AddLayer(Parser::ParseLayer(node, this));  // Receive this to get the tiles stored in the TileSets
-        } else if (node_name == "objectgroup") {
-            AddObjectGroup(Parser::ParseObjectGroup(node, this));  // Receive this to get the tiles stored in the TileSets
-        } else if (node_name == "imagelayer") {
-            AddImageLayer(Parser::ParseImageLayer(node, working_dir_));
-        }
-    }
-
-    // Parse the map properties
-    Parser::ParseProperties(map_node, this);
-
-    ShowObjects(false);
-}
-
-void TileMap::AddLayer(tmx::Layer* newlayer) {
-    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newlayer));
-    layers_[newlayer->GetName()] = newlayer;
-}
-
-void TileMap::AddObjectGroup(tmx::ObjectGroup* newobjectgroup) {
-    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newobjectgroup));
-    object_groups_[newobjectgroup->GetName()] = newobjectgroup;
-}
-
-void TileMap::AddImageLayer(tmx::ImageLayer* newimagelayer) {
-    map_objects_.push_back(std::unique_ptr<tmx::MapObject>(newimagelayer));
-    image_layers_[newimagelayer->GetName()] = newimagelayer;
-}
-
-void TileMap::AddTileSet(tmx::TileSet* newtileset) {
-    tilesets_.push_back(std::unique_ptr<tmx::TileSet>(newtileset));
-    tilesets_hash_[newtileset->GetName()] = newtileset;
-}
+TileMap::TileMap() {}
 
 tmx::TileSet* TileMap::GetTileSet(unsigned int gid) {
     if (gid == 0) return nullptr;

@@ -47,15 +47,7 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Layer : public MapObject {
- public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// Constructs an empty layer with no values.
-    ///
-    ////////////////////////////////////////////////////////////
-    Layer();
-
+private:
     ////////////////////////////////////////////////////////////
     /// \brief Constructs a layer given a name, width, height,
     ///        opacity and visible attributes
@@ -70,6 +62,7 @@ class STP_API Layer : public MapObject {
     Layer(const std::string& name, unsigned int width,
           unsigned int height, float opacity, bool visible, std::string orientation);
 
+public:
     ////////////////////////////////////////////////////////////
     /// Nested classes
     ///
@@ -121,14 +114,9 @@ class STP_API Layer : public MapObject {
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);
 
- private:
-    ////////////////////////////////////////////////////////////
-    /// \brief Friend class
-    ///
-    ////////////////////////////////////////////////////////////
+private:
     friend class Parser;
 
-	void AddTile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset = nullptr);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     std::vector<tmx::Layer::Tile> tiles_;
@@ -140,15 +128,7 @@ class STP_API Layer : public MapObject {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
- public:
-	////////////////////////////////////////////////////////////
-	/// \brief Default constructor
-	///
-	/// Constructs an empty tile with no values.
-	///
-	////////////////////////////////////////////////////////////
-	Tile();
-
+private:
 	////////////////////////////////////////////////////////////
 	/// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
 	///
@@ -160,6 +140,7 @@ class STP_API Layer::Tile : public sf::Drawable {
 	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
 	     tmx::TileSet* tileset = nullptr);
 
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Check if the tile is empty (Doesn't have a texture).
     ///
@@ -203,10 +184,10 @@ class STP_API Layer::Tile : public sf::Drawable {
     ////////////////////////////////////////////////////////////
     std::string& GetPropertyValue(const std::string& name);
 
- private:
+private:
     friend class tmx::Layer;
+    friend class tmx::Parser;
 
- private:
     unsigned int gid_;
 
     sf::Vertex vertices_[4];

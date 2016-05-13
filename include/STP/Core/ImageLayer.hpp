@@ -45,15 +45,7 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ImageLayer : public MapObject {
- public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// Constructs an empty image layer with no values.
-    ///
-    ////////////////////////////////////////////////////////////
-    ImageLayer();
-
+private:
     ////////////////////////////////////////////////////////////
     /// \brief Constructs a image layer given a name, width, height
     ///        opacity, visible and image atributes
@@ -69,7 +61,7 @@ class STP_API ImageLayer : public MapObject {
     ImageLayer(const std::string& name, unsigned int width,
                unsigned int height, float opacity, bool visible, tmx::Image image);
 
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Return sf::Texture attached to the image layer
     ///
@@ -94,12 +86,13 @@ class STP_API ImageLayer : public MapObject {
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);
 
- private:
+private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
- private:
-    tmx::Image image_;
+private:
+    friend class Parser;
 
+    tmx::Image image_;
     sf::Vertex vertices_[4];
 };
 

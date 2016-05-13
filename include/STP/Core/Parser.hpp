@@ -24,93 +24,89 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_MAPOBJECT_HPP
-#define STP_MAPOBJECT_HPP
+#ifndef STP_PARSER_HPP
+#define STP_PARSER_HPP
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
+#include <vector>
 #include <string>
 
-#include "SFML/Graphics/Drawable.hpp"
-#include "SFML/Graphics/Color.hpp"
+#include <pugixml.hpp>
 
 #include "STP/Config.hpp"
 #include "STP/Core/Properties.hpp"
+#include "STP/Core/TileMap.hpp"
+#include "STP/Core/TileSet.hpp"
+#include "STP/Core/Layer.hpp"
+#include "STP/Core/ObjectGroup.hpp"
+#include "STP/Core/ImageLayer.hpp"
+
+using namespace pugi;
 
 namespace tmx {
 
-////////////////////////////////////////////////////////////
-/// \brief Abstract base class for managing the Tiled elements:
-///        Layer, ObjectGroup, ImageLayer
-///
-////////////////////////////////////////////////////////////
-class STP_API MapObject : public sf::Drawable, public tmx::Properties {
-protected:
-    ////////////////////////////////////////////////////////////
-    /// \brief Constructor with common attributes of the map object
-    ///
-    /// \param name    Name of the Tiled element
-    /// \param width   Width of the Tiled element
-    /// \param height  Height of the Tiled element
-    /// \param opacity Opacity of the Tiled element
-    /// \param visible Visibility of the Tiled element
-    ///
-    ////////////////////////////////////////////////////////////
-    MapObject(const std::string& name, unsigned int width,
-              unsigned int height, float opacity, bool visible);
+enum class ParserStatus {
+    OK,               // All OK
+    LOADING_ERROR,    // Used when occurs an error loading a file
+    INVALID_MAP_FILE  // Used when the file is not a tiled map file
+};
 
+class Parser {
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Default virtual destructor
+    /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
-    virtual ~MapObject();
+    Parser();
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the name of the Tiled element
+    /// \brief Load a Tiled map from memory
     ///
-    /// \return Reference to a const string
+    /// \param buffer The buffer that stores the map
+    /// \param size   The size of the buffer
+    ///
+    /// \return The loading status.
     ///
     ////////////////////////////////////////////////////////////
-    const std::string& GetName() const;
+    ParserStatus Load(const char* buffer, size_t size);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the Tiled element, does not affect the opacity
+    /// \brief Load a Tiled map from memory
     ///
-    /// \param color sf::Color RGB value
+    /// \param buffer The buffer that stores the map
+    /// \param size   The size of the buffer
+    ///
+    /// \return The loading status.
     ///
     ////////////////////////////////////////////////////////////
-    virtual void SetColor(const sf::Color& color) = 0;
+    ParserStatus LoadFile(const std::string& tmx_file);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the opacity of the Tiled element
+    /// \brief Obtains the tmx::TileMap of the file previously loaded
     ///
-    /// \param opacity Float value between 0.0 to 1.0
+    /// \return tmx::TileMap
     ///
     ////////////////////////////////////////////////////////////
-    virtual void SetOpacity(float opacity) = 0;
+    tmx::TileMap GetMap();
 
 private:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
+    std::string DecompressString(const std::string& compressed_string);
+    void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap);
 
-protected:
-    /// \brief Name of the Tiled element
-    std::string name_;
-    /// \brief Width of the Tiled element
-    unsigned int width_;
-    /// \brief Height of the Tiled element
-    unsigned int height_;
-    /// \brief Opacity of the Tiled element
-    float opacity_;
-    /// \brief Color of the Tiled element
-    sf::Color color_;
+    tmx::Image ParseImage(const xml_node& image_node);
+    tmx::TileSet* ParseTileSet(xml_node& tileset_node);
+    tmx::Layer* ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap);
+    tmx::ObjectGroup* ParseObjectGroup(const xml_node& obj_group_node, tmx::TileMap* tilemap);
+    tmx::ImageLayer* ParseImageLayer(const xml_node& imagelayer_node);
+    void ParseProperties(const xml_node& object_node, tmx::Properties* object);
 
-public:
-    /// \brief Visibility of the Tiled element
-    bool visible;
+private:
+    xml_document tmx_document_;
+    std::string working_dir_;
 };
 
 }  // namespace tmx
 
-#endif  // STP_MAPOBJECT_HPP
+#endif  // STP_PARSER_HPP

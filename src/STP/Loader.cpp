@@ -24,9 +24,25 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_LOADER_HPP
-#define STP_LOADER_HPP
+#include "STP/Loader.hpp"
+#include "STP/Core/Parser.hpp"
 
-#include "STP/Core/TileMap.hpp"
+#include <iostream>
+#include <exception>
 
-#endif  // STP_LOADER_HPP
+namespace tmx {
+
+tmx::TileMap LoadMap(const std::string& map_file) {
+    tmx::Parser parser;
+
+    tmx::ParserStatus status = parser.LoadFile(map_file);
+    if (status == ParserStatus::LOADING_ERROR) {
+        throw std::runtime_error("Error loading the XML document.");
+    } else if (status == ParserStatus::INVALID_MAP_FILE) {
+        throw std::runtime_error("The document is not a valid TMX file.");
+    }
+
+    return parser.GetMap();
+}
+
+}  // namespace tmx

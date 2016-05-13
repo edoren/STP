@@ -32,8 +32,6 @@
 
 namespace tmx {
 
-MapObject::MapObject() : color_(255, 255, 255) {}
-
 MapObject::MapObject(const std::string& name, unsigned int width,
                      unsigned int height, float opacity, bool visible) :
         name_(name),

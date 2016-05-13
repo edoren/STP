@@ -32,8 +32,6 @@
 
 namespace tmx {
 
-ImageLayer::ImageLayer() {}
-
 ImageLayer::ImageLayer(const std::string& name, unsigned int width,
                        unsigned int height, float opacity, bool visible, tmx::Image image) :
         MapObject(name, width, height, opacity, visible),

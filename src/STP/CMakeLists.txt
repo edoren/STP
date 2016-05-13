@@ -12,11 +12,12 @@ set(STP_SOURCE
     "${SRC_DIR}/STP/Core/ImageLayer.cpp"
     "${SRC_DIR}/STP/Core/TileMap.cpp"
     "${SRC_DIR}/STP/Core/TileSet.cpp"
+    "${SRC_DIR}/STP/Loader.cpp"
 )
 
 set(STP_HEADERS
-    "${SRC_DIR}/STP/Core/Parser.hpp"
     "${SRC_DIR}/STP/Core/Base64.hpp"
+    "${INCLUDE_DIR}/STP/Core/Parser.hpp"
     "${INCLUDE_DIR}/STP/Config.hpp"
     "${INCLUDE_DIR}/STP/Core/Properties.hpp"
     "${INCLUDE_DIR}/STP/Core/MapObject.hpp"
@@ -26,7 +27,7 @@ set(STP_HEADERS
     "${INCLUDE_DIR}/STP/Core/ImageLayer.hpp"
     "${INCLUDE_DIR}/STP/Core/TileSet.hpp"
     "${INCLUDE_DIR}/STP/Core/TileMap.hpp"
-    "${INCLUDE_DIR}/STP/TMXLoader.hpp"
+    "${INCLUDE_DIR}/STP/Loader.hpp"
 )
 
 # Library name

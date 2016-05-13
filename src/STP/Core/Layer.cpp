@@ -34,8 +34,6 @@
 
 namespace tmx {
 
-Layer::Layer() {}
-
 Layer::Layer(const std::string& name, unsigned int width,
              unsigned int height, float opacity, bool visible, std::string orientation) :
         MapObject(name, width, height, opacity, visible),
@@ -44,11 +42,6 @@ Layer::Layer(const std::string& name, unsigned int width,
     tiles_.reserve(width * height);
     unsigned char alpha = static_cast<unsigned char>(255 * opacity);
     color_.a = alpha;
-}
-
-void Layer::AddTile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset) {
-    tiles_.emplace_back(gid, tile_rect, orientation_, tileset);
-	tiles_.back().SetColor(color_);
 }
 
 unsigned int Layer::GetWidth() const {
@@ -97,8 +90,6 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 ////////////////////////////////////////////////////////////
 // Layer::Tile implementation
 ////////////////////////////////////////////////////////////
-
-Layer::Tile::Tile() {}
 
 Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, tmx::TileSet* tileset) :
         gid_(gid),

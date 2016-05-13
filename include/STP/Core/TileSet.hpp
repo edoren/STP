@@ -46,19 +46,13 @@ namespace tmx {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API TileSet : public tmx::Properties {
- public:
+public:
     class Tile;
 
     struct TerrainTypes {  // 0.2
     };
 
- public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    TileSet();
-
+private:
     ////////////////////////////////////////////////////////////
     /// \brief Constructs a tileset
     ///
@@ -76,11 +70,12 @@ class STP_API TileSet : public tmx::Properties {
             unsigned int tileheight, tmx::Image image, unsigned int spacing = 0,
             unsigned int margin = 0, sf::Vector2i tileoffset = {0, 0});
 
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Get the tile given a local id.
     ///
     /// \param id The local id of the tile
-    /// 
+    ///
     /// \exception std::out_of_range If the local id is not within the range of the tileset.
     ///
     /// \return Reference to the Tile.
@@ -88,7 +83,7 @@ class STP_API TileSet : public tmx::Properties {
     ////////////////////////////////////////////////////////////
     tmx::TileSet::Tile& GetTile(unsigned int id);
 
-    //////////////////////////////////////////////////////////// 
+    ////////////////////////////////////////////////////////////
     /// \brief Returns a sf::IntRect with the position of the
     ///        tile texture in the attached image
     ///
@@ -157,7 +152,9 @@ class STP_API TileSet : public tmx::Properties {
     ////////////////////////////////////////////////////////////
     unsigned int GetLastGID() const;
 
- private:
+private:
+    friend class tmx::Parser;
+
     unsigned int firstgid_, lastgid_;
     std::string name_;
     unsigned int tilewidth_, tileheight_, spacing_, margin_;
@@ -174,12 +171,13 @@ class STP_API TileSet : public tmx::Properties {
 ///
 ////////////////////////////////////////////////////////////
 class STP_API TileSet::Tile : public tmx::Properties {
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
     Tile();
+    Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent);
 
     ////////////////////////////////////////////////////////////
     /// \brief Returns the texture where is the Tile.
@@ -198,12 +196,10 @@ class STP_API TileSet::Tile : public tmx::Properties {
     ////////////////////////////////////////////////////////////
     sf::IntRect GetTextureRect() const;
 
- private:
-    Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent);
-
+private:
     friend class tmx::TileSet;
 
- private:
+private:
     unsigned int id_;
     const tmx::TileSet* parent_;
     sf::IntRect texture_rect_;
