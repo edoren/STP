@@ -3,7 +3,7 @@
 // The MIT License (MIT)
 //
 // STP - SFML TMX Parser
-// Copyright (c) 2013-2014 Manuel Sabogal
+// Copyright (c) 2013-2016 Manuel Sabogal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -123,7 +123,7 @@ std::string Parser::DecompressString(const std::string& compressed_string) {
     int result;
     result = inflateInit2(&zstream, 15 + 32);
 
-	char outbuffer[32768];
+    char outbuffer[32768];
 
     if (result != Z_OK) {
         return NULL;

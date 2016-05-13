@@ -3,7 +3,7 @@
 // The MIT License (MIT)
 //
 // STP - SFML TMX Parser
-// Copyright (c) 2013-2014 Manuel Sabogal
+// Copyright (c) 2013-2016 Manuel Sabogal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -129,16 +129,16 @@ private:
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
 private:
-	////////////////////////////////////////////////////////////
-	/// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
-	///
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
+    ///
     /// \param gid       The global id of the tmx::TileSet::Tile attached.
     /// \param tile_rect The global bounds of the tile.
     /// \param tileset   A pointer to a tmx::TileSet to get the texture.
-	///
-	////////////////////////////////////////////////////////////
-	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
-	     tmx::TileSet* tileset = nullptr);
+    ///
+    ////////////////////////////////////////////////////////////
+    Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
+         tmx::TileSet* tileset = nullptr);
 
 public:
     ////////////////////////////////////////////////////////////

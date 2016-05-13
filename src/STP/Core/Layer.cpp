@@ -3,7 +3,7 @@
 // The MIT License (MIT)
 //
 // STP - SFML TMX Parser
-// Copyright (c) 2013-2014 Manuel Sabogal
+// Copyright (c) 2013-2016 Manuel Sabogal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -107,11 +107,11 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
     }
 
     if (orientation != "orthogonal" && tile_rect.width != 0 && tile_rect_.height != 0) {
-    	int x = tile_rect_.left / tile_rect_.width;
+        int x = tile_rect_.left / tile_rect_.width;
         int y = tile_rect_.top / tile_rect_.height;
 
-    	if (orientation == "isometric") {
-    	    tile_rect_.left = (x-y) * tile_rect_.width * 0.5;
+        if (orientation == "isometric") {
+            tile_rect_.left = (x-y) * tile_rect_.width * 0.5;
             tile_rect_.top = (x+y) * tile_rect_.height * 0.5;
         }
 
