@@ -45,7 +45,7 @@ namespace tmx {
 /// \brief Class for manage the TMX TileSets
 ///
 ////////////////////////////////////////////////////////////
-class STP_API TileSet : public tmx::Properties {
+class STP_API TileSet : public Properties {
 public:
     class Tile;
 
@@ -67,7 +67,7 @@ private:
     ///
     ////////////////////////////////////////////////////////////
     TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-            unsigned int tileheight, tmx::Image image, unsigned int spacing = 0,
+            unsigned int tileheight, Image image, unsigned int spacing = 0,
             unsigned int margin = 0, sf::Vector2i tileoffset = {0, 0});
 
 public:
@@ -81,7 +81,7 @@ public:
     /// \return Reference to the Tile.
     ///
     ////////////////////////////////////////////////////////////
-    tmx::TileSet::Tile& GetTile(unsigned int id);
+    TileSet::Tile& GetTile(unsigned int id);
 
     ////////////////////////////////////////////////////////////
     /// \brief Returns a sf::IntRect with the position of the
@@ -159,10 +159,10 @@ private:
     std::string name_;
     unsigned int tilewidth_, tileheight_, spacing_, margin_;
     unsigned int width_no_spacing_, height_no_spacing_;
-    tmx::Image image_;
+    Image image_;
     sf::Vector2i tileoffset_;
 
-    std::vector<tmx::TileSet::Tile> tiles_;
+    std::vector<TileSet::Tile> tiles_;
 };
 
 
@@ -170,14 +170,14 @@ private:
 /// \brief Class for manage each Tile inside the TileSet
 ///
 ////////////////////////////////////////////////////////////
-class STP_API TileSet::Tile : public tmx::Properties {
+class STP_API TileSet::Tile : public Properties {
 public:
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
     Tile();
-    Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent);
+    Tile(unsigned int id, sf::IntRect texture_rect, const TileSet* parent);
 
     ////////////////////////////////////////////////////////////
     /// \brief Returns the texture where is the Tile.
@@ -197,11 +197,11 @@ public:
     sf::IntRect GetTextureRect() const;
 
 private:
-    friend class tmx::TileSet;
+    friend class TileSet;
 
 private:
     unsigned int id_;
-    const tmx::TileSet* parent_;
+    const TileSet* parent_;
     sf::IntRect texture_rect_;
 };
 

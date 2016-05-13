@@ -52,7 +52,7 @@ unsigned int Layer::GetHeight() const {
     return height_;
 }
 
-tmx::Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
+Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
     if (x >= width_ || y >= height_) {
         char error[100];
         sprintf(error, "Error: tile (%u, %u) out of range.\n", x, y);
@@ -91,7 +91,7 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 // Layer::Tile implementation
 ////////////////////////////////////////////////////////////
 
-Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, tmx::TileSet* tileset) :
+Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, TileSet* tileset) :
         gid_(gid),
         tile_rect_(tile_rect),
         tile_properties_(nullptr),

@@ -45,7 +45,7 @@ namespace tmx {
 ///        Layer, ObjectGroup, ImageLayer
 ///
 ////////////////////////////////////////////////////////////
-class STP_API MapObject : public sf::Drawable, public tmx::Properties {
+class STP_API MapObject : public sf::Drawable, public Properties {
 protected:
     ////////////////////////////////////////////////////////////
     /// \brief Constructor with common attributes of the map object

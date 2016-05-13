@@ -66,8 +66,8 @@ ParserStatus Parser::LoadFile(const std::string& map_file) {
     return ParserStatus::OK;
 }
 
-tmx::TileMap Parser::GetMap() {
-    tmx::TileMap map;
+TileMap Parser::GetMap() {
+    TileMap map;
 
     xml_node map_node = tmx_document_.child("map");
 
@@ -159,7 +159,7 @@ std::string Parser::DecompressString(const std::string& compressed_string) {
     return outstring;
 }
 
-void Parser::ParseProperties(const xml_node& obj_node, tmx::Properties* object) {
+void Parser::ParseProperties(const xml_node& obj_node, Properties* object) {
     xml_node properties_node = obj_node.child("properties");
     if (properties_node) {
         for (const xml_node& property_node : properties_node.children("property")) {
@@ -170,8 +170,8 @@ void Parser::ParseProperties(const xml_node& obj_node, tmx::Properties* object) 
     }
 }
 
-void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap) {
-    tmx::TileSet* tileset = tilemap->GetTileSet(gid);
+void Parser::AddTileToLayer(Layer* layer, int gid, sf::Vector2i tile_pos, TileMap* tilemap) {
+    TileSet* tileset = tilemap->GetTileSet(gid);
     sf::IntRect tile_rect;
 
     if (tileset != nullptr) {
@@ -185,12 +185,12 @@ void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, t
         tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
     }
 
-    tmx::Layer::Tile tile(gid, tile_rect, layer->orientation_, tileset);
+    Layer::Tile tile(gid, tile_rect, layer->orientation_, tileset);
     tile.SetColor(layer->color_);
     layer->tiles_.push_back(std::move(tile));
 }
 
-tmx::Image Parser::ParseImage(const xml_node& image_node) {
+Image Parser::ParseImage(const xml_node& image_node) {
     xml_attribute attribute_source = image_node.attribute("source");
     std::string source = working_dir_ + attribute_source.as_string();
 
@@ -206,10 +206,10 @@ tmx::Image Parser::ParseImage(const xml_node& image_node) {
         ss >> std::hex >> trans;
     }
 
-    return tmx::Image(source, width, height, trans, format);
+    return Image(source, width, height, trans, format);
 }
 
-tmx::TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
+TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     xml_node& tileset_node_ = tileset_node;
 
     unsigned int firstgid = tileset_node_.attribute("firstgid").as_uint(0);
@@ -234,7 +234,7 @@ tmx::TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     unsigned int columns = tileset_node_.attribute("columns").as_uint(0);
 
     // Check for the tileoffset, image childs
-    tmx::Image image_data;
+    Image image_data;
     sf::Vector2i tileoffset_data = {0, 0};
     for (const xml_node& node : tileset_node.children()) {
         // Call the respective parse function for each node
@@ -248,7 +248,7 @@ tmx::TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     }
 
     // Create the new TileSet
-    tmx::TileSet* tileset = new tmx::TileSet(firstgid, name, tilewidth, tileheight,
+    TileSet* tileset = new TileSet(firstgid, name, tilewidth, tileheight,
                                              image_data, spacing, margin, tileoffset_data);
 
     // Parse each tile property
@@ -263,7 +263,7 @@ tmx::TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     return tileset;
 }
 
-tmx::Layer* Parser::ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap) {
+Layer* Parser::ParseLayer(const xml_node& layer_node, TileMap* tilemap) {
     // Get the map data
     std::string name = layer_node.attribute("name").as_string();
     unsigned int width = layer_node.attribute("width").as_uint();
@@ -274,7 +274,7 @@ tmx::Layer* Parser::ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap
     int offsety = layer_node.attribute("offsety").as_int(0);
 
     // Create the new Layer
-    tmx::Layer* layer = new tmx::Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
+    Layer* layer = new Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
 
     // Parse the layer properties
     ParseProperties(layer_node, layer);
@@ -352,7 +352,7 @@ tmx::Layer* Parser::ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap
     return layer;
 }
 
-tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::TileMap* tilemap) {
+ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* tilemap) {
     std::string name = obj_group_node.attribute("name").as_string("");
     unsigned int width = obj_group_node.attribute("width").as_uint(0);
     unsigned int height = obj_group_node.attribute("height").as_uint(0);
@@ -373,7 +373,7 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::
     bool visible = obj_group_node.attribute("visible").as_bool(true);
 
     // Create the new ObjectGroup
-    tmx::ObjectGroup* obj_group = new tmx::ObjectGroup(name, width, height,
+    ObjectGroup* obj_group = new ObjectGroup(name, width, height,
                                                        opacity, visible, color);
 
     // Parse the objectgroup properties
@@ -396,26 +396,26 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
             unsigned int id = gid - tilemap->GetTileSet(gid)->GetFirstGID();  // Tile local id
 
-            tmx::TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
+            TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
 
-            tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+            ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                obj_width, obj_height, obj_rotation,
-                                               obj_visible, tmx::Tile, "", tile);
+                                               obj_visible, Tile, "", tile);
             ParseProperties(obj_node, &newobject);
             obj_group->AddObject(newobject);
         } else if (obj_width && obj_height) {
             if (obj_node.child("ellipse")) {
                 // Ellipse Object
-                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, tmx::Ellipse);
+                                                   obj_visible, Ellipse);
                 ParseProperties(obj_node, &newobject);
                 obj_group->AddObject(newobject);
             } else {
                 // Rectangle Object
-                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, tmx::Rectangle);
+                                                   obj_visible, Rectangle);
                 ParseProperties(obj_node, &newobject);
                 obj_group->AddObject(newobject);
             }
@@ -425,17 +425,17 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::
             if (polygon_node) {
                 // Polygon Object
                 std::string vertices_points = polygon_node.attribute("points").as_string();
-                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, tmx::Polygon, vertices_points);
+                                                   obj_visible, Polygon, vertices_points);
                 ParseProperties(obj_node, &newobject);
                 obj_group->AddObject(newobject);
             } else if (polyline_node) {
                 // Polyline Object
                 std::string vertices_points = polyline_node.attribute("points").as_string();
-                tmx::ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, tmx::Polyline, vertices_points);
+                                                   obj_visible, Polyline, vertices_points);
                 ParseProperties(obj_node, &newobject);
                 obj_group->AddObject(newobject);
             }
@@ -445,7 +445,7 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, tmx::
     return obj_group;
 }
 
-tmx::ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
+ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
     std::string name = imagelayer_node.attribute("name").as_string("");
     unsigned int width = imagelayer_node.attribute("width").as_uint(0);
     unsigned int height = imagelayer_node.attribute("height").as_uint(0);
@@ -453,12 +453,12 @@ tmx::ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
     bool visible = imagelayer_node.attribute("visible").as_bool(true);
 
     // Parse the image data
-    tmx::Image image_data;
+    Image image_data;
     xml_node image_node = imagelayer_node.child("image");
     if (image_node) image_data = ParseImage(image_node);
 
     // Create the new ImageLayer
-    tmx::ImageLayer* imagelayer = new tmx::ImageLayer(name, width, height, opacity, visible, image_data);
+    ImageLayer* imagelayer = new ImageLayer(name, width, height, opacity, visible, image_data);
 
     // Parse the imagelayer properties
     ParseProperties(imagelayer_node, imagelayer);

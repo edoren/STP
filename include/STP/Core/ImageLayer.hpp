@@ -59,7 +59,7 @@ private:
     ///
     ////////////////////////////////////////////////////////////
     ImageLayer(const std::string& name, unsigned int width,
-               unsigned int height, float opacity, bool visible, tmx::Image image);
+               unsigned int height, float opacity, bool visible, Image image);
 
 public:
     ////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ private:
 private:
     friend class Parser;
 
-    tmx::Image image_;
+    Image image_;
     sf::Vertex vertices_[4];
 };
 

@@ -46,7 +46,7 @@ ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned i
     color_.a = static_cast<unsigned char>(255 * opacity);
 }
 
-void ObjectGroup::AddObject(tmx::ObjectGroup::Object newobject) {
+void ObjectGroup::AddObject(ObjectGroup::Object newobject) {
     newobject.SetColor(color_);
     objects_.push_back(newobject);
 }
@@ -80,7 +80,7 @@ void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 
 ObjectGroup::Object::Object(const std::string& name, const std::string& type, int x, int y,
                unsigned int width, unsigned int height, float rotation, bool visible,
-               tmx::ObjectType shape_type, const std::string& vertices_points, tmx::TileSet::Tile* tile) :
+               ObjectType shape_type, const std::string& vertices_points, TileSet::Tile* tile) :
         name_(name),
         type_(type),
         x_(x),
@@ -95,7 +95,7 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
     float l_width = static_cast<float>(width);
     float l_height = static_cast<float>(height);
 
-    if (shape_type == tmx::Polygon || shape_type == tmx::Polyline) {
+    if (shape_type == Polygon || shape_type == Polyline) {
         if (!vertices_points.empty()) {
             std::stringstream sstream(vertices_points);
             float x_pos, y_pos;
@@ -105,16 +105,16 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
                 sstream >> y_pos;
                 vertices_.push_back(sf::Vertex(sf::Vector2f(x_pos + left, y_pos + top)));
             }
-            if (shape_type == tmx::Polygon)
+            if (shape_type == Polygon)
                 vertices_.push_back(vertices_[0]);  // Add the last vertex to close the polygon
         }
-    } else if (shape_type == tmx::Rectangle) {
+    } else if (shape_type == Rectangle) {
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left + l_width, top)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left + l_width, top + l_height)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top + l_height)));
         vertices_.push_back(sf::Vertex(sf::Vector2f(left, top)));  // Add the last vertex to close the rectangle
-    } else if (shape_type == tmx::Ellipse) {
+    } else if (shape_type == Ellipse) {
         const float PI = 3.14159265358979f;
         float a = l_width / 2.f;
         float b = l_height / 2.f;
@@ -127,7 +127,7 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
             y = center.y + b * sin((i * angle_increment) * PI / 180.f);
             vertices_.push_back(sf::Vertex(sf::Vector2f(x, y)));
         }
-    } else if (shape_type == tmx::Tile) {
+    } else if (shape_type == Tile) {
         sf::FloatRect tile_rect = static_cast<sf::FloatRect>(tile->GetTextureRect());
 
         vertices_.resize(4);

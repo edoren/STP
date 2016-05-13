@@ -80,7 +80,7 @@ public:
     /// \param newobject Object to be added
     ///
     ////////////////////////////////////////////////////////////
-    void AddObject(tmx::ObjectGroup::Object newobject);
+    void AddObject(ObjectGroup::Object newobject);
 
     ////////////////////////////////////////////////////////////
     /// \brief Change the color of the object group, does not affect the opacity
@@ -104,14 +104,14 @@ private:
 private:
     friend class Parser;
 
-    std::vector<tmx::ObjectGroup::Object> objects_;
+    std::vector<ObjectGroup::Object> objects_;
 };
 
 ////////////////////////////////////////////////////////////
 /// \brief Class for manage each Object inside of the ObjectGroup
 ///
 ////////////////////////////////////////////////////////////
-class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties {
+class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
  public:
     ////////////////////////////////////////////////////////////
     /// \brief Construct a Object given a name, width, height
@@ -127,13 +127,13 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     /// \param visible         The visibility of the object
     /// \param shape_type      The shape type of the object, see tmx::ObjectType
     /// \param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
-    /// \param tile            Pointer to a Ttmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
+    /// \param tile            Pointer to a tmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
     ///
     ////////////////////////////////////////////////////////////
     Object(const std::string& name, const std::string& type, int x, int y,
            unsigned int width, unsigned int height, float rotation, bool visible,
-           tmx::ObjectType shape_type, const std::string& vertices_points = std::string(),
-           tmx::TileSet::Tile* tile = nullptr);
+           ObjectType shape_type, const std::string& vertices_points = std::string(),
+           TileSet::Tile* tile = nullptr);
 
  public:
     ////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     unsigned int width_, height_;
     float rotation_;
 
-    tmx::TileSet::Tile* tile_;
+    TileSet::Tile* tile_;
     std::vector<sf::Vertex> vertices_;
 
  public:

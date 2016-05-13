@@ -37,7 +37,7 @@ namespace tmx {
 
 TileMap::TileMap() {}
 
-tmx::TileSet* TileMap::GetTileSet(unsigned int gid) {
+TileSet* TileMap::GetTileSet(unsigned int gid) {
     if (gid == 0) return nullptr;
     for (unsigned int i = 0; i < tilesets_.size(); ++i) {
         if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
@@ -46,19 +46,19 @@ tmx::TileSet* TileMap::GetTileSet(unsigned int gid) {
     return nullptr;
 }
 
-tmx::TileSet& TileMap::GetTileSet(const std::string& tileset_name) {
+TileSet& TileMap::GetTileSet(const std::string& tileset_name) {
     return *tilesets_hash_[tileset_name];
 }
 
-tmx::Layer& TileMap::GetLayer(const std::string& layer_name) {
+Layer& TileMap::GetLayer(const std::string& layer_name) {
     return *layers_[layer_name];
 }
 
-tmx::ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {
+ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {
     return *object_groups_[objectgroup_name];
 }
 
-tmx::ImageLayer& TileMap::GetImageLayer(const std::string& imagelayer_name) {
+ImageLayer& TileMap::GetImageLayer(const std::string& imagelayer_name) {
     return *image_layers_[imagelayer_name];
 }
 

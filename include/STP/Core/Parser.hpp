@@ -84,23 +84,23 @@ public:
     ParserStatus LoadFile(const std::string& tmx_file);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Obtains the tmx::TileMap of the file previously loaded
+    /// \brief Parse the TileMap from the file previously loaded
     ///
     /// \return tmx::TileMap
     ///
     ////////////////////////////////////////////////////////////
-    tmx::TileMap GetMap();
+    TileMap GetMap();
 
 private:
     std::string DecompressString(const std::string& compressed_string);
-    void AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, tmx::TileMap* tilemap);
+    void AddTileToLayer(Layer* layer, int gid, sf::Vector2i tile_pos, TileMap* tilemap);
 
-    tmx::Image ParseImage(const xml_node& image_node);
-    tmx::TileSet* ParseTileSet(xml_node& tileset_node);
-    tmx::Layer* ParseLayer(const xml_node& layer_node, tmx::TileMap* tilemap);
-    tmx::ObjectGroup* ParseObjectGroup(const xml_node& obj_group_node, tmx::TileMap* tilemap);
-    tmx::ImageLayer* ParseImageLayer(const xml_node& imagelayer_node);
-    void ParseProperties(const xml_node& object_node, tmx::Properties* object);
+    Image ParseImage(const xml_node& image_node);
+    TileSet* ParseTileSet(xml_node& tileset_node);
+    Layer* ParseLayer(const xml_node& layer_node, TileMap* tilemap);
+    ObjectGroup* ParseObjectGroup(const xml_node& obj_group_node, TileMap* tilemap);
+    ImageLayer* ParseImageLayer(const xml_node& imagelayer_node);
+    void ParseProperties(const xml_node& object_node, Properties* object);
 
 private:
     xml_document tmx_document_;

@@ -32,10 +32,10 @@
 
 namespace tmx {
 
-tmx::TileMap LoadMap(const std::string& map_file) {
-    tmx::Parser parser;
+TileMap LoadMap(const std::string& map_file) {
+    Parser parser;
 
-    tmx::ParserStatus status = parser.LoadFile(map_file);
+    ParserStatus status = parser.LoadFile(map_file);
     if (status == ParserStatus::LOADING_ERROR) {
         throw std::runtime_error("Error loading the XML document.");
     } else if (status == ParserStatus::INVALID_MAP_FILE) {

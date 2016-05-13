@@ -39,7 +39,7 @@ namespace tmx {
 /// \param map_file Path to the Tiled file
 ///
 ////////////////////////////////////////////////////////////
-STP_API tmx::TileMap LoadMap(const std::string& map_file);
+STP_API TileMap LoadMap(const std::string& map_file);
 
 }  // namespace tmx
 

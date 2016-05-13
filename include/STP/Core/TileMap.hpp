@@ -48,7 +48,7 @@ namespace tmx {
 /// \brief Main class to manage the TMX Map Format
 ///
 ////////////////////////////////////////////////////////////
-class STP_API TileMap : public sf::Drawable, public tmx::Properties {
+class STP_API TileMap : public sf::Drawable, public Properties {
 public:
     TileMap();
     TileMap(TileMap&& other) = default;
@@ -68,7 +68,7 @@ public:
     ///         the gid does not exist or is 0
     ///
     ////////////////////////////////////////////////////////////
-    tmx::TileSet* GetTileSet(unsigned int gid);
+    TileSet* GetTileSet(unsigned int gid);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the tile set given a name
@@ -78,7 +78,7 @@ public:
     /// \return Pointer to a constant tmx::TileSet
     ///
     ////////////////////////////////////////////////////////////
-    tmx::TileSet& GetTileSet(const std::string& tileset_name);
+    TileSet& GetTileSet(const std::string& tileset_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the layer based on its name
@@ -88,7 +88,7 @@ public:
     /// \return Reference to a tmx::Layer
     ///
     ////////////////////////////////////////////////////////////
-    tmx::Layer& GetLayer(const std::string& layer_name);
+    Layer& GetLayer(const std::string& layer_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the object group based on its name
@@ -98,7 +98,7 @@ public:
     /// \return Reference to a tmx::ObjectGroup
     ///
     ////////////////////////////////////////////////////////////
-    tmx::ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
+    ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the image layer based on its name
@@ -108,7 +108,7 @@ public:
     /// \return Reference to a tmx::ImageLayer
     ///
     ////////////////////////////////////////////////////////////
-    tmx::ImageLayer& GetImageLayer(const std::string& imagelayer_name);
+    ImageLayer& GetImageLayer(const std::string& imagelayer_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Display the objects in the map
@@ -172,13 +172,13 @@ private:
     std::string orientation_;
     unsigned int width_, height_, tilewidth_, tileheight_;
 
-    std::unordered_map<std::string, tmx::Layer*> layers_;
-    std::unordered_map<std::string, tmx::ObjectGroup*> object_groups_;
-    std::unordered_map<std::string, tmx::ImageLayer*> image_layers_;
-    std::vector<std::unique_ptr<tmx::MapObject>> map_objects_;
+    std::unordered_map<std::string, Layer*> layers_;
+    std::unordered_map<std::string, ObjectGroup*> object_groups_;
+    std::unordered_map<std::string, ImageLayer*> image_layers_;
+    std::vector<std::unique_ptr<MapObject>> map_objects_;
 
-    std::unordered_map<std::string, tmx::TileSet*> tilesets_hash_;
-    std::vector<std::unique_ptr<tmx::TileSet>> tilesets_;
+    std::unordered_map<std::string, TileSet*> tilesets_hash_;
+    std::vector<std::unique_ptr<TileSet>> tilesets_;
 };
 
 }  // namespace tmx

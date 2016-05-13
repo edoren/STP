@@ -33,7 +33,7 @@
 namespace tmx {
 
 TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
-                 unsigned int tileheight, tmx::Image image, unsigned int spacing,
+                 unsigned int tileheight, Image image, unsigned int spacing,
                  unsigned int margin, sf::Vector2i tileoffset) :
         firstgid_(firstgid),
         name_(name),
@@ -70,14 +70,14 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         tile_pos.y = (cont.y * tileheight_) + (spacing_ * cont.y) + margin_;
         sf::IntRect texture_rect(tile_pos.x, tile_pos.y, tilewidth_, tileheight_);
 
-        tiles_.push_back(tmx::TileSet::Tile(i, texture_rect, this));
+        tiles_.push_back(TileSet::Tile(i, texture_rect, this));
 
         cont.x = (cont.x + 1) % (width_no_spacing_ / tilewidth_);
         if (cont.x == 0) cont.y += 1;
     }
 }
 
-tmx::TileSet::Tile& TileSet::GetTile(unsigned int id) {
+TileSet::Tile& TileSet::GetTile(unsigned int id) {
     if (id >= tiles_.size()) {
         char error[100];
         sprintf(error, "Error: tile local id %u out of range.\n", id);
@@ -127,7 +127,7 @@ unsigned int TileSet::GetLastGID() const {
 // TileSet::Tile implementation
 ////////////////////////////////////////////////////////////
 
-TileSet::Tile::Tile(unsigned int id, sf::IntRect texture_rect, const tmx::TileSet* parent) :
+TileSet::Tile::Tile(unsigned int id, sf::IntRect texture_rect, const TileSet* parent) :
         id_(id),
         parent_(parent),
         texture_rect_(texture_rect) {

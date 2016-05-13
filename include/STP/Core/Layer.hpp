@@ -96,7 +96,7 @@ public:
     /// \return Reference to the Tile.
     ///
     ////////////////////////////////////////////////////////////
-    tmx::Layer::Tile& GetTile(unsigned int x, unsigned int y);
+    Layer::Tile& GetTile(unsigned int x, unsigned int y);
 
     ////////////////////////////////////////////////////////////
     /// \brief Change the color of the layer, does not affect the opacity
@@ -119,7 +119,7 @@ private:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    std::vector<tmx::Layer::Tile> tiles_;
+    std::vector<Layer::Tile> tiles_;
     std::string orientation_;
 };
 
@@ -138,7 +138,7 @@ private:
     ///
     ////////////////////////////////////////////////////////////
     Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
-         tmx::TileSet* tileset = nullptr);
+         TileSet* tileset = nullptr);
 
 public:
     ////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ private:
     sf::Vertex vertices_[4];
     sf::IntRect tile_rect_;
 
-    tmx::Properties* tile_properties_;
+    Properties* tile_properties_;
 
     const sf::Texture* texture_;
     sf::IntRect texture_rect_;
