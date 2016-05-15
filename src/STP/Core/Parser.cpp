@@ -37,6 +37,10 @@
 
 #include "Base64.hpp"
 
+const unsigned int FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+const unsigned int FLIPPED_VERTICALLY_FLAG = 0x40000000;
+const unsigned int FLIPPED_DIAGONALLY_FLAG = 0x20000000;
+
 namespace tmx {
 
 std::string Parser::DecompressString(const std::string& compressed_string) {
@@ -260,7 +264,15 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
                 }
 
                 for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
-                    int gid = byteVector[i] | byteVector[i + 1] << 8 | byteVector[i + 2] << 16 | byteVector[i + 3] << 24;
+                    unsigned int gid = byteVector[i] |
+                                       byteVector[i + 1] << 8 |
+                                       byteVector[i + 2] << 16 |
+                                       byteVector[i + 3] << 24;
+
+                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                             FLIPPED_VERTICALLY_FLAG |
+                             FLIPPED_DIAGONALLY_FLAG);
+
                     tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
 
                     AddTileToLayer(layer, gid, tile_pos, tilemap);
@@ -275,6 +287,10 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
                     if (data_stream.peek() == ',')
                         data_stream.ignore();
 
+                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                             FLIPPED_VERTICALLY_FLAG |
+                             FLIPPED_DIAGONALLY_FLAG);
+
                     tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
 
                     AddTileToLayer(layer, gid, tile_pos, tilemap);
@@ -285,7 +301,12 @@ tmx::Layer* Parser::ParseLayer(const pugi::xml_node& layer_node, tmx::TileMap* t
             }
         } else {  // Unencoded
             for (const pugi::xml_node& tile_node : data_node.children("tile")) {
-                int gid = tile_node.attribute("gid").as_uint();
+                unsigned int gid = tile_node.attribute("gid").as_uint();
+
+                gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                         FLIPPED_VERTICALLY_FLAG |
+                         FLIPPED_DIAGONALLY_FLAG);
+
                 tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
 
                 AddTileToLayer(layer, gid, tile_pos, tilemap);
@@ -364,6 +385,11 @@ tmx::ObjectGroup* Parser::ParseObjectGroup(const pugi::xml_node& object_group_no
         if (attribute_gid) {
             // Tile Object
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
+
+            gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                     FLIPPED_VERTICALLY_FLAG |
+                     FLIPPED_DIAGONALLY_FLAG);
+
             unsigned int id = gid - tilemap->GetTileSet(gid)->GetFirstGID();  // Tile local id
 
             tmx::TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
