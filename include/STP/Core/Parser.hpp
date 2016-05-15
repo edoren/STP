@@ -93,7 +93,6 @@ public:
 
 private:
     std::string DecompressString(const std::string& compressed_string);
-    void AddTileToLayer(Layer& layer, int gid, sf::Vector2i tile_pos, TileMap& tilemap);
 
     std::shared_ptr<TileSet> ParseTileSet(xml_node& tileset_node, TileMap& tilemap);
     Layer ParseLayer(xml_node& layer_node, TileMap& tilemap);

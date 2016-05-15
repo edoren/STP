@@ -177,26 +177,6 @@ void Parser::ParseProperties(xml_node& obj_node, Properties* object) {
     }
 }
 
-void Parser::AddTileToLayer(Layer& layer, int gid, sf::Vector2i tile_pos, TileMap& tilemap) {
-    TileSet* tileset = tilemap.GetTileSet(gid);
-    sf::IntRect tile_rect;
-
-    if (tileset != nullptr) {
-        tile_pos.x += tileset->GetTileOffSet().x;
-        tile_pos.y += tileset->GetTileOffSet().y;
-        tile_rect = sf::IntRect(
-            tile_pos.x, tile_pos.y,
-            tilemap.GetTileWidth(), tilemap.GetTileHeight()
-        );
-    } else {
-        tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
-    }
-
-    Layer::Tile tile(gid, tile_rect, layer.orientation_, tileset);
-    tile.SetColor(layer.color_);
-    layer.tiles_.push_back(std::move(tile));
-}
-
 Image Parser::ParseImage(xml_node& image_node) {
     xml_attribute attribute_source = image_node.attribute("source");
     std::string source = working_dir_ + attribute_source.as_string();
@@ -288,14 +268,9 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
     // Parse the layer properties
     ParseProperties(layer_node, &layer);
 
-    // Useful variables to parse the layer data
-    sf::Vector2i tile_pos;
-    unsigned int count_x = 0;
-    unsigned int count_y = 0;
-    unsigned int tilewidth = tilemap.GetTileWidth();
-    unsigned int tileheight = tilemap.GetTileHeight();
-
     // Parse the layer data
+    std::vector<unsigned int> layer_data;
+    layer_data.reserve(width * height);
     xml_node data_node = layer_node.child("data");
     if (data_node) {
         std::string data = data_node.text().as_string();
@@ -304,76 +279,76 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
         data.erase(std::remove_if(data.begin(), data.end(), std::isspace), data.end());
 
         // Check if the encoding attribute exists in data_node
-        xml_attribute attribute_encoding = data_node.attribute("encoding");
-        if (attribute_encoding) {
-            std::string encoding = attribute_encoding.as_string();
+        std::string encoding = data_node.attribute("encoding").as_string("");
+        if (encoding == "base64") {  // Base64 encoding
+            data = base64_decode(data);
 
-            if (encoding == "base64") {  // Base64 encoding
-                data = base64_decode(data);
+            // Check if the compression attribute exists in data_node
+            if (data_node.attribute("compression"))
+                data = DecompressString(data);
 
-                size_t expectedSize = width * height * 4;  // number of tiles * 4 bytes = 32bits / tile
-                std::vector<unsigned char>byteVector;  // to hold decompressed data as bytes
-                byteVector.reserve(expectedSize);
+            size_t expectedSize = width * height * 4;  // number of tiles * 4 bytes = 32bits / tile
+            std::vector<unsigned char>byteVector;  // to hold decompressed data as bytes
+            byteVector.reserve(expectedSize);
+            for (char byte : data)
+                byteVector.push_back(static_cast<unsigned char>(byte));
 
-                // Check if the compression attribute exists in data_node
-                if (data_node.attribute("compression"))
-                    data = DecompressString(data);
-
-                for (char byte : data)
-                    byteVector.push_back(static_cast<unsigned char>(byte));
-
-                for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
-                    unsigned int gid = byteVector[i] |
-                                       byteVector[i + 1] << 8 |
-                                       byteVector[i + 2] << 16 |
-                                       byteVector[i + 3] << 24;
-
-                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
-                             FLIPPED_VERTICALLY_FLAG |
-                             FLIPPED_DIAGONALLY_FLAG);
-
-                    tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
-
-                    AddTileToLayer(layer, gid, tile_pos, tilemap);
-
-                    count_x = (count_x + 1) % width;
-                    if (count_x == 0) count_y += 1;
-                }
-            } else if (encoding == "csv") {  // CSV encoding
-                std::stringstream data_stream(data);
-                unsigned int gid;
-                while (data_stream >> gid) {
-                    if (data_stream.peek() == ',')
-                        data_stream.ignore();
-
-                    gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
-                             FLIPPED_VERTICALLY_FLAG |
-                             FLIPPED_DIAGONALLY_FLAG);
-
-                    tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
-
-                    AddTileToLayer(layer, gid, tile_pos, tilemap);
-
-                    count_x = (count_x + 1) % width;
-                    if (count_x == 0) count_y += 1;
-                }
+            for (unsigned int i = 0; i < byteVector.size() - 3; i += 4) {
+                unsigned int gid = byteVector[i] |
+                    byteVector[i + 1] << 8 |
+                    byteVector[i + 2] << 16 |
+                    byteVector[i + 3] << 24;
+                layer_data.push_back(gid);
             }
-        } else {  // Unencoded
+        } else if (encoding == "csv") {  // CSV encoding
+            std::stringstream data_stream(data);
+            unsigned int gid;
+            while (data_stream >> gid) {
+                if (data_stream.peek() == ',')
+                    data_stream.ignore();
+                layer_data.push_back(gid);
+            }
+        } else if (encoding.empty()) {  // Unencoded
             for (const pugi::xml_node& tile_node : data_node.children("tile")) {
                 unsigned int gid = tile_node.attribute("gid").as_uint();
-
-                gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
-                         FLIPPED_VERTICALLY_FLAG |
-                         FLIPPED_DIAGONALLY_FLAG);
-
-                tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
-
-                AddTileToLayer(layer, gid, tile_pos, tilemap);
-
-                count_x = (count_x + 1) % width;
-                if (count_x == 0) count_y += 1;
+                layer_data.push_back(gid);
             }
         }
+
+        // Add each tile to the Layer
+        sf::Vector2i tile_pos;
+        unsigned int count_x = 0;
+        unsigned int count_y = 0;
+        unsigned int tilewidth = tilemap.GetTileWidth();
+        unsigned int tileheight = tilemap.GetTileHeight();
+
+        for (unsigned int gid : layer_data) {
+            tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
+
+            gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
+                     FLIPPED_VERTICALLY_FLAG |
+                     FLIPPED_DIAGONALLY_FLAG);
+
+            TileSet* tileset = tilemap.GetTileSet(gid);
+            sf::IntRect tile_rect;
+
+            if (tileset != nullptr) {
+                tile_pos.x += tileset->GetTileOffSet().x;
+                tile_pos.y += tileset->GetTileOffSet().y;
+                tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, tilewidth, tileheight);
+            } else {
+                tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
+            }
+
+            Layer::Tile tile(gid, tile_rect, layer.orientation_, tileset);
+            tile.SetColor(layer.color_);
+            layer.tiles_.push_back(std::move(tile));
+
+            count_x = (count_x + 1) % width;
+            if (count_x == 0) count_y += 1;
+        }
+
+
     }
 
     return layer;
