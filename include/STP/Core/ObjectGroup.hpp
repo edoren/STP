@@ -44,13 +44,20 @@
 
 namespace tmx {
 
-enum ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
+enum class ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
 
 ////////////////////////////////////////////////////////////
 /// @brief Class for manage the TMX ObjectGroups
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ObjectGroup : public MapObject {
+public:
+    ////////////////////////////////////////////////////////////
+    /// @brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    ObjectGroup();
+
 private:
     ////////////////////////////////////////////////////////////
     /// @brief Constructs a object group given a name, width, height
@@ -112,7 +119,14 @@ private:
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
- public:
+public:
+    ////////////////////////////////////////////////////////////
+    /// @brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    Object();
+
+public:
     ////////////////////////////////////////////////////////////
     /// @brief Construct a Object given a name, width, height
     ///        rotation, visible and image atributes
@@ -135,7 +149,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
            ObjectType shape_type, const std::string& vertices_points = std::string(),
            TileSet::Tile* tile = nullptr);
 
- public:
+public:
     ////////////////////////////////////////////////////////////
     /// @brief Change the color of the tile, affect the opacity.
     ///
@@ -144,10 +158,10 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
- private:
+private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
- private:
+private:
     std::string name_;
     std::string type_;
     unsigned int x_, y_;
@@ -157,7 +171,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
     TileSet::Tile* tile_;
     std::vector<sf::Vertex> vertices_;
 
- public:
+public:
     /// @brief Visibility of the Object
     bool visible;
 };

@@ -34,6 +34,8 @@
 
 namespace tmx {
 
+Layer::Layer() {}
+
 Layer::Layer(const std::string& name, unsigned int width,
              unsigned int height, float opacity, bool visible, std::string orientation) :
         MapObject(name, width, height, opacity, visible),
@@ -90,6 +92,13 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 ////////////////////////////////////////////////////////////
 // Layer::Tile implementation
 ////////////////////////////////////////////////////////////
+
+Layer::Tile::Tile() :
+    gid_(0),
+    tile_properties_(nullptr),
+    texture_(nullptr),
+    visible(true) {
+}
 
 Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, TileSet* tileset) :
         gid_(gid),

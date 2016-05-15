@@ -35,36 +35,41 @@
 
 namespace tmx {
 
-TileMap::TileMap() {}
+TileMap::TileMap() :
+    width_(0),
+    height_(0),
+    tilewidth_(0),
+    tileheight_(0) {
+}
 
 TileSet* TileMap::GetTileSet(unsigned int gid) {
     if (gid == 0) return nullptr;
     for (unsigned int i = 0; i < tilesets_.size(); ++i) {
         if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
-            return &(*tilesets_[i]);
+            return tilesets_[i].get();
     }
     return nullptr;
 }
 
 TileSet& TileMap::GetTileSet(const std::string& tileset_name) {
-    return *tilesets_hash_[tileset_name];
+    return *(tilesets_hash_[tileset_name]);
 }
 
 Layer& TileMap::GetLayer(const std::string& layer_name) {
-    return *layers_[layer_name];
+    return layers_[layer_name];
 }
 
 ObjectGroup& TileMap::GetObjectGroup(const std::string& objectgroup_name) {
-    return *object_groups_[objectgroup_name];
+    return object_groups_[objectgroup_name];
 }
 
 ImageLayer& TileMap::GetImageLayer(const std::string& imagelayer_name) {
-    return *image_layers_[imagelayer_name];
+    return image_layers_[imagelayer_name];
 }
 
 void TileMap::ShowObjects(bool show) {
     for (auto& object_group : object_groups_)
-        object_group.second->visible = show;
+        object_group.second.visible = show;
 }
 
 unsigned int TileMap::GetWidth() const {

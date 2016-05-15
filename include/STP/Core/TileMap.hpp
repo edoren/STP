@@ -166,19 +166,16 @@ private:
 private:
     friend class Parser;
 
-    std::string working_dir_;
-
-    float version_;
     std::string orientation_;
     unsigned int width_, height_, tilewidth_, tileheight_;
 
-    std::unordered_map<std::string, Layer*> layers_;
-    std::unordered_map<std::string, ObjectGroup*> object_groups_;
-    std::unordered_map<std::string, ImageLayer*> image_layers_;
-    std::vector<std::unique_ptr<MapObject>> map_objects_;
+    std::unordered_map<std::string, Layer> layers_;
+    std::unordered_map<std::string, ObjectGroup> object_groups_;
+    std::unordered_map<std::string, ImageLayer> image_layers_;
+    std::vector<MapObject*> map_objects_;
 
-    std::unordered_map<std::string, TileSet*> tilesets_hash_;
-    std::vector<std::unique_ptr<TileSet>> tilesets_;
+    std::vector<std::shared_ptr<TileSet>> tilesets_;
+    std::unordered_map<std::string, std::shared_ptr<TileSet>> tilesets_hash_;
 };
 
 }  // namespace tmx

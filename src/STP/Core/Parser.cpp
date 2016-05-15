@@ -27,10 +27,13 @@
 #include "STP/Core/Parser.hpp"
 
 #include <cstring>
+#include <cctype>
 
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <iostream>
 
 #include "SFML/Graphics/PrimitiveType.hpp"
 #include <zlib.h>
@@ -76,7 +79,7 @@ TileMap Parser::GetMap() {
     xml_node map_node = tmx_document_.child("map");
 
     // Get the map data
-    map.version_ = map_node.attribute("version").as_float();
+    // map.version_ = map_node.attribute("version").as_float();
     map.orientation_ = map_node.attribute("orientation").value();
     map.width_ = map_node.attribute("width").as_uint();
     map.height_ = map_node.attribute("height").as_uint();
@@ -87,21 +90,21 @@ TileMap Parser::GetMap() {
         std::string node_name = node.name();
         // Call the respective parse function for each node
         if (node_name == "tileset") {
-            auto newtileset = ParseTileSet(node);
-            map.tilesets_.emplace_back(newtileset);
+            auto newtileset = ParseTileSet(node, map);
+            map.tilesets_.push_back(newtileset);
             map.tilesets_hash_[newtileset->GetName()] = newtileset;
         } else if (node_name == "layer") {
-            auto newlayer =  ParseLayer(node, &map);
-            map.map_objects_.emplace_back(newlayer);
-            map.layers_[newlayer->GetName()] = newlayer;
+            Layer newlayer = ParseLayer(node, map);
+            map.layers_[newlayer.GetName()] = newlayer;
+            map.map_objects_.push_back(&(map.layers_[newlayer.GetName()]));
         } else if (node_name == "objectgroup") {
-            auto newobjectgroup = ParseObjectGroup(node, &map);
-            map.map_objects_.emplace_back(newobjectgroup);
-            map.object_groups_[newobjectgroup->GetName()] = newobjectgroup;
+            ObjectGroup newobjectgroup = ParseObjectGroup(node, map);
+            map.object_groups_[newobjectgroup.GetName()] = newobjectgroup;
+            map.map_objects_.push_back(&(map.object_groups_[newobjectgroup.GetName()]));
         } else if (node_name == "imagelayer") {
-            auto newimagelayer = ParseImageLayer(node);
-            map.map_objects_.emplace_back(newimagelayer);
-            map.image_layers_[newimagelayer->GetName()] = newimagelayer;
+            ImageLayer newimagelayer = ParseImageLayer(node, map);
+            map.image_layers_[newimagelayer.GetName()] = newimagelayer;
+            map.map_objects_.push_back(&(map.image_layers_[newimagelayer.GetName()]));
         }
     }
 
@@ -122,7 +125,7 @@ std::string Parser::DecompressString(const std::string& compressed_string) {
     zstream.zfree = Z_NULL;
     zstream.opaque = Z_NULL;
     zstream.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(compressed_string.data()));
-    zstream.avail_in = compressed_string.size();
+    zstream.avail_in = static_cast<uInt>(compressed_string.size());
 
     int result;
     result = inflateInit2(&zstream, 15 + 32);
@@ -163,7 +166,7 @@ std::string Parser::DecompressString(const std::string& compressed_string) {
     return outstring;
 }
 
-void Parser::ParseProperties(const xml_node& obj_node, Properties* object) {
+void Parser::ParseProperties(xml_node& obj_node, Properties* object) {
     xml_node properties_node = obj_node.child("properties");
     if (properties_node) {
         for (const xml_node& property_node : properties_node.children("property")) {
@@ -174,8 +177,8 @@ void Parser::ParseProperties(const xml_node& obj_node, Properties* object) {
     }
 }
 
-void Parser::AddTileToLayer(Layer* layer, int gid, sf::Vector2i tile_pos, TileMap* tilemap) {
-    TileSet* tileset = tilemap->GetTileSet(gid);
+void Parser::AddTileToLayer(Layer& layer, int gid, sf::Vector2i tile_pos, TileMap& tilemap) {
+    TileSet* tileset = tilemap.GetTileSet(gid);
     sf::IntRect tile_rect;
 
     if (tileset != nullptr) {
@@ -183,18 +186,18 @@ void Parser::AddTileToLayer(Layer* layer, int gid, sf::Vector2i tile_pos, TileMa
         tile_pos.y += tileset->GetTileOffSet().y;
         tile_rect = sf::IntRect(
             tile_pos.x, tile_pos.y,
-            tilemap->GetTileWidth(), tilemap->GetTileHeight()
+            tilemap.GetTileWidth(), tilemap.GetTileHeight()
         );
     } else {
         tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
     }
 
-    Layer::Tile tile(gid, tile_rect, layer->orientation_, tileset);
-    tile.SetColor(layer->color_);
-    layer->tiles_.push_back(std::move(tile));
+    Layer::Tile tile(gid, tile_rect, layer.orientation_, tileset);
+    tile.SetColor(layer.color_);
+    layer.tiles_.push_back(std::move(tile));
 }
 
-Image Parser::ParseImage(const xml_node& image_node) {
+Image Parser::ParseImage(xml_node& image_node) {
     xml_attribute attribute_source = image_node.attribute("source");
     std::string source = working_dir_ + attribute_source.as_string();
 
@@ -213,10 +216,10 @@ Image Parser::ParseImage(const xml_node& image_node) {
     return Image(source, width, height, trans, format);
 }
 
-TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
+std::shared_ptr<TileSet> Parser::ParseTileSet(xml_node& tileset_node, TileMap& tilemap) {
     xml_node& tileset_node_ = tileset_node;
 
-    unsigned int firstgid = tileset_node_.attribute("firstgid").as_uint(0);
+    unsigned int firstgid = tileset_node_.attribute("firstgid").as_uint(1);
 
     // Check for the source attribute, load the file and get the tileset
     xml_document tsx_file;
@@ -240,7 +243,7 @@ TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     // Check for the tileoffset, image childs
     Image image_data;
     sf::Vector2i tileoffset_data = {0, 0};
-    for (const xml_node& node : tileset_node.children()) {
+    for (xml_node& node : tileset_node.children()) {
         // Call the respective parse function for each node
         if (strcmp(node.name(), "tileoffset") == 0) {
             tileoffset_data.x = node.attribute("x").as_int();
@@ -252,22 +255,24 @@ TileSet* Parser::ParseTileSet(xml_node& tileset_node) {
     }
 
     // Create the new TileSet
-    TileSet* tileset = new TileSet(firstgid, name, tilewidth, tileheight,
-                                             image_data, spacing, margin, tileoffset_data);
+    std::shared_ptr<TileSet> tileset(new TileSet(
+        firstgid, name, tilewidth, tileheight,
+        image_data, spacing, margin, tileoffset_data
+    ));
 
     // Parse each tile property
-    for (const xml_node& tile_node : tileset_node_.children("tile")) {
+    for (xml_node& tile_node : tileset_node_.children("tile")) {
         unsigned int id = tile_node.attribute("id").as_uint();
         ParseProperties(tile_node, &tileset->GetTile(id));
     }
 
     // Parse the tileset properties
-    ParseProperties(tileset_node_, tileset);
+    ParseProperties(tileset_node_, tileset.get());
 
     return tileset;
 }
 
-Layer* Parser::ParseLayer(const xml_node& layer_node, TileMap* tilemap) {
+Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
     // Get the map data
     std::string name = layer_node.attribute("name").as_string();
     unsigned int width = layer_node.attribute("width").as_uint();
@@ -278,34 +283,35 @@ Layer* Parser::ParseLayer(const xml_node& layer_node, TileMap* tilemap) {
     int offsety = layer_node.attribute("offsety").as_int(0);
 
     // Create the new Layer
-    Layer* layer = new Layer(name, width, height, opacity, visible, tilemap->GetOrientation());
+    Layer layer(name, width, height, opacity, visible, tilemap.GetOrientation());
 
     // Parse the layer properties
-    ParseProperties(layer_node, layer);
+    ParseProperties(layer_node, &layer);
 
     // Useful variables to parse the layer data
     sf::Vector2i tile_pos;
     unsigned int count_x = 0;
     unsigned int count_y = 0;
-    unsigned int tilewidth = tilemap->GetTileWidth();
-    unsigned int tileheight = tilemap->GetTileHeight();
+    unsigned int tilewidth = tilemap.GetTileWidth();
+    unsigned int tileheight = tilemap.GetTileHeight();
 
     // Parse the layer data
     xml_node data_node = layer_node.child("data");
     if (data_node) {
         std::string data = data_node.text().as_string();
+
+        // remove spaces
+        data.erase(std::remove_if(data.begin(), data.end(), std::isspace), data.end());
+
         // Check if the encoding attribute exists in data_node
         xml_attribute attribute_encoding = data_node.attribute("encoding");
         if (attribute_encoding) {
             std::string encoding = attribute_encoding.as_string();
 
             if (encoding == "base64") {  // Base64 encoding
-                std::stringstream ss;
-                ss << data;
-                ss >> data;
                 data = base64_decode(data);
 
-                int expectedSize = width * height * 4;  // number of tiles * 4 bytes = 32bits / tile
+                size_t expectedSize = width * height * 4;  // number of tiles * 4 bytes = 32bits / tile
                 std::vector<unsigned char>byteVector;  // to hold decompressed data as bytes
                 byteVector.reserve(expectedSize);
 
@@ -313,8 +319,8 @@ Layer* Parser::ParseLayer(const xml_node& layer_node, TileMap* tilemap) {
                 if (data_node.attribute("compression"))
                     data = DecompressString(data);
 
-                for (std::string::iterator i = data.begin(); i != data.end(); ++i)
-                    byteVector.push_back(*i);
+                for (char byte : data)
+                    byteVector.push_back(static_cast<unsigned char>(byte));
 
                 for (unsigned int i = 0; i < byteVector.size() - 3 ; i += 4) {
                     unsigned int gid = byteVector[i] |
@@ -373,7 +379,7 @@ Layer* Parser::ParseLayer(const xml_node& layer_node, TileMap* tilemap) {
     return layer;
 }
 
-ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* tilemap) {
+ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap) {
     std::string name = obj_group_node.attribute("name").as_string("");
     unsigned int width = obj_group_node.attribute("width").as_uint(0);
     unsigned int height = obj_group_node.attribute("height").as_uint(0);
@@ -394,14 +400,13 @@ ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* t
     bool visible = obj_group_node.attribute("visible").as_bool(true);
 
     // Create the new ObjectGroup
-    ObjectGroup* obj_group = new ObjectGroup(name, width, height,
-                                                       opacity, visible, color);
+    ObjectGroup obj_group(name, width, height, opacity, visible, color);
 
     // Parse the objectgroup properties
-    ParseProperties(obj_group_node, obj_group);
+    ParseProperties(obj_group_node, &obj_group);
 
     // Parse each objectgroup object
-    for (const xml_node& obj_node : obj_group_node.children("object")) {
+    for (xml_node& obj_node : obj_group_node.children("object")) {
         std::string obj_name = obj_node.attribute("name").as_string("");
         std::string obj_type = obj_node.attribute("type").as_string("");
         int obj_x = obj_node.attribute("x").as_int(0);
@@ -420,30 +425,30 @@ ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* t
                      FLIPPED_VERTICALLY_FLAG |
                      FLIPPED_DIAGONALLY_FLAG);
 
-            unsigned int id = gid - tilemap->GetTileSet(gid)->GetFirstGID();  // Tile local id
+            unsigned int id = gid - tilemap.GetTileSet(gid)->GetFirstGID();  // Tile local id
 
-            TileSet::Tile* tile = &tilemap->GetTileSet(gid)->GetTile(id);
+            TileSet::Tile* tile = &(tilemap.GetTileSet(gid)->GetTile(id));
 
             ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                obj_width, obj_height, obj_rotation,
-                                               obj_visible, Tile, "", tile);
+                                               obj_visible, ObjectType::Tile, "", tile);
             ParseProperties(obj_node, &newobject);
-            obj_group->AddObject(newobject);
+            obj_group.AddObject(newobject);
         } else if (obj_width && obj_height) {
             if (obj_node.child("ellipse")) {
                 // Ellipse Object
                 ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, Ellipse);
+                                                   obj_visible, ObjectType::Ellipse);
                 ParseProperties(obj_node, &newobject);
-                obj_group->AddObject(newobject);
+                obj_group.AddObject(newobject);
             } else {
                 // Rectangle Object
                 ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, Rectangle);
+                                                   obj_visible, ObjectType::Rectangle);
                 ParseProperties(obj_node, &newobject);
-                obj_group->AddObject(newobject);
+                obj_group.AddObject(newobject);
             }
         } else {
             xml_node polygon_node = obj_node.child("polygon");
@@ -453,17 +458,17 @@ ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* t
                 std::string vertices_points = polygon_node.attribute("points").as_string();
                 ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, Polygon, vertices_points);
+                                                   obj_visible, ObjectType::Polygon, vertices_points);
                 ParseProperties(obj_node, &newobject);
-                obj_group->AddObject(newobject);
+                obj_group.AddObject(newobject);
             } else if (polyline_node) {
                 // Polyline Object
                 std::string vertices_points = polyline_node.attribute("points").as_string();
                 ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
-                                                   obj_visible, Polyline, vertices_points);
+                                                   obj_visible, ObjectType::Polyline, vertices_points);
                 ParseProperties(obj_node, &newobject);
-                obj_group->AddObject(newobject);
+                obj_group.AddObject(newobject);
             }
         }
     }
@@ -471,7 +476,7 @@ ObjectGroup* Parser::ParseObjectGroup(const xml_node& obj_group_node, TileMap* t
     return obj_group;
 }
 
-ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
+ImageLayer Parser::ParseImageLayer(xml_node& imagelayer_node, TileMap& tilemap) {
     std::string name = imagelayer_node.attribute("name").as_string("");
     unsigned int width = imagelayer_node.attribute("width").as_uint(0);
     unsigned int height = imagelayer_node.attribute("height").as_uint(0);
@@ -484,10 +489,10 @@ ImageLayer* Parser::ParseImageLayer(const xml_node& imagelayer_node) {
     if (image_node) image_data = ParseImage(image_node);
 
     // Create the new ImageLayer
-    ImageLayer* imagelayer = new ImageLayer(name, width, height, opacity, visible, image_data);
+    ImageLayer imagelayer(name, width, height, opacity, visible, image_data);
 
     // Parse the imagelayer properties
-    ParseProperties(imagelayer_node, imagelayer);
+    ParseProperties(imagelayer_node, &imagelayer);
 
     return imagelayer;
 }

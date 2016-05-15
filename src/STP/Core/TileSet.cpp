@@ -32,6 +32,31 @@
 
 namespace tmx {
 
+TileSet::TileSet() :
+        firstgid_(0),
+        tilewidth_(0),
+        tileheight_(0),
+        spacing_(0),
+        margin_(0),
+        tileoffset_(0, 0) {
+}
+
+TileSet::TileSet(const TileSet & other) :
+        firstgid_(other.firstgid_),
+        lastgid_(other.lastgid_),
+        name_(other.name_),
+        tilewidth_(other.tilewidth_),
+        tileheight_(other.tileheight_),
+        spacing_(other.spacing_),
+        margin_(other.margin_),
+        image_(other.image_),
+        tileoffset_(other.tileoffset_),
+        tiles_(other.tiles_) {
+    for (auto& tile : tiles_) {
+        tile.parent_ = this;
+    }
+}
+
 TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int tilewidth,
                  unsigned int tileheight, Image image, unsigned int spacing,
                  unsigned int margin, sf::Vector2i tileoffset) :
@@ -41,24 +66,24 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         tileheight_(tileheight),
         spacing_(spacing),
         margin_(margin),
-        width_no_spacing_(0),
-        height_no_spacing_(0),
         image_(image),
         tileoffset_(tileoffset) {
+    unsigned int width_no_spacing = 0;
+    unsigned int height_no_spacing = 0;
     unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
     unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
     if (spacing != 0) {
         for (unsigned int i = 0; i <= width_no_margin; i += tilewidth + spacing_) {
-            width_no_spacing_ += tilewidth;
+            width_no_spacing += tilewidth;
         }
         for (unsigned int i = 0; i <= height_no_margin; i += tileheight + spacing_) {
-            height_no_spacing_ += tileheight;
+            height_no_spacing += tileheight;
         }
     } else {
-        width_no_spacing_ = width_no_margin;
-        height_no_spacing_ = height_no_margin;
+        width_no_spacing = width_no_margin;
+        height_no_spacing = height_no_margin;
     }
-    lastgid_ = firstgid + (width_no_spacing_ / tilewidth) * (height_no_spacing_ / tileheight) - 1;
+    lastgid_ = firstgid + (width_no_spacing / tilewidth) * (height_no_spacing / tileheight) - 1;
 
     // Add each tile to the TileSet
     unsigned int tile_amount = lastgid_ - firstgid_ + 1;
@@ -72,7 +97,7 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
 
         tiles_.push_back(TileSet::Tile(i, texture_rect, this));
 
-        cont.x = (cont.x + 1) % (width_no_spacing_ / tilewidth_);
+        cont.x = (cont.x + 1) % (width_no_spacing / tilewidth_);
         if (cont.x == 0) cont.y += 1;
     }
 }
