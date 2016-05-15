@@ -32,11 +32,11 @@
 namespace tmx {
 
 ////////////////////////////////////////////////////////////
-/// \brief Parse and load the Tiled file given a path to it
+/// @brief Parse and load the Tiled file given a path to it
 ///
-/// \exception std::runtime_error If there is an error parsing or loading the file.
+/// @exception std::runtime_error If there is an error parsing or loading the file.
 ///
-/// \param map_file Path to the Tiled file
+/// @param map_file Path to the Tiled file
 ///
 ////////////////////////////////////////////////////////////
 STP_API TileMap LoadMap(const std::string& map_file);

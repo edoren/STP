@@ -45,7 +45,7 @@
 namespace tmx {
 
 ////////////////////////////////////////////////////////////
-/// \brief Main class to manage the TMX Map Format
+/// @brief Main class to manage the TMX Map Format
 ///
 ////////////////////////////////////////////////////////////
 class STP_API TileMap : public sf::Drawable, public Properties {
@@ -60,102 +60,102 @@ private:
 
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Return the tile set attached to the global id
+    /// @brief Return the tile set attached to the global id
     ///
-    /// \param gid The gid of the tile
+    /// @param gid The gid of the tile
     ///
-    /// \return Pointer to a tmx::TileSet or nullptr if
+    /// @return Pointer to a tmx::TileSet or nullptr if
     ///         the gid does not exist or is 0
     ///
     ////////////////////////////////////////////////////////////
     TileSet* GetTileSet(unsigned int gid);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the tile set given a name
+    /// @brief Return the tile set given a name
     ///
-    /// \param tileset_name The name of the tile set
+    /// @param tileset_name The name of the tile set
     ///
-    /// \return Pointer to a constant tmx::TileSet
+    /// @return Pointer to a constant tmx::TileSet
     ///
     ////////////////////////////////////////////////////////////
     TileSet& GetTileSet(const std::string& tileset_name);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the layer based on its name
+    /// @brief Return the layer based on its name
     ///
-    /// \param layer_name The name of the layer
+    /// @param layer_name The name of the layer
     ///
-    /// \return Reference to a tmx::Layer
+    /// @return Reference to a tmx::Layer
     ///
     ////////////////////////////////////////////////////////////
     Layer& GetLayer(const std::string& layer_name);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the object group based on its name
+    /// @brief Return the object group based on its name
     ///
-    /// \param objectgroup_name The name of the object group
+    /// @param objectgroup_name The name of the object group
     ///
-    /// \return Reference to a tmx::ObjectGroup
+    /// @return Reference to a tmx::ObjectGroup
     ///
     ////////////////////////////////////////////////////////////
     ObjectGroup& GetObjectGroup(const std::string& objectgroup_name);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the image layer based on its name
+    /// @brief Return the image layer based on its name
     ///
-    /// \param imagelayer_name The name of the image layer
+    /// @param imagelayer_name The name of the image layer
     ///
-    /// \return Reference to a tmx::ImageLayer
+    /// @return Reference to a tmx::ImageLayer
     ///
     ////////////////////////////////////////////////////////////
     ImageLayer& GetImageLayer(const std::string& imagelayer_name);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Display the objects in the map
+    /// @brief Display the objects in the map
     ///
-    /// \param show true to display them, false to hides them
+    /// @param show true to display them, false to hides them
     ///
-    /// \return Reference to a tmx::ImageLayer
+    /// @return Reference to a tmx::ImageLayer
     ///
     ////////////////////////////////////////////////////////////
     void ShowObjects(bool show = true);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the map width
+    /// @brief Return the map width
     ///
-    /// \return unsigned int value
+    /// @return unsigned int value
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetWidth() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the map height
+    /// @brief Return the map height
     ///
-    /// \return unsigned int value
+    /// @return unsigned int value
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetHeight() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the tile width
+    /// @brief Return the tile width
     ///
-    /// \return unsigned int value
+    /// @return unsigned int value
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetTileWidth() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the tile height
+    /// @brief Return the tile height
     ///
-    /// \return unsigned int value
+    /// @return unsigned int value
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the orientation of the map
+    /// @brief Return the orientation of the map
     ///
-    /// \return The orienation of the map as std::string
+    /// @return The orienation of the map as std::string
     ///
     ////////////////////////////////////////////////////////////
     const std::string& GetOrientation() const;

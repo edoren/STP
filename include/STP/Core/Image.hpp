@@ -41,25 +41,25 @@
 namespace tmx {
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for loading images
+/// @brief Class for loading images
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Image {
 private:
     ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
+    /// @brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
     Image();
 
     ////////////////////////////////////////////////////////////
-    /// \brief Load a image given a source
+    /// @brief Load a image given a source
     ///
-    /// \param source The reference to the tileset image file
-    /// \param width  The image width in pixels. (Defaults to 0)
-    /// \param height The image height in pixels. (Defaults to 0)
-    /// \param trans  Defines a specific color that is treated as transparent (example value: 0xFF00FF for magenta)
-    /// \param format Used for embedded images, in combination with a data child element
+    /// @param source The reference to the tileset image file
+    /// @param width  The image width in pixels. (Defaults to 0)
+    /// @param height The image height in pixels. (Defaults to 0)
+    /// @param trans  Defines a specific color that is treated as transparent (example value: 0xFF00FF for magenta)
+    /// @param format Used for embedded images, in combination with a data child element
     ///
     ////////////////////////////////////////////////////////////
     Image(const std::string& source, unsigned int width = 0, unsigned int height = 0,
@@ -67,25 +67,25 @@ private:
 
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Return the image width
+    /// @brief Return the image width
     ///
-    /// \return The image width in pixels
+    /// @return The image width in pixels
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetWidth() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return the image height
+    /// @brief Return the image height
     ///
-    /// \return The image height in pixels
+    /// @return The image height in pixels
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetHeight() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return sf::Texture attached to the image
+    /// @brief Return sf::Texture attached to the image
     ///
-    /// \return Pointer to a constant sf::Texture
+    /// @return Pointer to a constant sf::Texture
     ///
     ////////////////////////////////////////////////////////////
     const sf::Texture* GetTexture() const;

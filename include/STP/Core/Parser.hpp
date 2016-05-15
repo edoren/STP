@@ -56,37 +56,37 @@ enum class ParserStatus {
 class Parser {
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
+    /// @brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
     Parser();
 
     ////////////////////////////////////////////////////////////
-    /// \brief Load a Tiled map from memory
+    /// @brief Load a Tiled map from memory
     ///
-    /// \param buffer The buffer that stores the map
-    /// \param size   The size of the buffer
+    /// @param buffer The buffer that stores the map
+    /// @param size   The size of the buffer
     ///
-    /// \return The loading status.
+    /// @return The loading status.
     ///
     ////////////////////////////////////////////////////////////
     ParserStatus Load(const char* buffer, size_t size);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Load a Tiled map from memory
+    /// @brief Load a Tiled map from memory
     ///
-    /// \param buffer The buffer that stores the map
-    /// \param size   The size of the buffer
+    /// @param buffer The buffer that stores the map
+    /// @param size   The size of the buffer
     ///
-    /// \return The loading status.
+    /// @return The loading status.
     ///
     ////////////////////////////////////////////////////////////
     ParserStatus LoadFile(const std::string& tmx_file);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Parse the TileMap from the file previously loaded
+    /// @brief Parse the TileMap from the file previously loaded
     ///
-    /// \return tmx::TileMap
+    /// @return tmx::TileMap
     ///
     ////////////////////////////////////////////////////////////
     TileMap GetMap();

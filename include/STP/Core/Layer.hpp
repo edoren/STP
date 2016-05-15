@@ -43,20 +43,20 @@
 namespace tmx {
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for manage the TMX Layers
+/// @brief Class for manage the TMX Layers
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Layer : public MapObject {
 private:
     ////////////////////////////////////////////////////////////
-    /// \brief Constructs a layer given a name, width, height,
+    /// @brief Constructs a layer given a name, width, height,
     ///        opacity and visible attributes
     ///
-    /// \param name    The name of the layer
-    /// \param width   The width of the layer in tiles
-    /// \param height  The height of the layer in tiles
-    /// \param opacity Float value between 0.0 to 1.0
-    /// \param visible The visibility of the layer
+    /// @param name    The name of the layer
+    /// @param width   The width of the layer in tiles
+    /// @param height  The height of the layer in tiles
+    /// @param opacity Float value between 0.0 to 1.0
+    /// @param visible The visibility of the layer
     ///
     ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
@@ -70,46 +70,46 @@ public:
     class Tile;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Returns the width in tiles.
+    /// @brief Returns the width in tiles.
     ///
-    /// \return The width of the layer in tiles.
+    /// @return The width of the layer in tiles.
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetWidth() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Returns the height in tiles.
+    /// @brief Returns the height in tiles.
     ///
-    /// \return The height of the layer in tiles.
+    /// @return The height of the layer in tiles.
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetHeight() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Get the tile given a coordinate. Left-Up tile is (0, 0).
+    /// @brief Get the tile given a coordinate. Left-Up tile is (0, 0).
     ///
-    /// \param x The x position of the Tile
-    /// \param y The y position of the Tile
+    /// @param x The x position of the Tile
+    /// @param y The y position of the Tile
     ///
-    /// \exception std::out_of_range If no tile within the range of the layer.
+    /// @exception std::out_of_range If no tile within the range of the layer.
     ///
-    /// \return Reference to the Tile.
+    /// @return Reference to the Tile.
     ///
     ////////////////////////////////////////////////////////////
     Layer::Tile& GetTile(unsigned int x, unsigned int y);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the layer, does not affect the opacity
+    /// @brief Change the color of the layer, does not affect the opacity
     ///
-    /// \param color sf::Color RGB value
+    /// @param color sf::Color RGB value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the opacity of the layer
+    /// @brief Change the opacity of the layer
     ///
-    /// \param opacity Float value between 0.0 to 1.0
+    /// @param opacity Float value between 0.0 to 1.0
     ///
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);
@@ -124,17 +124,17 @@ private:
 };
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for manage each Tile inside a Layer
+/// @brief Class for manage each Tile inside a Layer
 ///
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
 private:
     ////////////////////////////////////////////////////////////
-    /// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
+    /// @brief Constructor that receives the gid, tile_rect and a pointer to the tileset
     ///
-    /// \param gid       The global id of the tmx::TileSet::Tile attached.
-    /// \param tile_rect The global bounds of the tile.
-    /// \param tileset   A pointer to a tmx::TileSet to get the texture.
+    /// @param gid       The global id of the tmx::TileSet::Tile attached.
+    /// @param tile_rect The global bounds of the tile.
+    /// @param tileset   A pointer to a tmx::TileSet to get the texture.
     ///
     ////////////////////////////////////////////////////////////
     Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
@@ -142,44 +142,44 @@ private:
 
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Check if the tile is empty (Doesn't have a texture).
+    /// @brief Check if the tile is empty (Doesn't have a texture).
     ///
-    /// \return true if the tile is empty, false otherwise.
+    /// @return true if the tile is empty, false otherwise.
     ///
     ////////////////////////////////////////////////////////////
     bool empty() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Get the global bounds of the tile
+    /// @brief Get the global bounds of the tile
     ///
-    /// \return Global bounds of the tile
+    /// @return Global bounds of the tile
     ///
     ////////////////////////////////////////////////////////////
     sf::FloatRect GetGlobalBounds() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the tile, affect the opacity.
+    /// @brief Change the color of the tile, affect the opacity.
     ///
-    /// \param color sf::Color RGBA value
+    /// @param color sf::Color RGBA value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Add new property.
+    /// @brief Add new property.
     ///
-    /// \param name  The name of the property
-    /// \param value The value of the property
+    /// @param name  The name of the property
+    /// @param value The value of the property
     ///
     ////////////////////////////////////////////////////////////
     void AddProperty(const std::string& name, const std::string& value);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Return a property value given a name
+    /// @brief Return a property value given a name
     ///
-    /// \param name The name of the property
+    /// @param name The name of the property
     ///
-    /// \return Reference to the property value
+    /// @return Reference to the property value
     ///
     ////////////////////////////////////////////////////////////
     std::string& GetPropertyValue(const std::string& name);
@@ -205,7 +205,7 @@ private:
     void UpdateTexCoords();
 
  public:
-    /// \brief Visibility of the Tile
+    /// @brief Visibility of the Tile
     bool visible;
 };
 

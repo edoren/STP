@@ -41,21 +41,21 @@
 namespace tmx {
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for manage the TMX ImageLayers
+/// @brief Class for manage the TMX ImageLayers
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ImageLayer : public MapObject {
 private:
     ////////////////////////////////////////////////////////////
-    /// \brief Constructs a image layer given a name, width, height
+    /// @brief Constructs a image layer given a name, width, height
     ///        opacity, visible and image atributes
     ///
-    /// \param name    The name of the image layer
-    /// \param width   The width of the image layer in tiles
-    /// \param height  The height of the image layer in tiles
-    /// \param opacity Float value between 0.0 to 1.0
-    /// \param visible The visibility of the image layer
-    /// \param image   The tmx::Image of the image layer
+    /// @param name    The name of the image layer
+    /// @param width   The width of the image layer in tiles
+    /// @param height  The height of the image layer in tiles
+    /// @param opacity Float value between 0.0 to 1.0
+    /// @param visible The visibility of the image layer
+    /// @param image   The tmx::Image of the image layer
     ///
     ////////////////////////////////////////////////////////////
     ImageLayer(const std::string& name, unsigned int width,
@@ -63,25 +63,25 @@ private:
 
 public:
     ////////////////////////////////////////////////////////////
-    /// \brief Return sf::Texture attached to the image layer
+    /// @brief Return sf::Texture attached to the image layer
     ///
-    /// \return Pointer to a constant sf::Texture
+    /// @return Pointer to a constant sf::Texture
     ///
     ////////////////////////////////////////////////////////////
     const sf::Texture* GetTexture() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the image layer, does not affect the opacity
+    /// @brief Change the color of the image layer, does not affect the opacity
     ///
-    /// \param color sf::Color RGB value
+    /// @param color sf::Color RGB value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the opacity of the image layer
+    /// @brief Change the opacity of the image layer
     ///
-    /// \param opacity Float value between 0.0 to 1.0
+    /// @param opacity Float value between 0.0 to 1.0
     ///
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);

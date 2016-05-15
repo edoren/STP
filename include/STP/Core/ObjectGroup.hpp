@@ -47,21 +47,21 @@ namespace tmx {
 enum ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for manage the TMX ObjectGroups
+/// @brief Class for manage the TMX ObjectGroups
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ObjectGroup : public MapObject {
 private:
     ////////////////////////////////////////////////////////////
-    /// \brief Constructs a object group given a name, width, height
+    /// @brief Constructs a object group given a name, width, height
     ///        opacity, visible and hexcolor atributes
     ///
-    /// \param name     The name of the object group
-    /// \param width    The width of the object group in tiles
-    /// \param height   The height of the object group in tiles
-    /// \param opacity  Float value between 0.0 to 1.0
-    /// \param visible  The visibility of the object group
-    /// \param hexcolor Hexadecimal color used to display the objects in this group. (example value: 0x0000FF for blue)
+    /// @param name     The name of the object group
+    /// @param width    The width of the object group in tiles
+    /// @param height   The height of the object group in tiles
+    /// @param opacity  Float value between 0.0 to 1.0
+    /// @param visible  The visibility of the object group
+    /// @param hexcolor Hexadecimal color used to display the objects in this group. (example value: 0x0000FF for blue)
     ///
     ////////////////////////////////////////////////////////////
     ObjectGroup(const std::string& name, unsigned int width, unsigned int height,
@@ -75,25 +75,25 @@ public:
     class Object;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Add a new Object to the object group
+    /// @brief Add a new Object to the object group
     ///
-    /// \param newobject Object to be added
+    /// @param newobject Object to be added
     ///
     ////////////////////////////////////////////////////////////
     void AddObject(ObjectGroup::Object newobject);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the object group, does not affect the opacity
+    /// @brief Change the color of the object group, does not affect the opacity
     ///
-    /// \param color sf::Color RGB value
+    /// @param color sf::Color RGB value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Change the opacity of the object group
+    /// @brief Change the opacity of the object group
     ///
-    /// \param opacity Float value between 0.0 to 1.0
+    /// @param opacity Float value between 0.0 to 1.0
     ///
     ////////////////////////////////////////////////////////////
     void SetOpacity(float opacity);
@@ -108,26 +108,26 @@ private:
 };
 
 ////////////////////////////////////////////////////////////
-/// \brief Class for manage each Object inside of the ObjectGroup
+/// @brief Class for manage each Object inside of the ObjectGroup
 ///
 ////////////////////////////////////////////////////////////
 class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
  public:
     ////////////////////////////////////////////////////////////
-    /// \brief Construct a Object given a name, width, height
+    /// @brief Construct a Object given a name, width, height
     ///        rotation, visible and image atributes
     ///
-    /// \param name            The name of the object (An arbitrary string)
-    /// \param type            The type of the object (An arbitrary string)
-    /// \param x               The x coordinate of the object in pixels
-    /// \param y               The y coordinate of the object in pixels
-    /// \param width           The width of the object in pixels (defaults to 0)
-    /// \param height          The width of the object in pixels (defaults to 0)
-    /// \param rotation        The rotation of the object in degrees clockwise (defaults to 0)
-    /// \param visible         The visibility of the object
-    /// \param shape_type      The shape type of the object, see tmx::ObjectType
-    /// \param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
-    /// \param tile            Pointer to a tmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
+    /// @param name            The name of the object (An arbitrary string)
+    /// @param type            The type of the object (An arbitrary string)
+    /// @param x               The x coordinate of the object in pixels
+    /// @param y               The y coordinate of the object in pixels
+    /// @param width           The width of the object in pixels (defaults to 0)
+    /// @param height          The width of the object in pixels (defaults to 0)
+    /// @param rotation        The rotation of the object in degrees clockwise (defaults to 0)
+    /// @param visible         The visibility of the object
+    /// @param shape_type      The shape type of the object, see tmx::ObjectType
+    /// @param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
+    /// @param tile            Pointer to a tmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
     ///
     ////////////////////////////////////////////////////////////
     Object(const std::string& name, const std::string& type, int x, int y,
@@ -137,9 +137,9 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
 
  public:
     ////////////////////////////////////////////////////////////
-    /// \brief Change the color of the tile, affect the opacity.
+    /// @brief Change the color of the tile, affect the opacity.
     ///
-    /// \param color sf::Color RGBA value
+    /// @param color sf::Color RGBA value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
@@ -158,7 +158,7 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
     std::vector<sf::Vertex> vertices_;
 
  public:
-    /// \brief Visibility of the Object
+    /// @brief Visibility of the Object
     bool visible;
 };
 

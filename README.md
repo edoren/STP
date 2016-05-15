@@ -24,7 +24,7 @@ int main()
     tmx::TileMap map("path/to/my/file/map.tmx");
 
     map.ShowObjects(); // Display all the layer objects.
-    
+
     map.GetLayer("World").visible = false; // Hide a Layer named World
 
     // Start the game loop
