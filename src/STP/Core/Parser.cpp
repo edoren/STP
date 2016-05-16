@@ -270,7 +270,7 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
         std::string data = data_node.text().as_string();
 
         // Remove spaces
-        data.erase(std::remove_if(data.begin(), data.end(), std::isspace), data.end());
+        data.erase(std::remove_if(data.begin(), data.end(), ::isspace), data.end());
 
         // Check if the encoding attribute exists in data_node
         std::string encoding = data_node.attribute("encoding").as_string("");
@@ -411,6 +411,10 @@ ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap)
             // Tile Object
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
 
+            unsigned int flip_flag = (gid & (TileFlip::FLIP_HORIZONTAL |
+                                             TileFlip::FLIP_VERTICAL |
+                                             TileFlip::FLIP_DIAGONAL));
+
             gid &= ~(TileFlip::FLIP_HORIZONTAL |
                      TileFlip::FLIP_VERTICAL |
                      TileFlip::FLIP_DIAGONAL);
@@ -418,6 +422,7 @@ ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap)
             unsigned int id = gid - tilemap.GetTileSet(gid)->GetFirstGID();  // Tile local id
 
             Tile tile = tilemap.GetTileSet(gid)->GetTile(id);
+            tile.Flip(flip_flag);
 
             Object newobject(obj_name, obj_type, obj_x, obj_y,
                              obj_width, obj_height, obj_rotation,
