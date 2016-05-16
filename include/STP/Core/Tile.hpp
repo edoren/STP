@@ -24,107 +24,131 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_LAYER_HPP
-#define STP_LAYER_HPP
+#ifndef STP_TILE_HPP
+#define STP_TILE_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/Graphics/Drawable.hpp"
 
 #include "STP/Config.hpp"
-#include "STP/Core/TileSet.hpp"
-#include "STP/Core/MapObject.hpp"
+#include "STP/Core/Properties.hpp"
 
 namespace tmx {
 
-////////////////////////////////////////////////////////////
-/// @brief Class for manage the TMX Layers
-///
-////////////////////////////////////////////////////////////
-class STP_API Layer : public MapObject {
+class Parser;
+class TileSet;
+class Layer;
+
+enum TileFlip : unsigned int {
+    FLIP_HORIZONTAL = 0x80000000,
+    FLIP_VERTICAL = 0x40000000,
+    FLIP_DIAGONAL = 0x20000000
+};
+
+class STP_API Tile : public sf::Drawable {
 public:
     ////////////////////////////////////////////////////////////
     /// @brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
-    Layer();
+    Tile();
 
-private:
     ////////////////////////////////////////////////////////////
-    /// @brief Constructs a layer given a name, width, height,
-    ///        opacity and visible attributes
+    /// @brief Constructor that receives the gid, tile_rect and a pointer to the tileset
     ///
-    /// @param name    The name of the layer
-    /// @param width   The width of the layer in tiles
-    /// @param height  The height of the layer in tiles
-    /// @param opacity Float value between 0.0 to 1.0
-    /// @param visible The visibility of the layer
+    /// @param gid       The global id of the tmx::TileSet::Tile attached.
+    /// @param tile_rect The global bounds of the tile.
+    /// @param tileset   A pointer to a tmx::TileSet to get the texture.
     ///
     ////////////////////////////////////////////////////////////
-    Layer(const std::string& name, unsigned int width,
-          unsigned int height, float opacity, bool visible,
-          std::string orientation);
+    Tile(sf::Vector2f tile_pos, sf::Vector2f texture_pos = { 0.f, 0.f },
+         sf::Vector2f tile_size = {0.f, 0.f}, TileSet* tileset = nullptr);
 
 public:
     ////////////////////////////////////////////////////////////
-    /// @brief Returns the width in tiles.
+    /// @brief Check if the tile is empty (Doesn't have a texture).
     ///
-    /// @return The width of the layer in tiles.
+    /// @return true if the tile is empty, false otherwise.
     ///
     ////////////////////////////////////////////////////////////
-    unsigned int GetWidth() const;
+    bool empty() const;
 
     ////////////////////////////////////////////////////////////
-    /// @brief Returns the height in tiles.
-    ///
-    /// @return The height of the layer in tiles.
+    /// @brief Change the Tile position
     ///
     ////////////////////////////////////////////////////////////
-    unsigned int GetHeight() const;
+    void SetPosition(const sf::Vector2f& pos);
 
     ////////////////////////////////////////////////////////////
-    /// @brief Get the tile given a coordinate. Left-Up tile is (0, 0).
-    ///
-    /// @param x The x position of the Tile
-    /// @param y The y position of the Tile
-    ///
-    /// @exception std::out_of_range If no tile within the range of the layer.
-    ///
-    /// @return Reference to the Tile.
+    /// @brief Flip the Tile in the direction specified
     ///
     ////////////////////////////////////////////////////////////
-    Tile& GetTile(unsigned int x, unsigned int y);
+    Tile& Flip(unsigned int flags);
 
     ////////////////////////////////////////////////////////////
-    /// @brief Change the color of the layer, does not affect the opacity
+    /// @brief Return the size of the Tile
     ///
-    /// @param color sf::Color RGB value
+    /// @return Return the size, if empty return sf::Vector2f(0, 0)
+    ///
+    ////////////////////////////////////////////////////////////
+    sf::Vector2f GetSize() const;
+
+    ////////////////////////////////////////////////////////////
+    /// @brief Return the texture attached to the Tile
+    ///
+    /// @return Return a sf::Texture, if empty return nullptr
+    ///
+    ////////////////////////////////////////////////////////////
+    const sf::Texture* GetTexture() const;
+
+    ////////////////////////////////////////////////////////////
+    /// @brief Change the color of the tile, affect the opacity.
+    ///
+    /// @param color sf::Color RGBA value
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
 
     ////////////////////////////////////////////////////////////
-    /// @brief Change the opacity of the layer
+    /// @brief Add new property.
     ///
-    /// @param opacity Float value between 0.0 to 1.0
+    /// @param name  The name of the property
+    /// @param value The value of the property
     ///
     ////////////////////////////////////////////////////////////
-    void SetOpacity(float opacity);
+    void AddProperty(const std::string& name, const std::string& value);
+
+    ////////////////////////////////////////////////////////////
+    /// @brief Return a property value given a name
+    ///
+    /// @param name The name of the property
+    ///
+    /// @return Reference to the property value
+    ///
+    ////////////////////////////////////////////////////////////
+    std::string& GetPropertyValue(const std::string& name);
 
 private:
-    friend class Parser;
-
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    std::vector<Tile> tiles_;
-    std::string orientation_;
+public:
+    friend TileSet;
+    friend Layer;
+    friend Parser;
+
+    sf::Vertex vertices_[4];
+    std::shared_ptr<Properties> properties_; // shared_ptr
+    const sf::Texture* texture_;
+
+public:
+    /// @brief Visibility of the Tile
+    bool visible;
 };
 
 }  // namespace tmx
 
-#endif  // STP_LAYER_HPP
+#endif  // STP_TILE_HPP

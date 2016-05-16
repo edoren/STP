@@ -43,7 +43,6 @@ TileSet::TileSet() :
 
 TileSet::TileSet(const TileSet & other) :
         firstgid_(other.firstgid_),
-        lastgid_(other.lastgid_),
         name_(other.name_),
         tilewidth_(other.tilewidth_),
         tileheight_(other.tileheight_),
@@ -53,7 +52,7 @@ TileSet::TileSet(const TileSet & other) :
         tileoffset_(other.tileoffset_),
         tiles_(other.tiles_) {
     for (auto& tile : tiles_) {
-        tile.parent_ = this;
+        tile.texture_ = image_.GetTexture();
     }
 }
 
@@ -68,56 +67,27 @@ TileSet::TileSet(unsigned int firstgid, const std::string& name, unsigned int ti
         margin_(margin),
         image_(image),
         tileoffset_(tileoffset) {
-    unsigned int width_no_spacing = 0;
-    unsigned int height_no_spacing = 0;
-    unsigned int width_no_margin = image_.GetWidth() - (margin_ * 2);
-    unsigned int height_no_margin =  image_.GetHeight() - (margin_ * 2);
-    if (spacing != 0) {
-        for (unsigned int i = 0; i <= width_no_margin; i += tilewidth + spacing_) {
-            width_no_spacing += tilewidth;
-        }
-        for (unsigned int i = 0; i <= height_no_margin; i += tileheight + spacing_) {
-            height_no_spacing += tileheight;
-        }
-    } else {
-        width_no_spacing = width_no_margin;
-        height_no_spacing = height_no_margin;
-    }
-    lastgid_ = firstgid + (width_no_spacing / tilewidth) * (height_no_spacing / tileheight) - 1;
-
+    columns_ = (image_.GetWidth() - (margin_ * 2) + spacing_) / (tilewidth_ + spacing_);
+    unsigned int rows = (image_.GetHeight() - (margin_ * 2) + spacing_) / (tileheight_ + spacing_);
     // Add each tile to the TileSet
-    unsigned int tile_amount = lastgid_ - firstgid_ + 1;
-    sf::Vector2u cont;
-    sf::Vector2u tile_pos;
-    tiles_.reserve(tile_amount);
-    for (unsigned int i = 0; i < tile_amount; ++i) {
-        tile_pos.x = (cont.x * tilewidth_) + (spacing_ * cont.x) + margin_;
-        tile_pos.y = (cont.y * tileheight_) + (spacing_ * cont.y) + margin_;
-        sf::IntRect texture_rect(tile_pos.x, tile_pos.y, tilewidth_, tileheight_);
+    tilecount_ = columns_ * rows;
+    sf::Vector2f texture_pos;
+    tiles_.reserve(tilecount_);
+    for (unsigned int i = 0; i < tilecount_; ++i) {
+        texture_pos.x = static_cast<float>((i % columns_) * (tilewidth_ + spacing_) + margin_);
+        texture_pos.y = static_cast<float>((i / columns_) * (tileheight_ + spacing_) + margin_);
 
-        tiles_.push_back(TileSet::Tile(i, texture_rect, this));
-
-        cont.x = (cont.x + 1) % (width_no_spacing / tilewidth_);
-        if (cont.x == 0) cont.y += 1;
+        tiles_.emplace_back(sf::Vector2f(0.f, 0.f), sf::Vector2f(texture_pos), sf::Vector2f(tilewidth_, tileheight_), this);
     }
 }
 
-TileSet::Tile& TileSet::GetTile(unsigned int id) {
+Tile& TileSet::GetTile(unsigned int id) {
     if (id >= tiles_.size()) {
         char error[100];
         sprintf(error, "Error: tile local id %u out of range.\n", id);
         throw std::out_of_range(error);
     }
     return tiles_[id];
-}
-
-sf::IntRect TileSet::GetTextureRect(unsigned int id) const {
-    if (id >= tiles_.size()) {
-        char error[100];
-        sprintf(error, "Error: tile local id %u out of range.\n", id);
-        throw std::out_of_range(error);
-    }
-    return tiles_[id].GetTextureRect();
 }
 
 const sf::Texture* TileSet::GetTexture() const {
@@ -142,28 +112,6 @@ unsigned int TileSet::GetTileHeight() const {
 
 unsigned int TileSet::GetFirstGID() const {
     return firstgid_;
-}
-
-unsigned int TileSet::GetLastGID() const {
-    return lastgid_;
-}
-
-////////////////////////////////////////////////////////////
-// TileSet::Tile implementation
-////////////////////////////////////////////////////////////
-
-TileSet::Tile::Tile(unsigned int id, sf::IntRect texture_rect, const TileSet* parent) :
-        id_(id),
-        parent_(parent),
-        texture_rect_(texture_rect) {
-}
-
-const sf::Texture* TileSet::Tile::GetTexture() const {
-    return parent_->GetTexture();
-}
-
-sf::IntRect TileSet::Tile::GetTextureRect() const {
-    return texture_rect_;
 }
 
 }  // namespace tmx

@@ -44,9 +44,10 @@ TileMap::TileMap() :
 
 TileSet* TileMap::GetTileSet(unsigned int gid) {
     if (gid == 0) return nullptr;
-    for (unsigned int i = 0; i < tilesets_.size(); ++i) {
-        if (gid >= tilesets_[i]->GetFirstGID() && gid <= tilesets_[i]->GetLastGID())
-            return tilesets_[i].get();
+    for (auto tileset: tilesets_){
+        if (tileset->GetFirstGID() <= gid) {
+            return tileset.get();
+        }
     }
     return nullptr;
 }

@@ -44,6 +44,21 @@
 
 namespace tmx {
 
+// TODO: render order
+enum class MapRenderOrder {
+    RIGHT_DOWN,
+    RIGHT_UP,
+    LEFT_DOWN,
+    LEFT_UP
+};
+
+enum class MapOrientation {
+    ORTOGONAL,
+    ISOMETRIC,
+    STAGGERED,
+    HEXAGONAL  // TODO: support hexagonal maps
+};
+
 ////////////////////////////////////////////////////////////
 /// @brief Main class to manage the TMX Map Format
 ///
@@ -55,6 +70,7 @@ public:
     TileMap& operator=(TileMap&&) = default;
 
 private:
+    // TODO: Map copy constructor support
     TileMap(const TileMap& other) = delete;
     TileMap& operator=(const TileMap&) = delete;
 

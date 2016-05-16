@@ -38,6 +38,7 @@
 #include "STP/Config.hpp"
 #include "STP/Core/Properties.hpp"
 #include "STP/Core/Image.hpp"
+#include "STP/Core/Tile.hpp"
 
 namespace tmx {
 
@@ -47,8 +48,6 @@ namespace tmx {
 ////////////////////////////////////////////////////////////
 class STP_API TileSet : public Properties {
 public:
-    class Tile;
-
     ////////////////////////////////////////////////////////////
     /// @brief Default constructor
     ///
@@ -90,20 +89,7 @@ public:
     /// @return Reference to the Tile.
     ///
     ////////////////////////////////////////////////////////////
-    TileSet::Tile& GetTile(unsigned int id);
-
-    ////////////////////////////////////////////////////////////
-    /// @brief Returns a sf::IntRect with the position of the
-    ///        tile texture in the attached image
-    ///
-    /// @param id The local id of the tile
-    ///
-    /// @exception std::out_of_range If the local id is not within the range of the tileset.
-    ///
-    /// @return The position of the tile texture in the image
-    ///
-    ////////////////////////////////////////////////////////////
-    sf::IntRect GetTextureRect(unsigned int id) const;
+    Tile& GetTile(unsigned int id);
 
     ////////////////////////////////////////////////////////////
     /// @brief Returns the texture attached to the tileset
@@ -153,65 +139,22 @@ public:
     ////////////////////////////////////////////////////////////
     unsigned int GetFirstGID() const;
 
-    ////////////////////////////////////////////////////////////
-    /// @brief Returns the last global tile ID of this tileset
-    ///
-    /// @return Global tile ID of the last tile in this tileset
-    ///
-    ////////////////////////////////////////////////////////////
-    unsigned int GetLastGID() const;
-
 private:
     friend class Parser;
 
-    unsigned int firstgid_, lastgid_;
+    unsigned int firstgid_;
     std::string name_;
-    unsigned int tilewidth_, tileheight_, spacing_, margin_;
-    unsigned int width_no_spacing_, height_no_spacing_;
+    unsigned int tilewidth_;
+    unsigned int tileheight_;
+    unsigned int spacing_;
+    unsigned int margin_;
+    unsigned int tilecount_;
+    unsigned int columns_;
+    unsigned int rows_;
     Image image_;
     sf::Vector2i tileoffset_;
 
-    std::vector<TileSet::Tile> tiles_;
-};
-
-
-////////////////////////////////////////////////////////////
-/// @brief Class for manage each Tile inside the TileSet
-///
-////////////////////////////////////////////////////////////
-class STP_API TileSet::Tile : public Properties {
-public:
-    ////////////////////////////////////////////////////////////
-    /// @brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    Tile();
-    Tile(unsigned int id, sf::IntRect texture_rect, const TileSet* parent);
-
-    ////////////////////////////////////////////////////////////
-    /// @brief Returns the texture where is the Tile.
-    ///
-    /// @return Pointer to a constant sf::Texture
-    ///
-    ////////////////////////////////////////////////////////////
-    const sf::Texture* GetTexture() const;
-
-    ////////////////////////////////////////////////////////////
-    /// @brief Returns a sf::IntRect with the position of the
-    ///        tile texture in the attached image
-    ///
-    /// @return The position of the tile texture in the image
-    ///
-    ////////////////////////////////////////////////////////////
-    sf::IntRect GetTextureRect() const;
-
-private:
-    friend class TileSet;
-
-private:
-    unsigned int id_;
-    const TileSet* parent_;
-    sf::IntRect texture_rect_;
+    std::vector<Tile> tiles_;
 };
 
 }  // namespace tmx

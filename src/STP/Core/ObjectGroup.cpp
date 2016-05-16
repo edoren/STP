@@ -48,7 +48,7 @@ ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned i
     color_.a = static_cast<unsigned char>(255 * opacity);
 }
 
-void ObjectGroup::AddObject(ObjectGroup::Object newobject) {
+void ObjectGroup::AddObject(Object newobject) {
     newobject.SetColor(color_);
     objects_.push_back(newobject);
 }
@@ -80,19 +80,19 @@ void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 // ObjectGroup::Object implementation
 ////////////////////////////////////////////////////////////
 
-ObjectGroup::Object::Object() :
+Object::Object() :
     x_(0),
     y_(0),
     width_(0),
     height_(0),
     rotation_(0.f),
-    tile_(nullptr),
+    tile_(),
     visible(true) {
 }
 
-ObjectGroup::Object::Object(const std::string& name, const std::string& type, int x, int y,
+Object::Object(const std::string& name, const std::string& type, int x, int y,
                unsigned int width, unsigned int height, float rotation, bool visible,
-               ObjectType shape_type, const std::string& vertices_points, TileSet::Tile* tile) :
+               ObjectType shape_type, const std::string& vertices_points, Tile tile) :
         name_(name),
         type_(type),
         x_(x),
@@ -140,33 +140,21 @@ ObjectGroup::Object::Object(const std::string& name, const std::string& type, in
             vertices_.push_back(sf::Vertex(sf::Vector2f(x, y)));
         }
     } else if (shape_type == ObjectType::Tile) {
-        sf::FloatRect tile_rect = static_cast<sf::FloatRect>(tile->GetTextureRect());
-
-        vertices_.resize(4);
-
-        vertices_[0].position = sf::Vector2f(left, top);
-        vertices_[1].position = sf::Vector2f(left + tile_rect.width, top);
-        vertices_[2].position = sf::Vector2f(left + tile_rect.width, top + tile_rect.height);
-        vertices_[3].position = sf::Vector2f(left, top + tile_rect.height);
-
-        vertices_[0].texCoords = sf::Vector2f(tile_rect.left, tile_rect.top);
-        vertices_[1].texCoords = sf::Vector2f(tile_rect.left + tile_rect.width, tile_rect.top);
-        vertices_[2].texCoords = sf::Vector2f(tile_rect.left + tile_rect.height, tile_rect.top + tile_rect.height);
-        vertices_[3].texCoords = sf::Vector2f(tile_rect.left, tile_rect.top + tile_rect.height);
+        tile_.SetPosition(sf::Vector2f(left, top - height));
     }
 }
 
-void ObjectGroup::Object::SetColor(const sf::Color& color) {
+void Object::SetColor(const sf::Color& color) {
     for (auto& vertice : vertices_) {
         vertice.color = color;
     }
 }
 
-void ObjectGroup::Object::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void Object::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     if (visible) {
-        if (tile_) {
-            states.texture = tile_->GetTexture();
-            target.draw(&vertices_[0], vertices_.size(), sf::Quads, states);
+        if (!tile_.empty()) {
+            states.texture = tile_.GetTexture();
+            target.draw(tile_);
         } else {
             target.draw(&vertices_[0], vertices_.size(), sf::LinesStrip);
         }

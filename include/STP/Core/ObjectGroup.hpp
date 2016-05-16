@@ -47,6 +47,70 @@ namespace tmx {
 enum class ObjectType { Rectangle, Ellipse, Polygon, Polyline, Tile };
 
 ////////////////////////////////////////////////////////////
+/// @brief Class for manage each Object inside of the ObjectGroup
+///
+////////////////////////////////////////////////////////////
+class STP_API Object : public sf::Drawable, public Properties {
+public:
+    ////////////////////////////////////////////////////////////
+    /// @brief Default constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    Object();
+
+private:
+    ////////////////////////////////////////////////////////////
+    /// @brief Construct a Object given a name, width, height
+    ///        rotation, visible and image atributes
+    ///
+    /// @param name            The name of the object (An arbitrary string)
+    /// @param type            The type of the object (An arbitrary string)
+    /// @param x               The x coordinate of the object in pixels
+    /// @param y               The y coordinate of the object in pixels
+    /// @param width           The width of the object in pixels (defaults to 0)
+    /// @param height          The width of the object in pixels (defaults to 0)
+    /// @param rotation        The rotation of the object in degrees clockwise (defaults to 0)
+    /// @param visible         The visibility of the object
+    /// @param shape_type      The shape type of the object, see tmx::ObjectType
+    /// @param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
+    /// @param tile            Pointer to a tmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
+    ///
+    ////////////////////////////////////////////////////////////
+    Object(const std::string& name, const std::string& type, int x, int y,
+           unsigned int width, unsigned int height, float rotation, bool visible,
+           ObjectType shape_type, const std::string& vertices_points = std::string(),
+           Tile tile = Tile());
+
+public:
+    ////////////////////////////////////////////////////////////
+    /// @brief Change the color of the tile, affect the opacity.
+    ///
+    /// @param color sf::Color RGBA value
+    ///
+    ////////////////////////////////////////////////////////////
+    void SetColor(const sf::Color& color);
+
+private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+private:
+    friend class Parser;
+
+    std::string name_;
+    std::string type_;
+    unsigned int x_, y_;
+    unsigned int width_, height_;
+    float rotation_;
+
+    Tile tile_;
+    std::vector<sf::Vertex> vertices_;
+
+public:
+    /// @brief Visibility of the Object
+    bool visible;
+};
+
+////////////////////////////////////////////////////////////
 /// @brief Class for manage the TMX ObjectGroups
 ///
 ////////////////////////////////////////////////////////////
@@ -76,18 +140,12 @@ private:
 
 public:
     ////////////////////////////////////////////////////////////
-    /// Nested classes
-    ///
-    ////////////////////////////////////////////////////////////
-    class Object;
-
-    ////////////////////////////////////////////////////////////
     /// @brief Add a new Object to the object group
     ///
     /// @param newobject Object to be added
     ///
     ////////////////////////////////////////////////////////////
-    void AddObject(ObjectGroup::Object newobject);
+    void AddObject(Object newobject);
 
     ////////////////////////////////////////////////////////////
     /// @brief Change the color of the object group, does not affect the opacity
@@ -111,69 +169,7 @@ private:
 private:
     friend class Parser;
 
-    std::vector<ObjectGroup::Object> objects_;
-};
-
-////////////////////////////////////////////////////////////
-/// @brief Class for manage each Object inside of the ObjectGroup
-///
-////////////////////////////////////////////////////////////
-class STP_API ObjectGroup::Object : public sf::Drawable, public Properties {
-public:
-    ////////////////////////////////////////////////////////////
-    /// @brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    Object();
-
-public:
-    ////////////////////////////////////////////////////////////
-    /// @brief Construct a Object given a name, width, height
-    ///        rotation, visible and image atributes
-    ///
-    /// @param name            The name of the object (An arbitrary string)
-    /// @param type            The type of the object (An arbitrary string)
-    /// @param x               The x coordinate of the object in pixels
-    /// @param y               The y coordinate of the object in pixels
-    /// @param width           The width of the object in pixels (defaults to 0)
-    /// @param height          The width of the object in pixels (defaults to 0)
-    /// @param rotation        The rotation of the object in degrees clockwise (defaults to 0)
-    /// @param visible         The visibility of the object
-    /// @param shape_type      The shape type of the object, see tmx::ObjectType
-    /// @param vertices_points String containing a list of coordinates (example: "0,0 17,17 -14,18")
-    /// @param tile            Pointer to a tmx::TileSet::Tile, only used when is a Tile-Object, otherwise is nullptr.
-    ///
-    ////////////////////////////////////////////////////////////
-    Object(const std::string& name, const std::string& type, int x, int y,
-           unsigned int width, unsigned int height, float rotation, bool visible,
-           ObjectType shape_type, const std::string& vertices_points = std::string(),
-           TileSet::Tile* tile = nullptr);
-
-public:
-    ////////////////////////////////////////////////////////////
-    /// @brief Change the color of the tile, affect the opacity.
-    ///
-    /// @param color sf::Color RGBA value
-    ///
-    ////////////////////////////////////////////////////////////
-    void SetColor(const sf::Color& color);
-
-private:
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-
-private:
-    std::string name_;
-    std::string type_;
-    unsigned int x_, y_;
-    unsigned int width_, height_;
-    float rotation_;
-
-    TileSet::Tile* tile_;
-    std::vector<sf::Vertex> vertices_;
-
-public:
-    /// @brief Visibility of the Object
-    bool visible;
+    std::vector<Object> objects_;
 };
 
 }  // namespace tmx

@@ -54,7 +54,7 @@ unsigned int Layer::GetHeight() const {
     return height_;
 }
 
-Layer::Tile& Layer::GetTile(unsigned int x, unsigned int y) {
+Tile& Layer::GetTile(unsigned int x, unsigned int y) {
     if (x >= width_ || y >= height_) {
         char error[100];
         sprintf(error, "Error: tile (%u, %u) out of range.\n", x, y);
@@ -86,118 +86,6 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     if (visible) {
         for (unsigned int i = 0; i < tiles_.size(); ++i)
             target.draw(tiles_[i]);
-    }
-}
-
-////////////////////////////////////////////////////////////
-// Layer::Tile implementation
-////////////////////////////////////////////////////////////
-
-Layer::Tile::Tile() :
-    gid_(0),
-    tile_properties_(nullptr),
-    texture_(nullptr),
-    visible(true) {
-}
-
-Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation, TileSet* tileset) :
-        gid_(gid),
-        tile_rect_(tile_rect),
-        tile_properties_(nullptr),
-        texture_(nullptr),
-        texture_rect_(),
-        visible(true) {
-    if (tileset) {
-        unsigned int id = gid - tileset->GetFirstGID();  // The local id of the tile in the tileset
-
-        texture_ = tileset->GetTexture();
-        texture_rect_ = tileset->GetTextureRect(id);
-        tile_properties_ = &tileset->GetTile(id);
-    }
-
-    if (orientation != "orthogonal" && tile_rect.width != 0 && tile_rect_.height != 0) {
-        int x = tile_rect_.left / tile_rect_.width;
-        int y = tile_rect_.top / tile_rect_.height;
-
-        if (orientation == "isometric") {
-            tile_rect_.left = (x-y) * tile_rect_.width * 0.5;
-            tile_rect_.top = (x+y) * tile_rect_.height * 0.5;
-        }
-
-        if (orientation == "staggered") {
-            if ((y % 2) == 0) {
-                tile_rect_.left = x * tile_rect_.width;
-            }
-            else {
-                tile_rect_.left = x * tile_rect_.width + tile_rect_.width /2;
-            }
-            tile_rect_.top = y * tile_rect_.height / 2;
-        }
-    }
-    else if (tile_rect_.width == 0 || tile_rect_.height == 0)
-    {
-        tile_rect_.width = texture_rect_.width;
-        tile_rect_.height = texture_rect_.height;
-    }
-
-    UpdatePositions();
-    UpdateTexCoords();
-}
-
-void Layer::Tile::UpdatePositions() {
-    sf::FloatRect bounds = GetGlobalBounds();
-
-    vertices_[0].position = sf::Vector2f(bounds.left, bounds.top);
-    vertices_[1].position = sf::Vector2f(bounds.left + texture_rect_.width, bounds.top);
-    vertices_[2].position = sf::Vector2f(bounds.left + texture_rect_.width, bounds.top + texture_rect_.height);
-    vertices_[3].position = sf::Vector2f(bounds.left, bounds.top + texture_rect_.height);
-}
-
-void Layer::Tile::UpdateTexCoords() {
-    float left   = static_cast<float>(texture_rect_.left);
-    float right  = left + texture_rect_.width;
-    float top    = static_cast<float>(texture_rect_.top);
-    float bottom = top + texture_rect_.height;
-
-    vertices_[0].texCoords = sf::Vector2f(left, top);
-    vertices_[1].texCoords = sf::Vector2f(right, top);
-    vertices_[2].texCoords = sf::Vector2f(right, bottom);
-    vertices_[3].texCoords = sf::Vector2f(left, bottom);
-}
-
-sf::FloatRect Layer::Tile::GetGlobalBounds() const {
-    float left = static_cast<float>(tile_rect_.left);
-    float top = static_cast<float>(tile_rect_.top);
-    float width = static_cast<float>(tile_rect_.width);
-    float height = static_cast<float>(tile_rect_.height);
-
-    return sf::FloatRect(left, top, width, height);
-}
-
-bool Layer::Tile::empty() const {
-    if (gid_ == 0 || !texture_) return true;
-    else return false;
-}
-
-void Layer::Tile::SetColor(const sf::Color& color) {
-    vertices_[0].color = color;
-    vertices_[1].color = color;
-    vertices_[2].color = color;
-    vertices_[3].color = color;
-}
-
-void Layer::Tile::AddProperty(const std::string& name, const std::string& value) {
-    tile_properties_->AddProperty(name, value);
-}
-
-std::string& Layer::Tile::GetPropertyValue(const std::string& name) {
-    return tile_properties_->GetPropertyValue(name);
-}
-
-void Layer::Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    if (texture_ && visible) {
-        states.texture = texture_;
-        target.draw(vertices_, 4, sf::Quads, states);
     }
 }
 

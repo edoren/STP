@@ -42,10 +42,6 @@
 
 using namespace pugi;
 
-const unsigned int FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-const unsigned int FLIPPED_VERTICALLY_FLAG = 0x40000000;
-const unsigned int FLIPPED_DIAGONALLY_FLAG = 0x20000000;
-
 namespace tmx {
 
 Parser::Parser() : tmx_document_(), working_dir_("./") {
@@ -90,7 +86,7 @@ TileMap Parser::GetMap() {
         std::string node_name = node.name();
         // Call the respective parse function for each node
         if (node_name == "tileset") {
-            auto newtileset = ParseTileSet(node, map);
+            std::shared_ptr<TileSet> newtileset = ParseTileSet(node, map);
             map.tilesets_.push_back(newtileset);
             map.tilesets_hash_[newtileset->GetName()] = newtileset;
         } else if (node_name == "layer") {
@@ -110,8 +106,6 @@ TileMap Parser::GetMap() {
 
     // Parse the map properties
     ParseProperties(map_node, &map);
-
-    map.ShowObjects(false);
 
     return map;
 }
@@ -243,7 +237,7 @@ std::shared_ptr<TileSet> Parser::ParseTileSet(xml_node& tileset_node, TileMap& t
     // Parse each tile property
     for (xml_node& tile_node : tileset_node_.children("tile")) {
         unsigned int id = tile_node.attribute("id").as_uint();
-        ParseProperties(tile_node, &tileset->GetTile(id));
+        ParseProperties(tile_node, tileset->GetTile(id).properties_.get());
     }
 
     // Parse the tileset properties
@@ -275,7 +269,7 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
     if (data_node) {
         std::string data = data_node.text().as_string();
 
-        // remove spaces
+        // Remove spaces
         data.erase(std::remove_if(data.begin(), data.end(), std::isspace), data.end());
 
         // Check if the encoding attribute exists in data_node
@@ -316,39 +310,60 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
         }
 
         // Add each tile to the Layer
-        sf::Vector2i tile_pos;
+        sf::Vector2f tile_pos;
         unsigned int count_x = 0;
         unsigned int count_y = 0;
         unsigned int tilewidth = tilemap.GetTileWidth();
         unsigned int tileheight = tilemap.GetTileHeight();
 
         for (unsigned int gid : layer_data) {
-            tile_pos = sf::Vector2i(count_x * tilewidth, count_y * tileheight);
+            tile_pos = sf::Vector2f(
+                static_cast<float>(count_x * tilewidth),
+                static_cast<float>(count_y * tileheight)
+            );
 
-            gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
-                     FLIPPED_VERTICALLY_FLAG |
-                     FLIPPED_DIAGONALLY_FLAG);
+            unsigned int flip_flag = (gid & (TileFlip::FLIP_HORIZONTAL |
+                                             TileFlip::FLIP_VERTICAL |
+                                             TileFlip::FLIP_DIAGONAL));
 
+            gid &= ~(TileFlip::FLIP_HORIZONTAL |
+                     TileFlip::FLIP_VERTICAL |
+                     TileFlip::FLIP_DIAGONAL);
+
+            Tile tile_cpy;
             TileSet* tileset = tilemap.GetTileSet(gid);
-            sf::IntRect tile_rect;
-
             if (tileset != nullptr) {
                 tile_pos.x += tileset->GetTileOffSet().x;
                 tile_pos.y += tileset->GetTileOffSet().y;
-                tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, tilewidth, tileheight);
-            } else {
-                tile_rect = sf::IntRect(tile_pos.x, tile_pos.y, 0, 0);
+                tile_cpy = tileset->GetTile(gid - tileset->GetFirstGID());
+
+                if (tilemap.GetOrientation() != "orthogonal") {
+                    int x = static_cast<int>(tile_pos.x / tilewidth);
+                    int y = static_cast<int>(tile_pos.y / tileheight);
+
+                    if (tilemap.GetOrientation() == "isometric") {
+                        tile_pos.x = (x - y) * tilewidth * 0.5f;
+                        tile_pos.y = (x + y) * tileheight * 0.5f;
+                    } else if (tilemap.GetOrientation() == "staggered") {
+                        if (y % 2 == 0) {
+                            tile_pos.x = static_cast<float>(x * tilewidth);
+                        } else {
+                            tile_pos.x = static_cast<float>(x * tilewidth + tilewidth / 2.f);
+                        }
+                        tile_pos.y = static_cast<float>(y * tileheight / 2.f);
+                    }
+                }
             }
 
-            Layer::Tile tile(gid, tile_rect, layer.orientation_, tileset);
-            tile.SetColor(layer.color_);
-            layer.tiles_.push_back(std::move(tile));
+            tile_cpy.SetPosition(tile_pos);
+            tile_cpy.SetColor(layer.color_);
+            tile_cpy.Flip(flip_flag);
+
+            layer.tiles_.push_back(std::move(tile_cpy));
 
             count_x = (count_x + 1) % width;
             if (count_x == 0) count_y += 1;
         }
-
-
     }
 
     return layer;
@@ -396,30 +411,30 @@ ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap)
             // Tile Object
             unsigned int gid = attribute_gid.as_uint();  // Tile global id
 
-            gid &= ~(FLIPPED_HORIZONTALLY_FLAG |
-                     FLIPPED_VERTICALLY_FLAG |
-                     FLIPPED_DIAGONALLY_FLAG);
+            gid &= ~(TileFlip::FLIP_HORIZONTAL |
+                     TileFlip::FLIP_VERTICAL |
+                     TileFlip::FLIP_DIAGONAL);
 
             unsigned int id = gid - tilemap.GetTileSet(gid)->GetFirstGID();  // Tile local id
 
-            TileSet::Tile* tile = &(tilemap.GetTileSet(gid)->GetTile(id));
+            Tile tile = tilemap.GetTileSet(gid)->GetTile(id);
 
-            ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
-                                               obj_width, obj_height, obj_rotation,
-                                               obj_visible, ObjectType::Tile, "", tile);
+            Object newobject(obj_name, obj_type, obj_x, obj_y,
+                             obj_width, obj_height, obj_rotation,
+                             obj_visible, ObjectType::Tile, "", tile);
             ParseProperties(obj_node, &newobject);
             obj_group.AddObject(newobject);
         } else if (obj_width && obj_height) {
             if (obj_node.child("ellipse")) {
                 // Ellipse Object
-                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+               Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
                                                    obj_visible, ObjectType::Ellipse);
                 ParseProperties(obj_node, &newobject);
                 obj_group.AddObject(newobject);
             } else {
                 // Rectangle Object
-                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
                                                    obj_visible, ObjectType::Rectangle);
                 ParseProperties(obj_node, &newobject);
@@ -431,7 +446,7 @@ ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap)
             if (polygon_node) {
                 // Polygon Object
                 std::string vertices_points = polygon_node.attribute("points").as_string();
-                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
                                                    obj_visible, ObjectType::Polygon, vertices_points);
                 ParseProperties(obj_node, &newobject);
@@ -439,7 +454,7 @@ ObjectGroup Parser::ParseObjectGroup(xml_node& obj_group_node, TileMap& tilemap)
             } else if (polyline_node) {
                 // Polyline Object
                 std::string vertices_points = polyline_node.attribute("points").as_string();
-                ObjectGroup::Object newobject(obj_name, obj_type, obj_x, obj_y,
+                Object newobject(obj_name, obj_type, obj_x, obj_y,
                                                    obj_width, obj_height, obj_rotation,
                                                    obj_visible, ObjectType::Polyline, vertices_points);
                 ParseProperties(obj_node, &newobject);
