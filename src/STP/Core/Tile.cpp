@@ -27,6 +27,7 @@
 #include "STP/Core/Tile.hpp"
 #include "STP/Core/TileSet.hpp"
 
+#include <cmath>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -89,8 +90,8 @@ Tile& Tile::Flip(unsigned int flags) {
 
 sf::Vector2f Tile::GetSize() const {
     return sf::Vector2f(
-        vertices_[1].texCoords.x - vertices_[0].texCoords.x,
-        vertices_[2].texCoords.y - vertices_[0].texCoords.y
+        std::abs(vertices_[1].texCoords.x - vertices_[0].texCoords.x),
+        std::abs(vertices_[2].texCoords.y - vertices_[0].texCoords.y)
     );
 }
 
