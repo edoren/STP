@@ -69,7 +69,7 @@ void ObjectGroup::SetColor(const sf::Color& color) {
     }
 }
 
-void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates /* states */) const {
     if (visible) {
         for (unsigned int i = 0; i < objects_.size(); ++i)
             target.draw(objects_[i]);
