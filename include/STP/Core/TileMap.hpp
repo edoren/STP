@@ -44,15 +44,15 @@
 namespace tmx {
 
 // TODO: render order
-enum class MapRenderOrder {
+enum class MapRenderOrder : unsigned int {
     RIGHT_DOWN,
     RIGHT_UP,
     LEFT_DOWN,
     LEFT_UP
 };
 
-enum class MapOrientation {
-    ORTOGONAL,
+enum class MapOrientation : unsigned int {
+    ORTHOGONAL,
     ISOMETRIC,
     STAGGERED,
     HEXAGONAL  // TODO: support hexagonal maps
@@ -72,6 +72,13 @@ private:
     // TODO: Map copy constructor support
     TileMap(const TileMap& other) = delete;
     TileMap& operator=(const TileMap&) = delete;
+
+    TileMap(MapOrientation orientation,
+            MapRenderOrder renderorder,
+            unsigned int width,
+            unsigned int height,
+            unsigned int tilewidth,
+            unsigned int tileheight);
 
 public:
     ////////////////////////////////////////////////////////////
@@ -170,10 +177,10 @@ public:
     ////////////////////////////////////////////////////////////
     /// @brief Return the orientation of the map
     ///
-    /// @return The orienation of the map as std::string
+    /// @return The orienation of the map as MapOrientation
     ///
     ////////////////////////////////////////////////////////////
-    const std::string& GetOrientation() const;
+    MapOrientation GetOrientation() const;
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -181,8 +188,12 @@ private:
 private:
     friend class Parser;
 
-    std::string orientation_;
-    unsigned int width_, height_, tilewidth_, tileheight_;
+    MapOrientation orientation_;
+    MapRenderOrder renderorder_;
+    unsigned int width_;
+    unsigned int height_;
+    unsigned int tilewidth_;
+    unsigned int tileheight_;
 
     std::unordered_map<std::string, Layer> layers_;
     std::unordered_map<std::string, ObjectGroup> object_groups_;

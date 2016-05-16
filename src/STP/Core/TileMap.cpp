@@ -36,10 +36,26 @@
 namespace tmx {
 
 TileMap::TileMap() :
-    width_(0),
-    height_(0),
-    tilewidth_(0),
-    tileheight_(0) {
+        orientation_(MapOrientation::ORTHOGONAL),
+        renderorder_(MapRenderOrder::RIGHT_DOWN),
+        width_(0),
+        height_(0),
+        tilewidth_(0),
+        tileheight_(0) {
+}
+
+TileMap::TileMap(MapOrientation orientation,
+                 MapRenderOrder renderorder,
+                 unsigned int width,
+                 unsigned int height,
+                 unsigned int tilewidth,
+                 unsigned int tileheight) :
+        orientation_(orientation),
+        renderorder_(renderorder),
+        width_(width),
+        height_(height),
+        tilewidth_(tilewidth),
+        tileheight_(tileheight) {
 }
 
 TileSet* TileMap::GetTileSet(unsigned int gid) {
@@ -89,7 +105,7 @@ unsigned int TileMap::GetTileHeight() const {
     return tileheight_;
 }
 
-const std::string& TileMap::GetOrientation() const {
+MapOrientation TileMap::GetOrientation() const {
     return orientation_;
 }
 

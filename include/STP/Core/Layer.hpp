@@ -36,10 +36,12 @@
 #include "SFML/Graphics/Drawable.hpp"
 
 #include "STP/Config.hpp"
-#include "STP/Core/TileSet.hpp"
+#include "STP/Core/Tile.hpp"
 #include "STP/Core/MapObject.hpp"
 
 namespace tmx {
+
+enum class MapOrientation : unsigned int;
 
 ////////////////////////////////////////////////////////////
 /// @brief Class for manage the TMX Layers
@@ -67,7 +69,7 @@ private:
     ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
           unsigned int height, float opacity, bool visible,
-          std::string orientation);
+          MapOrientation orientation);
 
 public:
     ////////////////////////////////////////////////////////////
@@ -121,7 +123,7 @@ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     std::vector<Tile> tiles_;
-    std::string orientation_;
+    MapOrientation orientation_;
 };
 
 }  // namespace tmx

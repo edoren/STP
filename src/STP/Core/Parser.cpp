@@ -70,17 +70,38 @@ ParserStatus Parser::LoadFile(const std::string& map_file) {
 }
 
 TileMap Parser::GetMap() {
-    TileMap map;
-
     xml_node map_node = tmx_document_.child("map");
 
-    // Get the map data
-    // map.version_ = map_node.attribute("version").as_float();
-    map.orientation_ = map_node.attribute("orientation").value();
-    map.width_ = map_node.attribute("width").as_uint();
-    map.height_ = map_node.attribute("height").as_uint();
-    map.tilewidth_ = map_node.attribute("tilewidth").as_uint();
-    map.tileheight_ = map_node.attribute("tileheight").as_uint();
+    MapOrientation orientation;
+    std::string orient_txt = map_node.attribute("orientation").as_string();
+    if (orient_txt == "orthogonal") {
+        orientation = MapOrientation::ORTHOGONAL;
+    } else if (orient_txt == "isometric") {
+        orientation = MapOrientation::ISOMETRIC;
+    } else if (orient_txt == "staggered") {
+        orientation = MapOrientation::STAGGERED;
+    } else if (orient_txt == "hexagonal") {
+        orientation = MapOrientation::HEXAGONAL;
+    }
+
+    MapRenderOrder renderorder;
+    std::string rendor_txt = map_node.attribute("renderorder").as_string("right-down");
+    if (rendor_txt == "right-down") {
+        renderorder = MapRenderOrder::RIGHT_DOWN;
+    } else if (rendor_txt == "right-up") {
+        renderorder = MapRenderOrder::RIGHT_UP;
+    } else if (rendor_txt == "left-down") {
+        renderorder = MapRenderOrder::LEFT_DOWN;
+    } else if (rendor_txt == "left-up") {
+        renderorder = MapRenderOrder::LEFT_UP;
+    }
+
+    unsigned int width_ = map_node.attribute("width").as_uint();
+    unsigned int height_ = map_node.attribute("height").as_uint();
+    unsigned int tilewidth_ = map_node.attribute("tilewidth").as_uint();
+    unsigned int tileheight_ = map_node.attribute("tileheight").as_uint();
+
+    TileMap map(orientation, renderorder, width_, height_, tilewidth_, tileheight_);
 
     for (xml_node node : map_node.children()) {
         std::string node_name = node.name();
@@ -337,14 +358,14 @@ Layer Parser::ParseLayer(xml_node& layer_node, TileMap& tilemap) {
                 tile_pos.y += tileset->GetTileOffSet().y;
                 tile_cpy = tileset->GetTile(gid - tileset->GetFirstGID());
 
-                if (tilemap.GetOrientation() != "orthogonal") {
+                if (tilemap.GetOrientation() != MapOrientation::ORTHOGONAL) {
                     int x = static_cast<int>(tile_pos.x / tilewidth);
                     int y = static_cast<int>(tile_pos.y / tileheight);
 
-                    if (tilemap.GetOrientation() == "isometric") {
+                    if (tilemap.GetOrientation() == MapOrientation::ISOMETRIC) {
                         tile_pos.x = (x - y) * tilewidth * 0.5f;
                         tile_pos.y = (x + y) * tileheight * 0.5f;
-                    } else if (tilemap.GetOrientation() == "staggered") {
+                    } else if (tilemap.GetOrientation() == MapOrientation::STAGGERED) {
                         if (y % 2 == 0) {
                             tile_pos.x = static_cast<float>(x * tilewidth);
                         } else {

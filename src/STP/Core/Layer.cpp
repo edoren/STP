@@ -25,6 +25,7 @@
 ////////////////////////////////////////////////////////////
 
 #include "STP/Core/Layer.hpp"
+#include "STP/Core/TileMap.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -37,7 +38,8 @@ namespace tmx {
 Layer::Layer() {}
 
 Layer::Layer(const std::string& name, unsigned int width,
-             unsigned int height, float opacity, bool visible, std::string orientation) :
+             unsigned int height, float opacity, bool visible,
+             MapOrientation orientation) :
         MapObject(name, width, height, opacity, visible),
         orientation_(orientation) {
     // Reserve space for each vector to avoid reallocate
