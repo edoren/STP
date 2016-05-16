@@ -149,7 +149,7 @@ const std::string& TileMap::GetOrientation() const {
     return orientation_;
 }
 
-void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void TileMap::draw(sf::RenderTarget& target, sf::RenderStates /* states */) const {
     for (unsigned int i = 0; i < map_objects_.size(); ++i) {
         if (map_objects_[i]->visible == true)
             target.draw(*map_objects_[i]);
