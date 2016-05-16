@@ -24,8 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_LOADER_HPP
-#define STP_LOADER_HPP
+#pragma once
 
 #include "STP/Core/TileMap.hpp"
 
@@ -42,5 +41,3 @@ namespace tmx {
 STP_API TileMap LoadMap(const std::string& map_file);
 
 }  // namespace tmx
-
-#endif  // STP_LOADER_HPP

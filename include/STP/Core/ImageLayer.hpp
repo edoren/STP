@@ -24,8 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_IMAGELAYER_HPP
-#define STP_IMAGELAYER_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -104,5 +103,3 @@ private:
 };
 
 }  // namespace tmx
-
-#endif  // STP_IMAGELAYER_HPP

@@ -31,8 +31,7 @@
 
 #include <cstdint>
 
-#ifndef STP_CONFIG_HPP
-#define STP_CONFIG_HPP
+#pragma once
 
 // Define DLL import/export macros (only Windows, and only dynamic configuration)
 #if (defined(_WIN32) || defined(__WIN32__)) && !defined(STP_STATIC)
@@ -58,10 +57,6 @@
 
 #endif
 
-
 // Version of the library
 #define STP_VERSION_MAJOR 0
 #define STP_VERSION_MINOR 1
-
-
-#endif  // STP_CONFIG_HPP

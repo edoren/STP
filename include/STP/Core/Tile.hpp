@@ -24,8 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_TILE_HPP
-#define STP_TILE_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -150,5 +149,3 @@ public:
 };
 
 }  // namespace tmx
-
-#endif  // STP_TILE_HPP

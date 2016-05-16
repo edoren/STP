@@ -24,8 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_OBJECTGROUP_HPP
-#define STP_OBJECTGROUP_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -173,5 +172,3 @@ private:
 };
 
 }  // namespace tmx
-
-#endif  // STP_OBJECTGROUP_HPP

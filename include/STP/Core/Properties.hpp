@@ -24,8 +24,7 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef STP_PROPERTIES_HPP
-#define STP_PROPERTIES_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
@@ -74,5 +73,3 @@ protected:
 };
 
 }  // namespace tmx
-
-#endif  // STP_PROPERTIES_HPP
