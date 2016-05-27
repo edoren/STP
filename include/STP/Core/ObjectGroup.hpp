@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
 
 #include "SFML/Graphics/VertexArray.hpp"
@@ -84,10 +85,20 @@ class STP_API ObjectGroup : public MapObject {
     ////////////////////////////////////////////////////////////
     /// \brief Add a new Object to the object group
     ///
-    /// \param newobject Object to be added
+    /// \param newobject Pointer to object to be added
     ///
     ////////////////////////////////////////////////////////////
-    void AddObject(tmx::ObjectGroup::Object newobject);
+    void AddObject(tmx::ObjectGroup::Object* newobject);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the object given a name
+    ///
+    /// \param object_name The name of the object
+    ///
+    /// \return Reference to a tmx::ObjectGroup::Object
+    ///
+    ////////////////////////////////////////////////////////////
+    tmx::ObjectGroup::Object& GetObject(const std::string& object_name);
 
     ////////////////////////////////////////////////////////////
     /// \brief Change the color of the object group, does not affect the opacity
@@ -109,7 +120,8 @@ class STP_API ObjectGroup : public MapObject {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
  private:
-    std::vector<tmx::ObjectGroup::Object> objects_;
+    std::unordered_map<std::string, tmx::ObjectGroup::Object*> objects_hash_;
+    std::vector<std::unique_ptr<tmx::ObjectGroup::Object>> objects_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -148,6 +160,30 @@ class STP_API ObjectGroup::Object : public sf::Drawable, public tmx::Properties 
     ///
     ////////////////////////////////////////////////////////////
     void SetColor(const sf::Color& color);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the name of the object
+    ///
+    /// \return Reference to a const string
+    ///
+    ////////////////////////////////////////////////////////////
+    const std::string& GetName(void) const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the x coordinate of the object in pixels
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
+    unsigned int GetX(void) const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Return the y coordinate of the object in pixels
+    ///
+    /// \return unsigned int value
+    ///
+    ////////////////////////////////////////////////////////////
+    unsigned int GetY(void) const;
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;

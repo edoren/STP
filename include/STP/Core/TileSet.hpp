@@ -80,7 +80,7 @@ class STP_API TileSet : public tmx::Properties {
     /// \brief Get the tile given a local id.
     ///
     /// \param id The local id of the tile
-    /// 
+    ///
     /// \exception std::out_of_range If the local id is not within the range of the tileset.
     ///
     /// \return Reference to the Tile.
@@ -88,7 +88,7 @@ class STP_API TileSet : public tmx::Properties {
     ////////////////////////////////////////////////////////////
     tmx::TileSet::Tile& GetTile(unsigned int id);
 
-    //////////////////////////////////////////////////////////// 
+    ////////////////////////////////////////////////////////////
     /// \brief Returns a sf::IntRect with the position of the
     ///        tile texture in the attached image
     ///

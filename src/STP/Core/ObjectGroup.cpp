@@ -48,15 +48,20 @@ ObjectGroup::ObjectGroup(const std::string& name, unsigned int width, unsigned i
     color_.a = static_cast<unsigned char>(255 * opacity);
 }
 
-void ObjectGroup::AddObject(tmx::ObjectGroup::Object newobject) {
-    newobject.SetColor(color_);
-    objects_.push_back(newobject);
+void ObjectGroup::AddObject(tmx::ObjectGroup::Object* newobject) {
+    newobject->SetColor(color_);
+    objects_.push_back(std::unique_ptr<tmx::ObjectGroup::Object>(newobject));
+    objects_hash_[newobject->GetName()] = newobject;
+}
+
+tmx::ObjectGroup::Object& ObjectGroup::GetObject(const std::string& object_name) {
+    return *objects_hash_[object_name];
 }
 
 void ObjectGroup::SetOpacity(float opacity) {
     color_.a = static_cast<unsigned char>(255 * opacity);
     for (auto& object : objects_) {
-        object.SetColor(color_);
+        object->SetColor(color_);
     }
 }
 
@@ -65,14 +70,14 @@ void ObjectGroup::SetColor(const sf::Color& color) {
     color_.g = color.g;
     color_.b = color.b;
     for (auto& object : objects_) {
-        object.SetColor(color_);
+        object->SetColor(color_);
     }
 }
 
 void ObjectGroup::draw(sf::RenderTarget& target, sf::RenderStates /* states */) const {
     if (visible) {
         for (unsigned int i = 0; i < objects_.size(); ++i)
-            target.draw(objects_[i]);
+            target.draw(*objects_[i]);
     }
 }
 
@@ -150,6 +155,18 @@ void ObjectGroup::Object::SetColor(const sf::Color& color) {
     for (auto& vertice : vertices_) {
         vertice.color = color;
     }
+}
+
+const std::string& ObjectGroup::Object::GetName(void) const {
+    return name_;
+}
+
+unsigned int ObjectGroup::Object::GetX(void) const {
+    return x_;
+}
+
+unsigned int ObjectGroup::Object::GetY(void) const {
+    return y_;
 }
 
 void ObjectGroup::Object::draw(sf::RenderTarget& target, sf::RenderStates states) const {
