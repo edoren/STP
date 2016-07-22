@@ -88,7 +88,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
-set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/extlibs")
+set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extlibs")
 set(TEMP_DIR "${CMAKE_BINARY_DIR}/obj")
 
 ###############################################################################
