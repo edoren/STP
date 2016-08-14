@@ -8,9 +8,6 @@ compiler:
     - clang
 
 install:
-    # Install clang c++ std library
-    - if [ "$CXX" == "clang++" ]; then sudo apt-get install libc++-dev -y; fi
-
     # Install all the dependencies
     - sudo apt-get install libsfml-dev -y
     - sudo apt-get install libpugixml-dev -y
