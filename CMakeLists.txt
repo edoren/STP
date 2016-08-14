@@ -48,16 +48,20 @@ endif()
 ###############################################################################
 # Compiler configuration
 
-# If compiler is GNU GCC based it enable the warnings
-if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions("-Wall")
-endif()
-
 # Adding C++11 support in GCC compiler and Clang compiler
 if(${COMPILER} STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++")
+    if(${OS} STREQUAL "Linux")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -stdlib=libstdc++")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -stdlib=libc++")
+    endif()
 elseif(${COMPILER} STREQUAL "GCC")
-    set(CMAKE_CXX_FLAGS "-std=c++0x")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
+# If compiler is GNU GCC or Clang enable the warnings
+if(${COMPILER} STREQUAL "GCC" OR ${COMPILER} STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif()
 
 ###############################################################################
