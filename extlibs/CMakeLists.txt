@@ -11,8 +11,10 @@ set(ZLIB_DIR "${DEPENDENCIES_DIR}/zlib")
 set(SFML_ROOT ${SFML_DIR})
 find_package(SFML 2 COMPONENTS graphics window system)
 if(SFML_FOUND OR (SFML_INCLUDE_DIR AND SFML_LIBRARIES))
-    set(SFML_INCLUDE_DIR ${SFML_INCLUDE_DIR})
     set(SFML_LIBRARIES ${SFML_LIBRARIES})
+elseif(SFML_SOURCE_DIR AND SFML_BINARY_DIR)
+    set(SFML_INCLUDE_DIR "${SFML_SOURCE_DIR}/include")
+    set(SFML_LIBRARIES "${SFML_BINARY_DIR}")
 else()
     message("\n-> SFML directory not found. Put the SFML's top-level path "
             "(containing \"include\" and \"lib\" directories) in the "
@@ -20,8 +22,8 @@ else()
 endif()
 
 # PUGIXML
-if (USE_SHARED_PUGIXML)
-    find_package(PugiXML REQUIRED)
+find_package(PugiXML REQUIRED)
+if (PugiXML_FOUND AND USE_SHARED_PUGIXML)
     set(PUGIXML_INCLUDE_DIR ${PUGIXML_INCLUDE_DIR})
     set(PUGIXML_LIBRARIES ${PUGIXML_LIBRARY})
 else()
