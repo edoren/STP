@@ -9,15 +9,25 @@ set(ZLIB_DIR "${DEPENDENCIES_DIR}/zlib")
 
 # Find SFML
 set(SFML_ROOT ${SFML_DIR})
-find_package(SFML 2 COMPONENTS graphics window system)
-if(SFML_FOUND OR (SFML_INCLUDE_DIR AND SFML_LIBRARIES))
-    set(SFML_INCLUDE_DIR ${SFML_INCLUDE_DIR})
-    set(SFML_LIBRARIES ${SFML_LIBRARIES})
-else()
-    message("\n-> SFML directory not found. Put the SFML's top-level path "
-            "(containing \"include\" and \"lib\" directories) in the "
-            "/extlibs/SFML folder.\n")
+if(!STP_SHARED_LIBS)
+    add_definitions(-DSFML_STATIC)
 endif()
+if (SFML_INCLUDE_DIR)
+    set(SFML_LIBRARIES sfml-graphics sfml-window sfml-system)
+else()
+    find_package(SFML 2 COMPONENTS graphics window system)
+    if(SFML_FOUND)
+        # Nothing to do, already there
+    elseif(SFML_SOURCE_DIR AND SFML_BINARY_DIR)
+        set(SFML_INCLUDE_DIR "${SFML_SOURCE_DIR}/include")
+        set(SFML_LIBRARIES sfml-graphics sfml-window sfml-system)
+    else()
+        message("\n-> SFML directory not found. Put the SFML's top-level path "
+                "(containing \"include\" and \"lib\" directories) in the "
+                "/extlibs/SFML folder.\n")
+    endif()
+endif()
+
 
 # PUGIXML
 if (USE_SHARED_PUGIXML)
@@ -46,7 +56,11 @@ else()
         "${TEMP_DIR}/zlib"
         "${ZLIB_DIR}"
     )
-    set(ZLIB_LIBRARIES zlib)
+    if(STP_SHARED_LIBS)
+        set(ZLIB_LIBRARIES zlib)
+    else()
+        set(ZLIB_LIBRARIES zlibstatic)
+    endif()
     set(COMPILED_DEPENDENCIES ${COMPILED_DEPENDENCIES} ${ZLIB_LIBRARIES})
 endif()
 

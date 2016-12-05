@@ -27,6 +27,7 @@
 #include "Parser.hpp"
 
 #include <cstring>
+#include <cstdio>
 
 #include <string>
 #include <sstream>

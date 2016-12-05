@@ -26,6 +26,7 @@
 
 #include "STP/Core/Layer.hpp"
 
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include <vector>
