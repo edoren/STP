@@ -1,7 +1,7 @@
 # Configurable locations of dependencies of this project.
-set(SFML_DIR "${DEPENDENCIES_DIR}/SFML")
-set(PUGIXML_DIR "${DEPENDENCIES_DIR}/pugixml")
-set(ZLIB_DIR "${DEPENDENCIES_DIR}/zlib")
+set(SFML_DIR "${DEPENDENCIES_DIR}/SFML" CACHE PATH "Path to SFML")
+set(PUGIXML_DIR "${DEPENDENCIES_DIR}/pugixml" CACHE PATH "Path to PUGIXML")
+set(ZLIB_DIR "${DEPENDENCIES_DIR}/zlib" CACHE PATH "Path to ZLIB")
 
 
 ###############################################################################
