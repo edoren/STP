@@ -126,14 +126,20 @@ Layer::Tile::Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientati
         }
 
         if (orientation == "staggered") {
-            if ((y % 2) == 0) {
-                tile_rect_.left = x * tile_rect_.width;
-            }
-            else {
-                tile_rect_.left = x * tile_rect_.width + tile_rect_.width /2;
-            }
-            tile_rect_.top = y * tile_rect_.height / 2;
+            tile_rect_.left = (x + (y & 1) * 0.5) * tile_rect_.width;
+            tile_rect_.top = y * tile_rect_.height * 0.5;
         }
+
+        if (orientation == "hexagonal") {
+            tile_rect_.left = (x + (y & 1) * 0.5) * tile_rect_.width;
+            tile_rect_.top = y * tile_rect_.height * 0.75;
+        }
+
+        tile_rect_.left += tileset->GetTileOffSet().x;
+        tile_rect_.top += tileset->GetTileOffSet().y;
+
+        // Tiles larger than the grid are drawn aligned on the base vertically
+        tile_rect_.top -= tileset->GetTileHeight() - tile_rect_.height;
     }
     else if (tile_rect_.width == 0 || tile_rect_.height == 0)
     {

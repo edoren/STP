@@ -109,8 +109,6 @@ void Parser::AddTileToLayer(tmx::Layer* layer, int gid, sf::Vector2i tile_pos, t
     tmx::TileSet* tileset = tilemap->GetTileSet(gid);
 
     if (tileset != nullptr) {
-        tile_pos.x += tileset->GetTileOffSet().x;
-        tile_pos.y += tileset->GetTileOffSet().y;
         sf::IntRect tile_rect(tile_pos.x, tile_pos.y, tilemap->GetTileWidth(), tilemap->GetTileHeight());
         layer->AddTile(gid, tile_rect, tileset);
     } else {
