@@ -120,8 +120,6 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     /// \param show true, displays it\n
     ///             false, hides it
     ///
-    /// \return Reference to a tmx::ImageLayer
-    ///
     ////////////////////////////////////////////////////////////
     void ShowObjects(bool show = true);
 
@@ -156,7 +154,7 @@ class STP_API TileMap : public sf::Drawable, public tmx::Properties {
     ///
     ////////////////////////////////////////////////////////////
     unsigned int GetTileHeight() const;
-    
+
     ////////////////////////////////////////////////////////////
     /// \brief Return the orientation of the map
     ///

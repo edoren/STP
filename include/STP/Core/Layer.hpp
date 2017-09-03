@@ -65,6 +65,7 @@ class STP_API Layer : public MapObject {
     /// \param height  The height of the layer in tiles
     /// \param opacity Float value between 0.0 to 1.0
     /// \param visible The visibility of the layer
+    /// \param orientation The orientation of the layer
     ///
     ////////////////////////////////////////////////////////////
     Layer(const std::string& name, unsigned int width,
@@ -128,7 +129,7 @@ class STP_API Layer : public MapObject {
     ////////////////////////////////////////////////////////////
     friend class Parser;
 
-	void AddTile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset = nullptr);
+    void AddTile(unsigned int gid, sf::IntRect tile_rect, tmx::TileSet* tileset = nullptr);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     std::vector<tmx::Layer::Tile> tiles_;
@@ -141,23 +142,24 @@ class STP_API Layer : public MapObject {
 ////////////////////////////////////////////////////////////
 class STP_API Layer::Tile : public sf::Drawable {
  public:
-	////////////////////////////////////////////////////////////
-	/// \brief Default constructor
-	///
-	/// Constructs an empty tile with no values.
-	///
-	////////////////////////////////////////////////////////////
-	Tile();
+    ////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    /// Constructs an empty tile with no values.
+    ///
+    ////////////////////////////////////////////////////////////
+    Tile();
 
-	////////////////////////////////////////////////////////////
-	/// \brief Constructor that receives the gid, tile_rect and a pointer to the tileset
-	///
+    ////////////////////////////////////////////////////////////
+    /// \brief Constructor that receives the gid, tile_rect, orientation and a pointer to the tileset
+    ///
     /// \param gid       The global id of the tmx::TileSet::Tile attached.
-    /// \param tile_rect The global bounds of the tile.
+    /// \param tile_rect The global bounds of the tile
+    /// \param orientation The orientation of the layer.
     /// \param tileset   A pointer to a tmx::TileSet to get the texture.
-	///
-	////////////////////////////////////////////////////////////
-	Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
+    ///
+    ////////////////////////////////////////////////////////////
+    Tile(unsigned int gid, sf::IntRect tile_rect, std::string orientation,
 	     tmx::TileSet* tileset = nullptr);
 
     ////////////////////////////////////////////////////////////
