@@ -192,6 +192,8 @@ void Layer::Tile::AddProperty(const std::string& name, const std::string& value)
 }
 
 std::string& Layer::Tile::GetPropertyValue(const std::string& name) {
+    if(tile_properties_==nullptr)
+        tile_properties_=new tmx::Properties();
     return tile_properties_->GetPropertyValue(name);
 }
 
